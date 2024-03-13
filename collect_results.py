@@ -1,6 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 from datetime import datetime
+import os
 
 strings = {
     "time": ["s", "T", "speed-up", "faster", 'Estimated time speed-up', 'Time Taken (s)'],
@@ -22,6 +23,7 @@ class ResultsCollector:
         self.cases = cases
         assert len(cases) == 3, f"len(cases) > 3:\n{cases}"
         self.base_location = f'results/{architecture}-'
+        os.makedirs('results/', exist_ok=True)
         self.savings = pd.DataFrame(columns=['model', 'input_vjps', strings['time'][4], strings['memory'][4]])
         self.usage_stats = pd.DataFrame(columns=['model', 'case', strings['time'][5], strings["memory"][5]])
         self.savings.set_index(['model', 'input_vjps'], inplace=True)

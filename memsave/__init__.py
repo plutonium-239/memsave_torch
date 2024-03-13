@@ -6,11 +6,11 @@ Currently implemented:
 - BatchNorm2d
 """
 
-from convrad_exp.memsave.Linear import MemSaveLinear
-from convrad_exp.memsave.Conv2d import MemSaveConv2d
-from convrad_exp.memsave.BatchNorm import MemSaveBatchNorm2d
-from convrad_exp.memsave.MaxPool import MemSaveMaxPool2d
-from convrad_exp.memsave.ReLU import MemSaveReLU
+from memsave.Linear import MemSaveLinear
+from memsave.Conv2d import MemSaveConv2d
+from memsave.BatchNorm import MemSaveBatchNorm2d
+from memsave.MaxPool import MemSaveMaxPool2d
+from memsave.ReLU import MemSaveReLU
 
 import torch.nn as nn
 

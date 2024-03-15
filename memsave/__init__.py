@@ -11,6 +11,7 @@ from memsave.Conv2d import MemSaveConv2d
 from memsave.BatchNorm import MemSaveBatchNorm2d
 from memsave.MaxPool import MemSaveMaxPool2d
 from memsave.ReLU import MemSaveReLU
+from memsave.LayerNorm import MemSaveLayerNorm
 
 import torch.nn as nn
 
@@ -19,7 +20,7 @@ class Identity(nn.Module):
 		return x
 
 def convert_to_memory_saving(
-    model: nn.Module, linear=True, conv2d=True, batchnorm2d=True, relu=True, maxpool2d=True, verbose=False
+    model: nn.Module, linear=True, conv2d=True, batchnorm2d=True, relu=True, maxpool2d=True, layernorm=True, verbose=False
 ) -> nn.Module:
     """Converts the given `model` to it's MemSave version, with options to choose which layer types to replace.
     
@@ -30,6 +31,7 @@ def convert_to_memory_saving(
         batchnorm2d (bool, optional): Whether to replace `nn.BatchNorm2d` layers
         relu (bool, optional): Whether to replace `nn.ReLU` layers
         maxpool2d (bool, optional): Whether to replace `nn.MaxPool2d` layers
+        layernorm (bool, optional): Whether to replace `nn.LayerNorm` layers
         verbose (bool, optional): Whether to print which layers were replaced
     
     Returns:
@@ -57,6 +59,9 @@ def convert_to_memory_saving(
             recursive_setattr(
                 memsavemodel, name, MemSaveBatchNorm2d.from_nn_BatchNorm2d(layer)
             )
+        if layernorm and isinstance(layer, nn.LayerNorm):
+            if verbose: print(f"replaced {name}")
+            recursive_setattr(memsavemodel, name, MemSaveLayerNorm.from_nn_LayerNorm(layer))
 
     return memsavemodel
 

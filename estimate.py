@@ -182,6 +182,7 @@ if __name__ == "__main__":
         help=f"Which case to run, allowed values are {allowed_cases}",
     )
     parser.add_argument("--device", type=str, default="cpu", help="torch device name")
+    parser.add_argument("--print", action='store_true', default=False, help="Print result to stdout instead of writing to file")
 
     args = parser.parse_args()
 
@@ -221,6 +222,8 @@ if __name__ == "__main__":
     # print('initial memory:', cuda.max_memory_allocated()/1024/1024)
 
     if args.estimate == "time":
-        estimate_speedup(model_fn, loss_fn, x, y, dev, args.case)
+        res = estimate_speedup(model_fn, loss_fn, x, y, dev, args.case, args.print)
     elif args.estimate == "memory":
-        estimate_mem_savings(model_fn, loss_fn, x, y, dev, args.case)
+        res = estimate_mem_savings(model_fn, loss_fn, x, y, dev, args.case, args.print)
+    if args.print:
+        print(res)

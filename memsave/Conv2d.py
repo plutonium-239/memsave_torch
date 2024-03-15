@@ -152,7 +152,7 @@ class _MemSaveConv2d(torch.autograd.Function):
             grad_output,
             x,
             weight,
-            weight.shape[0] if ctx.bias_exists else None,
+            [weight.shape[0]] if ctx.bias_exists else None,
             ctx.stride,
             ctx.padding,
             ctx.dilation,

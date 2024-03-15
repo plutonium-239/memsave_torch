@@ -19,7 +19,7 @@ class Identity(nn.Module):
 		return x
 
 def convert_to_memory_saving(
-    model: nn.Module, linear=True, conv2d=True, batchnorm2d=True, relu=True, maxpool2d=True
+    model: nn.Module, linear=True, conv2d=True, batchnorm2d=True, relu=True, maxpool2d=True, verbose=False
 ) -> nn.Module:
     """Converts the given `model` to it's MemSave version, with options to choose which layer types to replace.
     
@@ -30,9 +30,10 @@ def convert_to_memory_saving(
         batchnorm2d (bool, optional): Whether to replace `nn.BatchNorm2d` layers
         relu (bool, optional): Whether to replace `nn.ReLU` layers
         maxpool2d (bool, optional): Whether to replace `nn.MaxPool2d` layers
-
+        verbose (bool, optional): Whether to print which layers were replaced
+    
     Returns:
-    	memsavemodel (nn.Module): The converted memory saving model
+        memsavemodel (nn.Module): The converted memory saving model
     """
     import copy
 
@@ -40,19 +41,19 @@ def convert_to_memory_saving(
     # using named_modules because it automatically iterates on Sequential/BasicBlock(resnet) etc.
     for name, layer in model.named_modules():
         if relu and isinstance(layer, nn.ReLU):
-            print(f"replaced {name}")
+            if verbose: print(f"replaced {name}")
             recursive_setattr(memsavemodel, name, MemSaveReLU.from_nn_ReLU(layer))
         if maxpool2d and isinstance(layer, nn.MaxPool2d):
-            print(f"replaced {name}")
+            if verbose: print(f"replaced {name}")
             recursive_setattr(memsavemodel, name, MemSaveMaxPool2d.from_nn_MaxPool2d(layer))
         if linear and isinstance(layer, nn.Linear):
-            print(f"replaced {name}")
+            if verbose: print(f"replaced {name}")
             recursive_setattr(memsavemodel, name, MemSaveLinear.from_nn_Linear(layer))
         if conv2d and isinstance(layer, nn.Conv2d):
-            print(f"replaced {name}")
+            if verbose: print(f"replaced {name}")
             recursive_setattr(memsavemodel, name, MemSaveConv2d.from_nn_Conv2d(layer))
         if batchnorm2d and isinstance(layer, nn.BatchNorm2d):
-            print(f"replaced {name}")
+            if verbose: print(f"replaced {name}")
             recursive_setattr(
                 memsavemodel, name, MemSaveBatchNorm2d.from_nn_BatchNorm2d(layer)
             )

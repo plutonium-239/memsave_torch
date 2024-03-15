@@ -1,8 +1,7 @@
 from typing import Tuple
 
 from torch.nn import Conv2d, Flatten, Linear, MaxPool2d, Module, ReLU, Sequential
-from torchvision.models import alexnet, convnext_base, resnet18, resnet101, vgg16
-
+import torchvision.models as tvm
 from memsave import (
     MemSaveLinear,
     MemSaveConv2d,
@@ -79,6 +78,8 @@ def convrelupool_model1(num_blocks=5) -> Module:
             * math.ceil(conv_input_shape[2]/2**(num_blocks+1)), num_classes),
     )
 
+detection_models = ["fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2"]
+segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
 
 conv_model_fns = {
     "deepmodel": conv_model1,
@@ -87,21 +88,51 @@ conv_model_fns = {
     "memsave_deeprelumodel": lambda: convert_to_memory_saving(convrelu_model1()),
     "deeprelupoolmodel": convrelupool_model1,
     "memsave_deeprelupoolmodel": lambda: convert_to_memory_saving(convrelupool_model1()),
-    "alexnet": alexnet,
-    "memsave_alexnet": lambda: convert_to_memory_saving(alexnet()),
-    "convnext_base": convnext_base,
-    "memsave_convnext_base": lambda: convert_to_memory_saving(convnext_base()),
-    "resnet101": resnet101,
-    "memsave_resnet101": lambda: convert_to_memory_saving(resnet101()),
-    "vgg16": vgg16,
-    "memsave_vgg16": lambda: convert_to_memory_saving(vgg16()),
-    "resnet18": resnet18,
-    "memsave_resnet18": lambda: convert_to_memory_saving(resnet18()),
+    "alexnet": tvm.alexnet,
+    "memsave_alexnet": lambda: convert_to_memory_saving(tvm.alexnet()),
+    "convnext_base": tvm.convnext_base,
+    "memsave_convnext_base": lambda: convert_to_memory_saving(tvm.convnext_base()),
+    "resnet101": tvm.resnet101,
+    "memsave_resnet101": lambda: convert_to_memory_saving(tvm.resnet101()),
+    "vgg16": tvm.vgg16,
+    "memsave_vgg16": lambda: convert_to_memory_saving(tvm.vgg16()),
+    "resnet18": tvm.resnet18,
+    "memsave_resnet18": lambda: convert_to_memory_saving(tvm.resnet18()),
+    
+    "fasterrcnn_resnet50_fpn_v2": tvm.detection.fasterrcnn_resnet50_fpn_v2,
+    "memsave_fasterrcnn_resnet50_fpn_v2": lambda: convert_to_memory_saving(tvm.detection.fasterrcnn_resnet50_fpn_v2()),
+    "retinanet_resnet50_fpn_v2": tvm.detection.retinanet_resnet50_fpn_v2,
+    "memsave_retinanet_resnet50_fpn_v2": lambda: convert_to_memory_saving(tvm.detection.retinanet_resnet50_fpn_v2()),
+    "deeplabv3_resnet101": tvm.segmentation.deeplabv3_resnet101,
+    "memsave_deeplabv3_resnet101": lambda: convert_to_memory_saving(tvm.segmentation.deeplabv3_resnet101()),
+    "fcn_resnet101": tvm.segmentation.fcn_resnet101,
+    "memsave_fcn_resnet101": lambda: convert_to_memory_saving(tvm.segmentation.fcn_resnet101()),
+    "efficientnet_v2_l": tvm.efficientnet_v2_l,
+    "memsave_efficientnet_v2_l": lambda: convert_to_memory_saving(tvm.efficientnet_v2_l()),
+    "mobilenet_v3_large": tvm.mobilenet_v3_large,
+    "memsave_mobilenet_v3_large": lambda: convert_to_memory_saving(tvm.mobilenet_v3_large()),
+    "resnext101_64x4d": tvm.resnext101_64x4d,
+    "memsave_resnext101_64x4d": lambda: convert_to_memory_saving(tvm.resnext101_64x4d()),
 
-    "memsave_resnet101_conv": lambda: convert_to_memory_saving_defaultsoff(resnet101(), conv2d=True),
-    "memsave_resnet101_conv+relu+bn": lambda: convert_to_memory_saving_defaultsoff(resnet101(), conv2d=True, relu=True, batchnorm2d=True),
-    "memsave_resnet101_conv_full": lambda: convert_to_memory_saving(resnet101()),
+    "memsave_resnet101_conv": lambda: convert_to_memory_saving_defaultsoff(tvm.resnet101(), conv2d=True),
+    "memsave_resnet101_conv+relu+bn": lambda: convert_to_memory_saving_defaultsoff(tvm.resnet101(), conv2d=True, relu=True, batchnorm2d=True),
+    "memsave_resnet101_conv_full": lambda: convert_to_memory_saving(tvm.resnet101()),
 }
+
+
+class DetectionModel(Module):
+    """Small wrapper around the torchvision model to support interop with existing measurement code
+    
+    Attributes:
+        model: A function which returns a torchvision.models.detection model
+    """
+    
+    def __init__(self, tvm_model_fn) -> None:
+        self.model = tvm_model_fn()
+
+    def forward(self, x):
+        # because detection models take (x, targets) as input and output a dict of losses
+        return self.model(*x)
 
 # LINEAR
 linear_input_shape: int = 1

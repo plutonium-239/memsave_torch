@@ -215,7 +215,23 @@ if __name__ == "__main__":
 
     x = rand(batch_size, *input_shape, device=dev)
     y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
-
+    if args.model in models.detection_models:
+        # pred is a dictionary of losses
+        num_boxes = 2
+        boxes = rand(batch_size, num_boxes, 4)
+        boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
+        labels = randint(num_classes//50, (batch_size, num_boxes))
+        targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
+        x = (x, targets)
+        y = [None]
+        model_fn_orig = model_fn
+        model_fn = lambda: models.DetectionModel(model_fn_orig)
+        loss = lambda pred, y: sum(pred.values())
+    elif args.model in models.segmentation_models:
+        model_fn_orig = model_fn
+        model_fn = lambda x: model_fn_orig(num_classes=num_classes)
+        y = randint(size=(batch_size, *input_shape), low=0, high=num_classes, device=dev)
+    
     # warm-up
     # with redirect_stdout(open(devnull, "w")):
     #     estimate_speedup(model_fn, loss_fn, x, y, dev, vjp_speedups[:1])

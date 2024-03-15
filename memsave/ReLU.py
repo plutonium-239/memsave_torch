@@ -50,17 +50,21 @@ class MemSaveReLU(nn.ReLU):
 class _MemSaveReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x):
+        mask = x>0
         if ctx.needs_input_grad[0]:
-            ctx.mask = x > 0
-        return nn.functional.relu(x)
+            ctx.mask = mask
+        # return nn.functional.relu(x)
+        x = x*mask
+        return x
 
     @staticmethod
     def backward(ctx, grad_output):
         grad_x = None
 
         if ctx.needs_input_grad[0]:
-            grad_x = grad_output.clone()
-            grad_x[~ctx.mask] = 0
+            # grad_x = grad_output.clone()
+            # grad_x[~ctx.mask] = 0
+            grad_x = grad_output*ctx.mask
 
         return grad_x
 

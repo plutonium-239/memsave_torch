@@ -128,6 +128,7 @@ class DetectionModel(Module):
     """
     
     def __init__(self, tvm_model_fn) -> None:
+        super.__init__()
         self.model = tvm_model_fn()
 
     def forward(self, x):

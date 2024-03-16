@@ -223,14 +223,16 @@ if __name__ == "__main__":
         labels = randint(num_classes//50, (batch_size, num_boxes))
         targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
         x = (x, targets)
-        y = [None]
+        y = Tensor([])
         model_fn_orig = model_fn
-        model_fn = lambda: models.DetectionModel(model_fn_orig)
-        loss = lambda pred, y: sum(pred.values())
+        model_fn = lambda: models.DetectionModelWrapper(model_fn_orig)
+        loss_fn = lambda pred, y: sum(pred.values())
     elif args.model in models.segmentation_models:
         model_fn_orig = model_fn
-        model_fn = lambda x: model_fn_orig(num_classes=num_classes)
-        y = randint(size=(batch_size, *input_shape), low=0, high=num_classes, device=dev)
+        model_fn = lambda: model_fn_orig(num_classes=num_classes//50)
+        y = randint(size=(batch_size, args.input_hw, args.input_hw), low=0, high=num_classes//50, device=dev)
+        loss_fn_orig = loss_fn
+        loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)
     
     # warm-up
     # with redirect_stdout(open(devnull, "w")):

@@ -13,6 +13,11 @@ import math
 
 num_classes: int = 1
 
+def prefix_memsave_in(models):
+    models = [[m, f"memsave_{m}"] for m in models]  # add memsave versions for each model
+    models = list(itertools.chain.from_iterable(models))  # flatten list of lists
+    return models
+
 def convert_to_memory_saving_defaultsoff(
     model: Module, linear=False, conv2d=False, batchnorm2d=False, relu=False, maxpool2d=False
 ) -> Module:
@@ -79,7 +84,9 @@ def convrelupool_model1(num_blocks=5) -> Module:
     )
 
 detection_models = ["fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2"]
+detection_models = prefix_memsave_in(detection_models)
 segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
+segmentation_models = prefix_memsave_in(segmentation_models)
 
 conv_model_fns = {
     "deepmodel": conv_model1,
@@ -120,7 +127,7 @@ conv_model_fns = {
 }
 
 
-class DetectionModel(Module):
+class DetectionModelWrapper(Module):
     """Small wrapper around the torchvision model to support interop with existing measurement code
     
     Attributes:
@@ -128,12 +135,26 @@ class DetectionModel(Module):
     """
     
     def __init__(self, tvm_model_fn) -> None:
-        super.__init__()
+        super().__init__()
         self.model = tvm_model_fn()
 
     def forward(self, x):
         # because detection models take (x, targets) as input and output a dict of losses
         return self.model(*x)
+
+class SegmentationLossWrapper(Module):
+    """Small wrapper around a loss to support interop with existing measurement code
+    
+    Attributes:
+        loss_fn: A function which returns a loss nn.Module
+    """
+    
+    def __init__(self, loss_fn_orig) -> None:
+        super().__init__()
+        self.loss_fn = loss_fn_orig()
+
+    def forward(self, x, y):
+        return self.loss_fn(x['out'], y)
 
 # LINEAR
 linear_input_shape: int = 1

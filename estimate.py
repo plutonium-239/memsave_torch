@@ -55,7 +55,7 @@ def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
 def skip_case_check(args):
     cases = parse_case(args.case)
     for c in ['grad_norm_bias', 'grad_norm_weights']:
-        if cases[c] and args.model in models.models_without_norm:
+        if cases.get(c, False) and args.model in models.models_without_norm:
             with open(f"results/{args.estimate}-conv.txt", "a") as f:
                 f.write("-1\n")
             return True

@@ -341,6 +341,6 @@ def separate_grad_arguments(
         elif isinstance(layer, norm):
             separate_layer(layer, grad_norm_weights, grad_norm_bias)
         elif list(layer.parameters()):
-            raise NotImplementedError("Unknown layer with parameters: {layer}.")
+            raise NotImplementedError(f"Unknown layer with parameters: {layer}.")
 
     return leafs, no_leafs

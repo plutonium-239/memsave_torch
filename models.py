@@ -83,7 +83,7 @@ def convrelupool_model1(num_blocks=5) -> Module:
             * math.ceil(conv_input_shape[2]/2**(num_blocks+1)), num_classes),
     )
 
-detection_models = ["fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2"]
+detection_models = ["fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2", "ssdlite320_mobilenet_v3_large"]
 detection_models = prefix_memsave_in(detection_models)
 segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
 segmentation_models = prefix_memsave_in(segmentation_models)

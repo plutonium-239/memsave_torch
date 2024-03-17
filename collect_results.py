@@ -21,7 +21,7 @@ class ResultsCollector:
         self.architecture = architecture
         self.vjp_improvements = vjp_improvements 
         self.cases = cases
-        assert len(cases) == 3, f"len(cases) > 3:\n{cases}"
+        # assert len(cases) == 3, f"len(cases) > 3:\n{cases}" Not anymore
         self.base_location = f'results/{architecture}-'
         os.makedirs('results/', exist_ok=True)
         self.savings = pd.DataFrame(columns=['model', 'input_vjps', strings['time'][4], strings['memory'][4]])

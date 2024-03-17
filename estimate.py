@@ -223,6 +223,8 @@ if __name__ == "__main__":
     if args.model in models.detection_models:
         # pred is a dictionary of losses
         num_boxes = 2
+        batch_size = 4
+        x = rand(batch_size, *input_shape, device=dev)
         boxes = rand(batch_size, num_boxes, 4)
         boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
         labels = randint(num_classes//50, (batch_size, num_boxes))

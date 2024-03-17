@@ -22,12 +22,16 @@ vjp_improvements = [
 
 # CONV
 # Valid choices for models are in models.conv_model_fns
-# models = ["deepmodel", "alexnet", "resnet101", "resnet18", "vgg16"]  #, "convnext_base"]
+models = ["deepmodel",  "resnet101", "resnet18", "vgg16", #"convnext_base",
+    "fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2", 
+    "deeplabv3_resnet101", "fcn_resnet101",
+    "efficientnet_v2_l", "mobilenet_v3_large", "resnext101_64x4d"]
 
-models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
+# models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
+# models = ["resnet101", "memsave_resnet101_conv_full"]
 
-# models = [[m, f"memsave_{m}"] for m in models]  # add memsave versions for each model
-# models = list(itertools.chain.from_iterable(models))  # flatten list of lists
+models = [[m, f"memsave_{m}"] for m in models]  # add memsave versions for each model
+models = list(itertools.chain.from_iterable(models))  # flatten list of lists
 # models = ["memsave_resnet101"]
 batch_size = 64
 input_channels = 3

@@ -126,22 +126,6 @@ conv_model_fns = {
     "memsave_resnet101_conv_full": lambda: convert_to_memory_saving(tvm.resnet101()),
 }
 
-
-class DetectionModelWrapper(Module):
-    """Small wrapper around the torchvision model to support interop with existing measurement code
-    
-    Attributes:
-        model: A function which returns a torchvision.models.detection model
-    """
-    
-    def __init__(self, tvm_model_fn) -> None:
-        super().__init__()
-        self.model = tvm_model_fn()
-
-    def forward(self, x):
-        # because detection models take (x, targets) as input and output a dict of losses
-        return self.model(*x)
-
 class SegmentationLossWrapper(Module):
     """Small wrapper around a loss to support interop with existing measurement code
     
@@ -155,6 +139,19 @@ class SegmentationLossWrapper(Module):
 
     def forward(self, x, y):
         return self.loss_fn(x['out'], y)
+
+class DetectionLossWrapper(Module):
+    """Small wrapper around a loss to support interop with existing measurement code
+    
+    Attributes:
+        loss_fn: A function which returns a loss nn.Module
+    """
+    
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, loss_dict):
+        return sum(loss_dict.values())
 
 # LINEAR
 linear_input_shape: int = 1

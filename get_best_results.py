@@ -12,13 +12,12 @@ for device,arch in product(['cuda', 'cpu'], ['linear', 'conv']):
 			f.readline()
 			temp_df = pd.read_csv(f, index_col=idx_col)
 		df = temp_df if df is None else pd.concat([df, temp_df])
-
 	if df is not None:
 		best_results = df.groupby(idx_col).min()
 		# scale
 		maxes = best_results.groupby(['model']).max()
 		best_results[['Scaled T', 'Scaled M']] = best_results/maxes
-		best_results.to_csv('results/best_results-usage_stats.csv')
+		best_results.to_csv(f'results/best_results-{arch}-{device}-usage_stats.csv')
 
 	# savings
 	df = None
@@ -31,5 +30,5 @@ for device,arch in product(['cuda', 'cpu'], ['linear', 'conv']):
 
 	if df is not None:
 		best_results = df.groupby(idx_col).max()
-		best_results.to_csv('results/best_results-savings.csv')
+		best_results.to_csv(f'results/best_results-{arch}-{device}-savings.csv')
 	

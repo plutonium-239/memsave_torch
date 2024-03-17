@@ -58,6 +58,7 @@ def estimate_speedup(
     loss_fn: Callable[[], Module],
     x: Tensor,
     y: Tensor,
+    targets: Optional[List[Dict[str, Tensor]]],
     dev: device,
     case: List[str],
     return_val: bool = False,
@@ -69,6 +70,7 @@ def estimate_speedup(
         loss_fn: Function that sets up the loss function.
         x: Input to the model.
         y: Labels of the input.
+        targets: Targets in case of detection model
         dev: Device to run the computation on.
         case: str indicating which grads to take
         return_val: Whether to return the value or save it (Default: Save)
@@ -79,7 +81,7 @@ def estimate_speedup(
     # print(f"{model_fn.__name__} {loss_fn.__name__} input {tuple(x.shape)} {str(dev)}")
     # print(78 * "=")
 
-    timer = RuntimeMeasurement(model_fn, loss_fn, x, y, dev)
+    timer = RuntimeMeasurement(model_fn, loss_fn, x, y, dev, targets)
 
     # PyTorch's profiler does not track functions on the C-layer which would be
     # required to disentangle the backward through convolutions into weight- and
@@ -103,6 +105,7 @@ def estimate_mem_savings(
     loss_fn: Callable[[], Module],
     x: Tensor,
     y: Tensor,
+    targets: Optional[List[Dict[str, Tensor]]],
     dev: device,
     case: List[str],
     return_val: bool = False,
@@ -114,6 +117,7 @@ def estimate_mem_savings(
         loss_fn: Function that sets up the loss function.
         x: Input to the model.
         y: Labels of the input.
+        targets: Targets in case of detection model
         dev: Device to run the computation on.
         case: str indicating which grads to take
         return_val: Whether to return the value or save it (Default: Save)
@@ -124,7 +128,7 @@ def estimate_mem_savings(
     # print(f"{model_fn.__name__} {loss_fn.__name__} input {tuple(x.shape)} {str(dev)}")
     # print(78 * "=")
 
-    memory = MemoryMeasurement(model_fn, loss_fn, x, y, dev)
+    memory = MemoryMeasurement(model_fn, loss_fn, x, y, dev, targets)
 
     # We compute the memory consumption right after the forward pass when
     # computing the gradient w.r.t. (1) all model parameters, (2) the input and
@@ -215,6 +219,7 @@ if __name__ == "__main__":
 
     x = rand(batch_size, *input_shape, device=dev)
     y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
+    targets = None
     if args.model in models.detection_models:
         # pred is a dictionary of losses
         num_boxes = 2
@@ -222,11 +227,8 @@ if __name__ == "__main__":
         boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
         labels = randint(num_classes//50, (batch_size, num_boxes))
         targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
-        x = (x, targets)
         y = Tensor([])
-        model_fn_orig = model_fn
-        model_fn = lambda: models.DetectionModelWrapper(model_fn_orig)
-        loss_fn = lambda pred, y: sum(pred.values())
+        loss_fn = lambda: models.DetectionLossWrapper()
     elif args.model in models.segmentation_models:
         model_fn_orig = model_fn
         model_fn = lambda: model_fn_orig(num_classes=num_classes//50)
@@ -240,8 +242,8 @@ if __name__ == "__main__":
     # print('initial memory:', cuda.max_memory_allocated()/1024/1024)
 
     if args.estimate == "time":
-        res = estimate_speedup(model_fn, loss_fn, x, y, dev, args.case, args.print)
+        res = estimate_speedup(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
     elif args.estimate == "memory":
-        res = estimate_mem_savings(model_fn, loss_fn, x, y, dev, args.case, args.print)
+        res = estimate_mem_savings(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
     if args.print:
         print(res)

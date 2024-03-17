@@ -2,7 +2,7 @@
 
 import gc
 from time import sleep
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union, Dict, Optional
 
 import torch
 from codetiming import Timer
@@ -49,6 +49,7 @@ class _Measurement:
         x: Tensor,
         y: Tensor,
         dev: device,
+        targets: Optional[List[Dict[str, Tensor]]] = None
     ):
         """Store the model, loss function, inputs, labels, and the device.
 
@@ -58,14 +59,17 @@ class _Measurement:
             x: The input tensor.
             y: The output tensor.
             dev: The device to measure run time on.
+            targets: Targets in case of detection model. 
         """
         self.model_fn = model_fn
         self.loss_fn = loss_fn
         self.x = x
         self.y = y
         self.dev = dev
+        self.targets = targets
 
-    def set_up(self, synchronize: bool = True) -> Tuple[Module, Module, Tensor, Tensor]:
+
+    def set_up(self, synchronize: bool = True) -> Tuple[Module, Module, Tensor, Tensor, Optional[List[Dict[str, Tensor]]]]:
         """Initialize model and loss function, load to device (including data).
 
         Syncs CUDA threads if the device is a GPU to avoid leaking run time
@@ -83,11 +87,15 @@ class _Measurement:
         loss_fn = self.loss_fn().to(self.dev)
         x = self.x.clone().detach().to(self.dev)
         y = self.y.clone().detach().to(self.dev)
+        if self.targets is not None:
+            targets = [{k:v.clone().detach().to(self.dev) for k,v in di.items()} for di in self.targets]
+        else:
+            targets = None
 
         if synchronize:
             maybe_synchronize(self.dev)
 
-        return model, loss_fn, x, y
+        return model, loss_fn, x, y, targets
 
 
 class RuntimeMeasurement(_Measurement):
@@ -125,7 +133,7 @@ class RuntimeMeasurement(_Measurement):
         Returns:
             The run time in seconds.
         """
-        model, loss_fn, x, y = self.set_up()
+        model, loss_fn, x, y, targets = self.set_up()
 
         leafs, no_leafs = separate_grad_arguments(
             model,
@@ -138,6 +146,7 @@ class RuntimeMeasurement(_Measurement):
         )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
+        # targets will never require grad
 
         # make leaves differentiable, turn off non-leafs
         for leaf in leafs:
@@ -148,7 +157,10 @@ class RuntimeMeasurement(_Measurement):
         # obtain run time
         maybe_synchronize(self.dev)
         with Timer(logger=None) as timer:
-            loss_fn(model(x), y).backward()
+            if targets is None:
+                loss_fn(model(x), y).backward()
+            else:
+                loss_fn(model(x, targets)).backward()
             maybe_synchronize(self.dev)
 
         # clean up and run checks before returning the time
@@ -194,7 +206,7 @@ class MemoryMeasurement(_Measurement):
         Returns:
             The memory usage in bytes.
         """
-        model, loss_fn, x, y = self.set_up()
+        model, loss_fn, x, y, targets = self.set_up()
 
         leafs, no_leafs = separate_grad_arguments(
             model,
@@ -224,7 +236,10 @@ class MemoryMeasurement(_Measurement):
                         For measuring purposes Default: `0.1`.
                 """
                 # print(f"{loss_fn=}, {x.shape=}, {y.shape=}")
-                loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
+                if targets is None:
+                    loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
+                else:
+                    loss = loss_fn(model(x, targets)).backward()
                 sleep(sleep_after)
                 del loss
                 gc.collect()
@@ -243,7 +258,10 @@ class MemoryMeasurement(_Measurement):
                         For measuring purposes Default: `0.1`.
                 """
                 # print(f"CUDA: {loss_fn=}, {x.shape=}, {y.shape=}")
-                loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
+                if targets is None:
+                    loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
+                else:
+                    loss = loss_fn(model(x, targets)).backward()
                 # sleep(sleep_after)
                 # del loss
                 # gc.collect()

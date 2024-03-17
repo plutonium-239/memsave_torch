@@ -87,6 +87,8 @@ detection_models = ["fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2", "
 detection_models = prefix_memsave_in(detection_models)
 segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
 segmentation_models = prefix_memsave_in(segmentation_models)
+models_without_norm = ['deepmodel', 'vgg16']
+models_without_norm = prefix_memsave_in(models_without_norm)
 
 conv_model_fns = {
     "deepmodel": conv_model1,

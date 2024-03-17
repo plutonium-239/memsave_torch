@@ -52,7 +52,19 @@ def parse_case(case: List[str]) -> Dict[str, bool]:
             kw[c] = True
     return kw
 
-
+def skip_case_check(args):
+    invalid = False
+    for c in ['grad_norm_bias', 'grad_norm_weights']:
+        if c in args.case and args.model in models.models_without_norm:
+            invalid = True
+    for c in ['no_grad_norm_bias', 'no_grad_norm_weights']:
+        if c not in args.case and args.model in models.models_without_norm:
+            invalid = True
+    if invalid:
+        with open(f"results/{args.estimate}-conv.txt", "a") as f:
+            f.write("-1\n")
+    return invalid
+    
 def estimate_speedup(
     model_fn: Callable[[], Module],
     loss_fn: Callable[[], Module],
@@ -190,62 +202,62 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # dev = device("cuda" if cuda.is_available() else "cpu")
-    dev = device(args.device)
+    if not skip_case_check(args):
+        dev = device(args.device)
 
-    # ImageNet toy data
-    batch_size = args.batch_size
-    num_classes = args.num_classes
-    models.num_classes = num_classes
+        # ImageNet toy data
+        batch_size = args.batch_size
+        num_classes = args.num_classes
+        models.num_classes = num_classes
 
-    if args.architecture == "conv":
-        input_shape = (args.input_channels, args.input_hw, args.input_hw)
-        models.conv_input_shape = input_shape
-        model_fn = models.conv_model_fns.get(args.model)
-        assert (
-            model_fn is not None
-        ), f"Conv model name {args.model} not found, must be one of {list(models.conv_model_fns.keys())}"
-    elif args.architecture == "linear":
-        input_shape = [args.input_hw**2]
-        models.linear_input_shape = input_shape[0]
-        model_fn = models.linear_model_fns.get(args.model)
-        assert (
-            model_fn is not None
-        ), f"Linear model name {args.model} not found, must be one of {list(models.linear_model_fns.keys())}"
+        if args.architecture == "conv":
+            input_shape = (args.input_channels, args.input_hw, args.input_hw)
+            models.conv_input_shape = input_shape
+            model_fn = models.conv_model_fns.get(args.model)
+            assert (
+                model_fn is not None
+            ), f"Conv model name {args.model} not found, must be one of {list(models.conv_model_fns.keys())}"
+        elif args.architecture == "linear":
+            input_shape = [args.input_hw**2]
+            models.linear_input_shape = input_shape[0]
+            model_fn = models.linear_model_fns.get(args.model)
+            assert (
+                model_fn is not None
+            ), f"Linear model name {args.model} not found, must be one of {list(models.linear_model_fns.keys())}"
 
-    loss_fn = CrossEntropyLoss
+        loss_fn = CrossEntropyLoss
 
-    manual_seed(0)  # make deterministic
+        manual_seed(0)  # make deterministic
 
-    x = rand(batch_size, *input_shape, device=dev)
-    y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
-    targets = None
-    if args.model in models.detection_models:
-        # pred is a dictionary of losses
-        num_boxes = 2
-        batch_size = 4
         x = rand(batch_size, *input_shape, device=dev)
-        boxes = rand(batch_size, num_boxes, 4)
-        boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
-        labels = randint(num_classes//50, (batch_size, num_boxes))
-        targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
-        y = Tensor([])
-        loss_fn = lambda: models.DetectionLossWrapper()
-    elif args.model in models.segmentation_models:
-        model_fn_orig = model_fn
-        model_fn = lambda: model_fn_orig(num_classes=num_classes//50)
-        y = randint(size=(batch_size, args.input_hw, args.input_hw), low=0, high=num_classes//50, device=dev)
-        loss_fn_orig = loss_fn
-        loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)
-    
-    # warm-up
-    # with redirect_stdout(open(devnull, "w")):
-    #     estimate_speedup(model_fn, loss_fn, x, y, dev, vjp_speedups[:1])
-    # print('initial memory:', cuda.max_memory_allocated()/1024/1024)
+        y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
+        targets = None
+        if args.model in models.detection_models:
+            # pred is a dictionary of losses
+            num_boxes = 2
+            batch_size = 4
+            x = rand(batch_size, *input_shape, device=dev)
+            boxes = rand(batch_size, num_boxes, 4)
+            boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
+            labels = randint(num_classes//50, (batch_size, num_boxes))
+            targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
+            y = Tensor([])
+            loss_fn = lambda: models.DetectionLossWrapper()
+        elif args.model in models.segmentation_models:
+            model_fn_orig = model_fn
+            model_fn = lambda: model_fn_orig(num_classes=num_classes//50)
+            y = randint(size=(batch_size, args.input_hw, args.input_hw), low=0, high=num_classes//50, device=dev)
+            loss_fn_orig = loss_fn
+            loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)
+        
+        # warm-up
+        # with redirect_stdout(open(devnull, "w")):
+        #     estimate_speedup(model_fn, loss_fn, x, y, dev, vjp_speedups[:1])
+        # print('initial memory:', cuda.max_memory_allocated()/1024/1024)
 
-    if args.estimate == "time":
-        res = estimate_speedup(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
-    elif args.estimate == "memory":
-        res = estimate_mem_savings(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
-    if args.print:
-        print(res)
+        if args.estimate == "time":
+            res = estimate_speedup(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
+        elif args.estimate == "memory":
+            res = estimate_mem_savings(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
+        if args.print:
+            print(res)

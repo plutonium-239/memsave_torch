@@ -23,8 +23,8 @@ vjp_improvements = [
 # CONV
 # Valid choices for models are in models.conv_model_fns
 models = ["deepmodel",  "resnet101", "resnet18", "vgg16", #"convnext_base",
-    "fasterrcnn_resnet50_fpn_v2", "retinanet_resnet50_fpn_v2", 
-    "deeplabv3_resnet101", "fcn_resnet101",
+    "fasterrcnn_resnet50_fpn_v2", "ssdlite320_mobilenet_v3_large", #"retinanet_resnet50_fpn_v2", 
+    "deeplabv3_resnet101", "fcn_resnet101", 
     "efficientnet_v2_l", "mobilenet_v3_large", "resnext101_64x4d"]
 
 # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]

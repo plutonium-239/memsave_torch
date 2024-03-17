@@ -110,6 +110,8 @@ conv_model_fns = {
     "memsave_fasterrcnn_resnet50_fpn_v2": lambda: convert_to_memory_saving(tvm.detection.fasterrcnn_resnet50_fpn_v2()),
     "retinanet_resnet50_fpn_v2": tvm.detection.retinanet_resnet50_fpn_v2,
     "memsave_retinanet_resnet50_fpn_v2": lambda: convert_to_memory_saving(tvm.detection.retinanet_resnet50_fpn_v2()),
+    "ssdlite320_mobilenet_v3_large": tvm.detection.ssdlite320_mobilenet_v3_large,
+    "memsave_ssdlite320_mobilenet_v3_large": lambda: convert_to_memory_saving(tvm.detection.ssdlite320_mobilenet_v3_large()),
     "deeplabv3_resnet101": tvm.segmentation.deeplabv3_resnet101,
     "memsave_deeplabv3_resnet101": lambda num_classes: convert_to_memory_saving(tvm.segmentation.deeplabv3_resnet101(num_classes=num_classes)),
     "fcn_resnet101": tvm.segmentation.fcn_resnet101,

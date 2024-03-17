@@ -77,7 +77,7 @@ for model in models:
                 f"python estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
                 + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
             )
-            proc = subprocess.run(shlex.split(cmd), capture_output=True, shell=True)
+            proc = subprocess.run(shlex.split(cmd), capture_output=True)
             assert proc.stderr in [
                 None,
                 b"",

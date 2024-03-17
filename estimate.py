@@ -11,7 +11,7 @@ Q3) The same as Q1) and Q2) but in terms of memory consumption.
 """
 
 import argparse
-from typing import Callable, List, Dict
+from typing import Callable, List, Dict, Optional
 
 from torch import Tensor, device, manual_seed, rand, randint
 from torch.nn import CrossEntropyLoss, Module

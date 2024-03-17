@@ -35,8 +35,8 @@ class ResultsCollector:
 
         try:
             assert (
-                len(lines) == 3
-            ), f"More than 3 lines found in results/{estimate}-{self.architecture}.txt"
+                len(lines) == len(self.cases)
+            ), f"More than {len(self.cases)} lines found in results/{estimate}-{self.architecture}.txt:\n{lines}"
             outputs = [float(line.strip()) for line in lines]
             for case, out in zip(self.cases, outputs):
                 case = 'None' if case is None else ' + '.join(case)

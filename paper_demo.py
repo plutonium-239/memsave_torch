@@ -52,12 +52,27 @@ architecture = "conv"
 # architecture = 'linear' # use high batch size
 
 cases = [
-    None,
-    ["grad_input"],
-    [
+    None,   # ALL
+    [       # INPUT
         "grad_input",
-        f"no_grad_{architecture}_weights",
-        f"no_grad_{architecture}_bias",
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",       
+    ],
+    [       # CONV
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",       
+    ],
+    [       # NORM
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",    
     ],
 ]
 

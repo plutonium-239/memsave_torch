@@ -40,7 +40,7 @@ allowed_cases = [
 ]
 
 
-def parse_case(case: List[str]) -> Dict[str, bool]:
+def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
     # Small helper function to convert cases into kw-arguments for measurements
     kw = {}
     if case is None:
@@ -53,17 +53,13 @@ def parse_case(case: List[str]) -> Dict[str, bool]:
     return kw
 
 def skip_case_check(args):
-    invalid = False
+    cases = parse_case(args.case)
     for c in ['grad_norm_bias', 'grad_norm_weights']:
-        if c in args.case and args.model in models.models_without_norm:
-            invalid = True
-    for c in ['no_grad_norm_bias', 'no_grad_norm_weights']:
-        if c not in args.case and args.model in models.models_without_norm:
-            invalid = True
-    if invalid:
-        with open(f"results/{args.estimate}-conv.txt", "a") as f:
-            f.write("-1\n")
-    return invalid
+        if cases[c] and args.model in models.models_without_norm:
+            with open(f"results/{args.estimate}-conv.txt", "a") as f:
+                f.write("-1\n")
+            return True
+    return False
     
 def estimate_speedup(
     model_fn: Callable[[], Module],

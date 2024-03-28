@@ -1,0 +1,45 @@
+line-length = 88
+target-version = 'py38' # only minimum
+exclude = [
+  '\.eggs',
+  '\.git',
+  '\.pytest_cache',
+  'docs_src',
+  'docs',
+  'build',
+  'dist'
+]
+
+[lint]
+select = [
+  # pydocstyle
+  "D",
+  # Pyflakes
+  "B","C","E","F","W","B9",
+  # isort
+  "I",
+]
+ignore = [
+  'E501',
+  'C408',
+  'E203',
+  'E231',
+  'W291',
+  # 'W503', not implemented as not accepted https://github.com/astral-sh/ruff/issues/4125
+  # 'W504',
+  'B905'
+]
+
+[lint.pydocstyle]
+convention = 'google'
+# exclude directories, see
+# https://github.com/PyCQA/pydocstyle/issues/363#issuecomment-625563088
+# match_dir = '^(?!(docs|docs_src|build|.git|src|exp|.eggs)).*'
+# match = '.*\.py'
+
+# [lint.isort]
+# # profile='black'
+# # multi_line_output=3
+# include_trailing_comma=true
+# force_grid_wrap=0
+# use_parentheses=true

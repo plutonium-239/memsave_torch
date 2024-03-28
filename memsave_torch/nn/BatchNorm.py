@@ -86,15 +86,13 @@ class _MemSaveBatchNorm(torch.autograd.Function):
     def forward(
         ctx, x, running_mean, running_var, weight, bias, training, momentum, eps
     ):
-        """
-        torch.native_batch_norm is the same as torch.ops.aten.native_batch_norm
+        """torch.native_batch_norm is the same as torch.ops.aten.native_batch_norm
         Not using functional.batch_norm here because we need the `save_mean` and `save_invstd` values
         returned by torch ops in the backward pass (it is the forwarded batch's "stable" mean and invstd)
 
         Also, we need to fuse forward and setup_context here because
         we dont want to make save_mean and save_invstd as outputs but need to save them in ctx
         """
-
         outputs = torch.native_batch_norm(
             x, weight, bias, running_mean, running_var, training, momentum, eps
         )
@@ -181,7 +179,6 @@ def batch_normMemSave(
     Returns:
         torch.Tensor: Output of the network [B, C, H, W]
     """
-
     return _MemSaveBatchNorm.apply(
         input, running_mean, running_var, weight, bias, training, momentum, eps
     )

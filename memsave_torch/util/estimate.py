@@ -11,13 +11,13 @@ Q3) The same as Q1) and Q2) but in terms of memory consumption.
 """
 
 import argparse
-from typing import Callable, List, Dict, Optional
+from typing import Callable, Dict, List, Optional
 
 from torch import Tensor, device, manual_seed, rand, randint
 from torch.nn import CrossEntropyLoss, Module
 
-import models
-from measurements import (
+from memsave_torch.util import models
+from memsave_torch.util.measurements import (
     MemoryMeasurement,
     RuntimeMeasurement,
 )
@@ -52,21 +52,23 @@ def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
             kw[c] = True
     return kw
 
+
 def skip_case_check(args):
     invalid = False
     if args.case is None:
         return invalid
-    for c in ['grad_norm_bias', 'grad_norm_weights']:
+    for c in ["grad_norm_bias", "grad_norm_weights"]:
         if c in args.case and args.model in models.models_without_norm:
             invalid = True
-    for c in ['no_grad_norm_bias', 'no_grad_norm_weights']:
+    for c in ["no_grad_norm_bias", "no_grad_norm_weights"]:
         if c not in args.case and args.model in models.models_without_norm:
             invalid = True
     if invalid:
         with open(f"results/{args.estimate}-conv.txt", "a") as f:
             f.write("-1\n")
     return invalid
-    
+
+
 def estimate_speedup(
     model_fn: Callable[[], Module],
     loss_fn: Callable[[], Module],
@@ -105,7 +107,12 @@ def estimate_speedup(
     # the computation time of the convolution weights
 
     kw = parse_case(case)
+    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, record_shapes=True) as prof:
+    #     with record_function('model_run_custom'):
     result = timer.forward_backward(**kw)
+
+    # import ipdb; ipdb.set_trace()
+    # print(prof.key_averages().table(sort_by="cuda_time_total"))
 
     if return_val:
         return result
@@ -151,7 +158,11 @@ def estimate_mem_savings(
     # convolution weights
 
     kw = parse_case(case)
+    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, record_shapes=True) as prof:
+    #     with record_function('model_run_custom'):
     result = memory.after_forward(**kw)
+
+    # import ipdb; ipdb.set_trace()
 
     if return_val:
         return result
@@ -200,7 +211,12 @@ if __name__ == "__main__":
         help=f"Which case to run, allowed values are {allowed_cases}",
     )
     parser.add_argument("--device", type=str, default="cpu", help="torch device name")
-    parser.add_argument("--print", action='store_true', default=False, help="Print result to stdout instead of writing to file")
+    parser.add_argument(
+        "--print",
+        action="store_true",
+        default=False,
+        help="Print result to stdout instead of writing to file",
+    )
 
     args = parser.parse_args()
 
@@ -241,25 +257,36 @@ if __name__ == "__main__":
             x = rand(batch_size, *input_shape, device=dev)
             boxes = rand(batch_size, num_boxes, 4)
             boxes[:, :, 2:4] = boxes[:, :, 0:2] + boxes[:, :, 2:4]
-            labels = randint(num_classes//50, (batch_size, num_boxes))
-            targets = [{'boxes': boxes[i], 'labels': labels[i]} for i in range(batch_size)]
+            labels = randint(num_classes // 50, (batch_size, num_boxes))
+            targets = [
+                {"boxes": boxes[i], "labels": labels[i]} for i in range(batch_size)
+            ]
             y = Tensor([])
             loss_fn = lambda: models.DetectionLossWrapper()
         elif args.model in models.segmentation_models:
             model_fn_orig = model_fn
-            model_fn = lambda: model_fn_orig(num_classes=num_classes//50)
-            y = randint(size=(batch_size, args.input_hw, args.input_hw), low=0, high=num_classes//50, device=dev)
+            model_fn = lambda: model_fn_orig(num_classes=num_classes // 50)
+            y = randint(
+                size=(batch_size, args.input_hw, args.input_hw),
+                low=0,
+                high=num_classes // 50,
+                device=dev,
+            )
             loss_fn_orig = loss_fn
             loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)
-        
+
         # warm-up
         # with redirect_stdout(open(devnull, "w")):
         #     estimate_speedup(model_fn, loss_fn, x, y, dev, vjp_speedups[:1])
         # print('initial memory:', cuda.max_memory_allocated()/1024/1024)
 
         if args.estimate == "time":
-            res = estimate_speedup(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
+            res = estimate_speedup(
+                model_fn, loss_fn, x, y, targets, dev, args.case, args.print
+            )
         elif args.estimate == "memory":
-            res = estimate_mem_savings(model_fn, loss_fn, x, y, targets, dev, args.case, args.print)
+            res = estimate_mem_savings(
+                model_fn, loss_fn, x, y, targets, dev, args.case, args.print
+            )
         if args.print:
             print(res)

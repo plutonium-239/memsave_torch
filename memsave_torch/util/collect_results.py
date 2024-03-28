@@ -1,17 +1,40 @@
+import os
+from datetime import datetime
+
 import pandas as pd
 from tqdm import tqdm
-from datetime import datetime
-import os
 
 strings = {
-    "time": ["s", "T", "speed-up", "faster", 'Estimated time speed-up', 'Time Taken (s)'],
-    "memory": ["MB", "M", "savings", "memory", 'Estimated memory savings', 'Memory Usage (MB)'],
+    "time": [
+        "s",
+        "T",
+        "speed-up",
+        "faster",
+        "Estimated time speed-up",
+        "Time Taken (s)",
+    ],
+    "memory": [
+        "MB",
+        "M",
+        "savings",
+        "memory",
+        "Estimated memory savings",
+        "Memory Usage (MB)",
+    ],
 }
 
 
 class ResultsCollector:
     def __init__(
-        self, batch_size, input_channels, input_HW, num_classes, device, architecture, vjp_improvements, cases
+        self,
+        batch_size,
+        input_channels,
+        input_HW,
+        num_classes,
+        device,
+        architecture,
+        vjp_improvements,
+        cases,
     ) -> None:
         self.batch_size = batch_size
         self.input_channels = input_channels
@@ -19,15 +42,19 @@ class ResultsCollector:
         self.num_classes = num_classes
         self.device = device
         self.architecture = architecture
-        self.vjp_improvements = vjp_improvements 
+        self.vjp_improvements = vjp_improvements
         self.cases = cases
         # assert len(cases) == 3, f"len(cases) > 3:\n{cases}" Not anymore
-        self.base_location = f'results/{architecture}-'
-        os.makedirs('results/', exist_ok=True)
-        self.savings = pd.DataFrame(columns=['model', 'input_vjps', strings['time'][4], strings['memory'][4]])
-        self.usage_stats = pd.DataFrame(columns=['model', 'case', strings['time'][5], strings["memory"][5]])
-        self.savings.set_index(['model', 'input_vjps'], inplace=True)
-        self.usage_stats.set_index(['model', 'case'], inplace=True)
+        self.base_location = f"results/{architecture}-"
+        os.makedirs("results/", exist_ok=True)
+        self.savings = pd.DataFrame(
+            columns=["model", "input_vjps", strings["time"][4], strings["memory"][4]]
+        )
+        self.usage_stats = pd.DataFrame(
+            columns=["model", "case", strings["time"][5], strings["memory"][5]]
+        )
+        self.savings.set_index(["model", "input_vjps"], inplace=True)
+        self.usage_stats.set_index(["model", "case"], inplace=True)
 
     def collect_from_file(self, estimate, model, case=None):
         with open(f"results/{estimate}-{self.architecture}.txt") as f:
@@ -39,7 +66,7 @@ class ResultsCollector:
             ), f"More than {len(self.cases)} lines found in results/{estimate}-{self.architecture}.txt:\n{lines}"
             outputs = [float(line.strip()) for line in lines]
             for case, out in zip(self.cases, outputs):
-                case = 'None' if case is None else ' + '.join(case)
+                case = "None" if case is None else " + ".join(case)
                 # print(case, out)
                 self.usage_stats.loc[(model, case), strings[estimate][5]] = out
 
@@ -54,7 +81,6 @@ class ResultsCollector:
         finally:
             self.clear_file(estimate)
 
-
     def clear_file(self, estimate):
         with open(f"results/{estimate}-{self.architecture}.txt", "w") as f:
             f.write("")
@@ -63,7 +89,7 @@ class ResultsCollector:
         # print(f"{model} input ({input_channels},{input_HW},{input_HW}) {device}")
         # print('='*78)
         s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
-        tqdm.write(s.center(78, '='))
+        tqdm.write(s.center(78, "="))
 
         print(
             f"{strings[estimate][1]}(forward + grad params): {outputs[0]:.3f}{strings[estimate][0]}"
@@ -101,15 +127,15 @@ class ResultsCollector:
     def finish(self):
         time = datetime.now().strftime("%d.%m.%y %H.%M")
         s = f"input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
-        savings_path = f'results/savings-{self.architecture}-{self.device}-{time}.csv'
-        with open(savings_path, 'w') as f:
-            f.write(s+'\n')
-        self.savings.to_csv(savings_path, mode='a')
+        savings_path = f"results/savings-{self.architecture}-{self.device}-{time}.csv"
+        with open(savings_path, "w") as f:
+            f.write(s + "\n")
+        self.savings.to_csv(savings_path, mode="a")
 
-        usage_path = f'results/usage_stats-{self.architecture}-{self.device}-{time}.csv'
-        with open(usage_path, 'w') as f:
-            f.write(s+'\n')
-        self.usage_stats.to_csv(usage_path, mode='a')
+        usage_path = f"results/usage_stats-{self.architecture}-{self.device}-{time}.csv"
+        with open(usage_path, "w") as f:
+            f.write(s + "\n")
+        self.usage_stats.to_csv(usage_path, mode="a")
 
 
 def hyperparam_str(args):

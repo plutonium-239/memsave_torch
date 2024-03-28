@@ -1,10 +1,10 @@
+import itertools
 import shlex
 import subprocess
 from time import sleep
-import itertools
-from tqdm import tqdm
 
-from convrad_exp.exp01_estimated_speedup import collect_results
+from memsave_torch.util import collect_results
+from tqdm import tqdm
 
 estimators = ["time", "memory"]
 # estimators = ["memory"]
@@ -44,7 +44,15 @@ architecture = "conv"
 # architecture = 'linear' # use high batch size
 
 pbar = tqdm(total=len(models) * len(estimators) * 3, leave=False)
-collector = collect_results.ResultsCollector(batch_size, input_channels, input_HW, num_classes, device, architecture, vjp_improvements)
+collector = collect_results.ResultsCollector(
+    batch_size,
+    input_channels,
+    input_HW,
+    num_classes,
+    device,
+    architecture,
+    vjp_improvements,
+)
 
 for model in models:
     for estimate in estimators:

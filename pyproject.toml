@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["memsave_torch"]
+
+[project]
+name = "memsave_torch"
+version = "1.0.0"
+dependencies = [
+  "torch"
+]
+requires-python = ">=3.8"
+authors = [
+  {name = "Samarth Bhatia", email = "plutonium.239.811@gmail.com"},
+  {name = "Felix Dangel"},
+]
+description = "Saving Memory in PyTorch"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["PyTorch", "Deep Learning", "Memory Efficient", "Memory Saving", "torch"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python"
+]
+
+[project.urls]
+Repository = "https://github.com/plutonium-239/memsave_torch"

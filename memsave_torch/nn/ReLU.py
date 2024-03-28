@@ -31,6 +31,14 @@ class MemSaveReLU(nn.ReLU):
         Returns:
             torch.Tensor: Output
         """
+        # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, record_shapes=True) as prof:
+        #     with record_function('relu_custom_only'):
+        #         res = reluMemSave(x)
+
+        # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, record_shapes=True) as prof2:
+        #     with record_function('relu_default_only'):
+        #         res = super().forward(x)
+        # import ipdb; ipdb.set_trace()
         return reluMemSave(x)
 
     @classmethod
@@ -46,15 +54,16 @@ class MemSaveReLU(nn.ReLU):
         obj = cls()
         return obj
 
+
 # TODO: inplace
 class _MemSaveReLU(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x):
-        mask = x>0
+        mask = x > 0
         if ctx.needs_input_grad[0]:
             ctx.mask = mask
         # return nn.functional.relu(x)
-        x = x*mask
+        x = x * mask
         return x
 
     @staticmethod
@@ -64,17 +73,17 @@ class _MemSaveReLU(torch.autograd.Function):
         if ctx.needs_input_grad[0]:
             # grad_x = grad_output.clone()
             # grad_x[~ctx.mask] = 0
-            grad_x = grad_output*ctx.mask
+            grad_x = grad_output * ctx.mask
 
         return grad_x
 
 
 def reluMemSave(x):
     """Functional form of the memory saving relu.
-    
+
     Args:
         x: Input to the network
-    
+
     Returns:
         torch.Tensor: Output of the network
     """

@@ -1,16 +1,15 @@
+import itertools
 import shlex
 import subprocess
 from time import sleep
-import itertools
+
 from tqdm import tqdm
-import torch.nn as nn
 
-import collect_results
-from torchvision.models import resnet101
-
+from memsave_torch.util import collect_results
 
 estimators = ["time", "memory"]
-# estimators = ["memory"]
+estimators = ["memory"]
+# estimators = ["time"]
 
 # improvements can be either speedups or savings based on context
 vjp_improvements = [
@@ -22,10 +21,19 @@ vjp_improvements = [
 
 # CONV
 # Valid choices for models are in models.conv_model_fns
-models = ["deepmodel", "resnet101", "resnet18", "vgg16", #"convnext_base",
-    "fasterrcnn_resnet50_fpn_v2", "ssdlite320_mobilenet_v3_large", #"retinanet_resnet50_fpn_v2", 
-    "deeplabv3_resnet101", "fcn_resnet101", 
-    "efficientnet_v2_l", "mobilenet_v3_large", "resnext101_64x4d"]
+models = [
+    "deepmodel",
+    "resnet101",
+    "resnet18",
+    "vgg16",  # "convnext_base",
+    "fasterrcnn_resnet50_fpn_v2",
+    "ssdlite320_mobilenet_v3_large",  # "retinanet_resnet50_fpn_v2",
+    "deeplabv3_resnet101",
+    "fcn_resnet101",
+    "efficientnet_v2_l",
+    "mobilenet_v3_large",
+    "resnext101_64x4d",
+]
 
 # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # models = ["resnet101", "memsave_resnet101_conv_full"]
@@ -52,32 +60,41 @@ architecture = "conv"
 # architecture = 'linear' # use high batch size
 
 cases = [
-    None,   # ALL
-    [       # INPUT
+    None,  # ALL
+    [  # INPUT
         "grad_input",
         "no_grad_conv_weights",
         "no_grad_conv_bias",
         "no_grad_linear_weights",
         "no_grad_linear_bias",
         "no_grad_norm_weights",
-        "no_grad_norm_bias",       
+        "no_grad_norm_bias",
     ],
-    [       # CONV
+    [  # CONV
         "no_grad_linear_weights",
         "no_grad_linear_bias",
         "no_grad_norm_weights",
-        "no_grad_norm_bias",       
+        "no_grad_norm_bias",
     ],
-    [       # NORM
+    [  # NORM
         "no_grad_conv_weights",
         "no_grad_conv_bias",
         "no_grad_linear_weights",
-        "no_grad_linear_bias",    
+        "no_grad_linear_bias",
     ],
 ]
 
 pbar = tqdm(total=len(models) * len(estimators) * 3, leave=False)
-collector = collect_results.ResultsCollector(batch_size, input_channels, input_HW, num_classes, device, architecture, vjp_improvements, cases)
+collector = collect_results.ResultsCollector(
+    batch_size,
+    input_channels,
+    input_HW,
+    num_classes,
+    device,
+    architecture,
+    vjp_improvements,
+    cases,
+)
 
 for model in models:
     for estimate in estimators:

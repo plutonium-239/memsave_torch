@@ -2,12 +2,12 @@
 
 import gc
 from time import sleep
-from typing import Callable, List, Tuple, Union, Dict, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 import torch
 from codetiming import Timer
 from memory_profiler import memory_usage
-from torch import Tensor, device, cuda
+from torch import Tensor, cuda, device
 
 # from torch.profiler import profile, record_function, ProfilerActivity
 from torch.nn import (
@@ -27,8 +27,9 @@ from torch.nn import (
 )
 from torchvision.models.convnext import LayerNorm2d
 
-from memsave.Conv2d import MemSaveConv2d
-from memsave.Linear import MemSaveLinear
+from memsave_torch.nn.Conv2d import MemSaveConv2d
+from memsave_torch.nn.Linear import MemSaveLinear
+
 
 def maybe_synchronize(dev: device):
     """Synchronize CUDA kernels if device is GPU.
@@ -38,6 +39,7 @@ def maybe_synchronize(dev: device):
     """
     if "cuda" in str(dev):
         cuda.synchronize()
+
 
 class _Measurement:
     """Base class for measurements."""
@@ -49,7 +51,7 @@ class _Measurement:
         x: Tensor,
         y: Tensor,
         dev: device,
-        targets: Optional[List[Dict[str, Tensor]]] = None
+        targets: Optional[List[Dict[str, Tensor]]] = None,
     ):
         """Store the model, loss function, inputs, labels, and the device.
 
@@ -59,7 +61,7 @@ class _Measurement:
             x: The input tensor.
             y: The output tensor.
             dev: The device to measure run time on.
-            targets: Targets in case of detection model. 
+            targets: Targets in case of detection model.
         """
         self.model_fn = model_fn
         self.loss_fn = loss_fn
@@ -68,8 +70,9 @@ class _Measurement:
         self.dev = dev
         self.targets = targets
 
-
-    def set_up(self, synchronize: bool = True) -> Tuple[Module, Module, Tensor, Tensor, Optional[List[Dict[str, Tensor]]]]:
+    def set_up(
+        self, synchronize: bool = True
+    ) -> Tuple[Module, Module, Tensor, Tensor, Optional[List[Dict[str, Tensor]]]]:
         """Initialize model and loss function, load to device (including data).
 
         Syncs CUDA threads if the device is a GPU to avoid leaking run time
@@ -88,7 +91,10 @@ class _Measurement:
         x = self.x.clone().detach().to(self.dev)
         y = self.y.clone().detach().to(self.dev)
         if self.targets is not None:
-            targets = [{k:v.clone().detach().to(self.dev) for k,v in di.items()} for di in self.targets]
+            targets = [
+                {k: v.clone().detach().to(self.dev) for k, v in di.items()}
+                for di in self.targets
+            ]
         else:
             targets = None
 

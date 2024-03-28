@@ -20,23 +20,26 @@ class MemSaveLayerNorm(nn.LayerNorm):
         dtype=None,
     ):
         """Inits a LayerNorm layer with the given params
-        
+
         Args:
-            normalized_shape: normalized_shape 
+            normalized_shape: normalized_shape
             eps: eps
             elementwise_affine: elementwise_affine
             bias: bias (introduced in torch v2.1)
             device: device
             dtype: dtype
         """
-        if torch.__version__.startswith('2.1'):
+        if torch.__version__.startswith("2.1"):
             super().__init__(
-                normalized_shape, eps, elementwise_affine, bias, device, dtype # type: ignore
+                normalized_shape,
+                eps,
+                elementwise_affine,
+                bias,
+                device,
+                dtype,  # type: ignore
             )
         else:
-            super().__init__(
-                normalized_shape, eps, elementwise_affine, device, dtype
-            )
+            super().__init__(normalized_shape, eps, elementwise_affine, device, dtype)
 
     def forward(self, x):
         """Forward pass.
@@ -76,27 +79,22 @@ class MemSaveLayerNorm(nn.LayerNorm):
         obj.weight = ln.weight
         if ln.bias is None:
             torch_version = float(torch.__version__[:3])
-            assert torch_version < 2.1, \
-            f"Trying to load a model saved in torch>=2.1, but system version is {torch_version}. \n" + \
-            "This is problematic because torch 2.1 changed how LayerNorm bias works."
+            assert torch_version < 2.1, (
+                f"Trying to load a model saved in torch>=2.1, but system version is {torch_version}. \n"
+                + "This is problematic because torch 2.1 changed how LayerNorm bias works."
+            )
         return obj
 
 
 class _MemSaveLayerNorm(torch.autograd.Function):
     @staticmethod
-    def forward(
-        ctx, x, normalized_shape, weight, bias, eps
-    ):
-        """
-        torch.native_layer_norm is the same as torch.ops.aten.native_layer_norm
-        
+    def forward(ctx, x, normalized_shape, weight, bias, eps):
+        """torch.native_layer_norm is the same as torch.ops.aten.native_layer_norm
+
         Also, we need to fuse forward and setup_context here because
         we dont want to make save_mean and save_invstd as outputs but need to save them in ctx
         """
-
-        outputs = torch.native_layer_norm(
-            x, normalized_shape, weight, bias, eps
-        )
+        outputs = torch.native_layer_norm(x, normalized_shape, weight, bias, eps)
 
         # print('setting up context', ctx.needs_input_grad)
         ctx.mean = outputs[1]
@@ -151,15 +149,9 @@ class _MemSaveLayerNorm(torch.autograd.Function):
         return grad_x, None, grad_weight, grad_bias, None
 
 
-def layer_normMemSave(
-    input,
-    normalized_shape,
-    weight=None,
-    bias=None,
-    eps=1e-05
-):
+def layer_normMemSave(input, normalized_shape, weight=None, bias=None, eps=1e-05):
     """Functional form of the memory saving layer_norm.
-    
+
     Args:
         input: Input to the network [B, C, H, W]
         normalized_shape: normalized_shape
@@ -169,7 +161,4 @@ def layer_normMemSave(
     Returns:
         torch.Tensor: Output of the network [B, C, H, W]
     """
-
-    return _MemSaveLayerNorm.apply(
-        input, normalized_shape, weight, bias, eps
-    )
+    return _MemSaveLayerNorm.apply(input, normalized_shape, weight, bias, eps)

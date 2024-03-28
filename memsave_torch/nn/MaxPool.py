@@ -6,9 +6,10 @@ It only needs to store the size but the builtin implementation stores the whole 
 are saving the input anyway, but we want to use it with MemSaveConv2d
 """
 
+from typing import Tuple, Union
+
 import torch
 import torch.nn as nn
-from typing import Union, Tuple
 
 
 class MemSaveMaxPool2d(nn.MaxPool2d):
@@ -21,25 +22,20 @@ class MemSaveMaxPool2d(nn.MaxPool2d):
         padding=0,
         dilation=1,
         return_indices=False,
-        ceil_mode=False
+        ceil_mode=False,
     ) -> None:
         """Inits a Conv2d layer with the given params.
-        
+
         Args:
             kernel_size: kernel_size
             stride: stride
             padding: padding
             dilation: dilation
-            return_indices: return_indices 
+            return_indices: return_indices
             ceil_mode: ceil_mode
         """
         super().__init__(
-            kernel_size,
-            stride,
-            padding,
-            dilation,
-            return_indices,
-            ceil_mode
+            kernel_size, stride, padding, dilation, return_indices, ceil_mode
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -58,7 +54,7 @@ class MemSaveMaxPool2d(nn.MaxPool2d):
             self.padding,
             self.dilation,
             self.ceil_mode,
-            self.return_indices
+            self.return_indices,
         )
 
     @classmethod
@@ -77,7 +73,7 @@ class MemSaveMaxPool2d(nn.MaxPool2d):
             maxpool2d.padding,
             maxpool2d.dilation,
             maxpool2d.ceil_mode,
-            maxpool2d.return_indices
+            maxpool2d.return_indices,
         )
         return obj
 
@@ -95,7 +91,9 @@ class _MemSaveMaxPool2d(torch.autograd.Function):
         ctx.device = x.device
 
         # we need indices for backward anyway
-        out, indices = nn.functional.max_pool2d(x, kernel_size, stride, padding, dilation, ceil_mode, return_indices=True)
+        out, indices = nn.functional.max_pool2d(
+            x, kernel_size, stride, padding, dilation, ceil_mode, return_indices=True
+        )
         # this is the same as calling:
         # out,indices = torch.ops.aten.max_pool2d_with_indices(x, kernel_size, stride, padding, dilation, ceil_mode)
         if ctx.needs_input_grad[0]:
@@ -103,7 +101,7 @@ class _MemSaveMaxPool2d(torch.autograd.Function):
             ctx.mark_non_differentiable(indices)
         return out, indices
 
-# TODO: save x.dtype, avgpool
+    # TODO: save x.dtype, avgpool
     @staticmethod
     def backward(ctx, grad_output, ignored_grad_indices):
         grad_x = None
@@ -118,20 +116,28 @@ class _MemSaveMaxPool2d(torch.autograd.Function):
                 ctx.padding,
                 ctx.dilation,
                 ctx.ceil_mode,
-                ctx.indices
+                ctx.indices,
             )
 
             # print('grads are ', (grad_x is not None), (grad_weight is not None), (grad_bias is not None))
 
         return grad_x, None, None, None, None, None
 
+
 # TODO: MaxPool2d doesn't respect requires_grad of a tensor when called separately??
 
+
 def maxpool2dMemSave(
-    input, kernel_size, stride=None, padding=0, dilation=1, ceil_mode=False, return_indices=False
+    input,
+    kernel_size,
+    stride=None,
+    padding=0,
+    dilation=1,
+    ceil_mode=False,
+    return_indices=False,
 ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
     """Functional form of the memory saving max-pooling.
-    
+
     Args:
         input: input [B, C, H, W]
         kernel_size: kernel_size
@@ -140,14 +146,16 @@ def maxpool2dMemSave(
         dilation: dilation
         ceil_mode: ceil_mode
         return_indices: return_indices
-    
+
     Returns:
         if return_indices:
             out, indx: (Output of the maxpool operation [B, C, H_out, W_out], indices of maxpool)
         else:
             out: Output of the maxpool operation [B, C, H_out, W_out]
     """
-    out, indx = _MemSaveMaxPool2d.apply(input, kernel_size, stride, padding, dilation, ceil_mode)
+    out, indx = _MemSaveMaxPool2d.apply(
+        input, kernel_size, stride, padding, dilation, ceil_mode
+    )
     if return_indices:
         return out, indx
     return out

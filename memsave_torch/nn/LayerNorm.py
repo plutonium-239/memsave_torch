@@ -102,6 +102,7 @@ class _MemSaveLayerNorm(torch.autograd.Function):
         ctx.eps = eps
         ctx.x_shape = x.shape
         ctx.normalized_shape = normalized_shape
+        ctx.device = x.device
 
         need_grad = []  # save_mean and save_invstd
         if ctx.needs_input_grad[0]:
@@ -126,11 +127,11 @@ class _MemSaveLayerNorm(torch.autograd.Function):
             x = ctx.saved_tensors[current_idx]
             current_idx += 1
 
-        if weight is not None:
-            x = torch.zeros(ctx.x_shape, device=weight.device)
-        if x is not None:
-            weight = torch.zeros(ctx.normalized_shape, device=x.device)
-        bias = torch.zeros(ctx.normalized_shape, device=x.device)
+        if x is None:
+            x = torch.zeros(ctx.x_shape, device=ctx.device)
+        if weight is None:
+            weight = torch.zeros(ctx.normalized_shape, device=ctx.device)
+        bias = torch.zeros(ctx.normalized_shape, device=ctx.device)
 
         # print(current_idx)
 
@@ -142,7 +143,6 @@ class _MemSaveLayerNorm(torch.autograd.Function):
             ctx.rstd,
             weight,
             bias,
-            ctx.eps,
             [ctx.needs_input_grad[0], ctx.needs_input_grad[2], ctx.needs_input_grad[3]],
         )
 

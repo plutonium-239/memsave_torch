@@ -25,8 +25,13 @@ def convert_to_memory_saving(
     maxpool2d=True,
     layernorm=True,
     verbose=False,
+    clone_params=False,
 ) -> nn.Module:
     """Converts the given `model` to it's MemSave version, with options to choose which layer types to replace.
+
+    The `clone_params` option should be used when you plan on using both models simultaneously. Otherwise,
+    the grad accumulation for one model wll affect the other (since their weights are the same Tensor object).
+    For an example, see tests/test_layers.py.
 
     Args:
         model (nn.Module): The input model
@@ -37,6 +42,7 @@ def convert_to_memory_saving(
         maxpool2d (bool, optional): Whether to replace `nn.MaxPool2d` layers
         layernorm (bool, optional): Whether to replace `nn.LayerNorm` layers
         verbose (bool, optional): Whether to print which layers were replaced
+        clone_params (bool, optional): Whether to clone the layer parameters or use directly
 
     Returns:
         memsavemodel (nn.Module): The converted memory saving model
@@ -76,18 +82,20 @@ def convert_to_memory_saving(
     # using named_modules because it automatically iterates on Sequential/BasicBlock(resnet) etc.
     for name, layer in model.named_modules():
         for replacement in layers:
-            if not replacement["allowed"] and isinstance(layer, replacement["cls"]):
+            if not replacement["allowed"] or not isinstance(layer, replacement["cls"]):
                 continue
             if verbose:
                 print(f"replaced {name}")
             if name == "":
                 # In case a module is directly passed without wrapping sequential/moduledict
                 return replacement["convert_fn"](layer)
-            recursive_setattr(memsavemodel, name, replacement["convert_fn"](layer))
+            recursive_setattr(
+                memsavemodel, name, replacement["convert_fn"](layer), clone_params
+            )
     return memsavemodel
 
 
-def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module):
+def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module, clone_params: bool):
     """Taken from https://discuss.huggingface.co/t/how-can-i-replace-modules-in-a-pretrained-model/16338.
 
     Basically splits the full feature name (layer4.1.bn2) and recurses until non-iterable layer (conv2d/linear etc)
@@ -96,9 +104,14 @@ def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module):
         obj (nn.Module): Any module (the root of attr)
         attr (str): The dot-indexed name of the leaf layer to replace (i.e. layer.0.conv2)
         value (nn.Module): The module to replace the leaf with
+        clone_params (bool): Whether to make a copy of the parameters or reuse them
     """
     attr_split = attr.split(".", 1)
     if len(attr) == 1:
         setattr(obj, attr_split[0], value)
+        if clone_params:
+            value.load_state_dict(value.state_dict())  # makes a copy
     else:
-        recursive_setattr(getattr(obj, attr_split[0]), attr_split[1], value)
+        recursive_setattr(
+            getattr(obj, attr_split[0]), attr_split[1], value, clone_params
+        )

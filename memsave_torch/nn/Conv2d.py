@@ -124,6 +124,7 @@ class _MemSaveConv2d(torch.autograd.Function):
         ctx.groups = groups
         ctx.x_shape = x.shape
         ctx.weight_shape = weight.shape
+        ctx.device = x.device
 
         ctx.save_for_backward(*need_grad)
 
@@ -141,10 +142,10 @@ class _MemSaveConv2d(torch.autograd.Function):
             x = ctx.saved_tensors[current_idx]
             current_idx += 1
 
-        if weight is not None:
-            x = torch.zeros(ctx.x_shape, device=weight.device)
-        if x is not None:
-            weight = torch.zeros(ctx.weight_shape, device=x.device)
+        if x is None:
+            x = torch.zeros(ctx.x_shape, device=ctx.device)
+        if weight is None:
+            weight = torch.zeros(ctx.weight_shape, device=ctx.device)
 
         # print(current_idx)
 

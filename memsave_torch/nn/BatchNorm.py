@@ -87,6 +87,7 @@ class _MemSaveBatchNorm(torch.autograd.Function):
         ctx, x, running_mean, running_var, weight, bias, training, momentum, eps
     ):
         """torch.native_batch_norm is the same as torch.ops.aten.native_batch_norm
+
         Not using functional.batch_norm here because we need the `save_mean` and `save_invstd` values
         returned by torch ops in the backward pass (it is the forwarded batch's "stable" mean and invstd)
 

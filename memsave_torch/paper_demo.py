@@ -1,4 +1,9 @@
-import itertools
+"""Paper Demo
+
+This script replicates all the results given in the paper.
+Make sure to run the `get_best_results.py` script.
+"""
+
 import shlex
 import subprocess
 from time import sleep
@@ -6,6 +11,7 @@ from time import sleep
 from tqdm import tqdm
 
 from memsave_torch.util import collect_results
+from memsave_torch.util.models import prefix_in_pairs
 
 estimators = ["time", "memory"]
 estimators = ["memory"]
@@ -38,8 +44,7 @@ models = [
 # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # models = ["resnet101", "memsave_resnet101_conv_full"]
 
-models = [[m, f"memsave_{m}"] for m in models]  # add memsave versions for each model
-models = list(itertools.chain.from_iterable(models))  # flatten list of lists
+models = prefix_in_pairs("memsave_", models)
 # models = ["memsave_resnet101"]
 batch_size = 64
 input_channels = 3

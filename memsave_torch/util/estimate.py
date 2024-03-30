@@ -41,7 +41,14 @@ allowed_cases = [
 
 
 def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
-    # Small helper function to convert cases into kw-arguments for measurements
+    """Small helper function to convert cases into kw-arguments for measurements
+
+    Args:
+        case (Optional[List[str]]): List of all cases
+
+    Returns:
+        Dict[str, bool]: dictionary with keys as allowed_cases present in the input (which dont start with 'no_')
+    """
     kw = {}
     if case is None:
         return kw
@@ -53,7 +60,15 @@ def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
     return kw
 
 
-def skip_case_check(args):
+def skip_case_check(args: argparse.Namespace) -> bool:
+    """Decide whether to skip the case (when case has grad_norm_* but model does not have any normalization layers)
+
+    Args:
+        args (argparse.Namespace): args
+
+    Returns:
+        bool: Whether to skip or not
+    """
     invalid = False
     if args.case is None:
         return invalid
@@ -262,10 +277,10 @@ if __name__ == "__main__":
                 {"boxes": boxes[i], "labels": labels[i]} for i in range(batch_size)
             ]
             y = Tensor([])
-            loss_fn = lambda: models.DetectionLossWrapper()
+            loss_fn = models.DetectionLossWrapper
         elif args.model in models.segmentation_models:
             model_fn_orig = model_fn
-            model_fn = lambda: model_fn_orig(num_classes=num_classes // 50)
+            model_fn = lambda: model_fn_orig(num_classes=num_classes // 50)  # noqa: E731
             y = randint(
                 size=(batch_size, args.input_hw, args.input_hw),
                 low=0,
@@ -273,7 +288,7 @@ if __name__ == "__main__":
                 device=dev,
             )
             loss_fn_orig = loss_fn
-            loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)
+            loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)  # noqa: E731
 
         # warm-up
         # with redirect_stdout(open(devnull, "w")):

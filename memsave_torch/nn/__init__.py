@@ -16,12 +16,7 @@ from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
 
 
-class Identity(nn.Module):
-    def forward(self, x):
-        return x
-
-
-def convert_to_memory_saving(
+def convert_to_memory_saving(  # noqa: C901
     model: nn.Module,
     linear=True,
     conv2d=True,
@@ -91,9 +86,9 @@ def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module):
     Basically splits the full feature name (layer4.1.bn2) and recurses until non-iterable layer (conv2d/linear etc)
 
     Args:
-        obj (nn.Module):
-        attr (str): Description
-        value (nn.Module): Description
+        obj (nn.Module): Any module (the root of attr)
+        attr (str): The dot-indexed name of the leaf layer to replace (i.e. layer.0.conv2)
+        value (nn.Module): The module to replace the leaf with
     """
     attr = attr.split(".", 1)
     if len(attr) == 1:

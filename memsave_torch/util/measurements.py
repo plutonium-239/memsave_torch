@@ -243,7 +243,7 @@ class MemoryMeasurement(_Measurement):
                 """
                 # print(f"{loss_fn=}, {x.shape=}, {y.shape=}")
                 if targets is None:
-                    loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
+                    loss = loss_fn(model(x), y)
                 else:
                     loss = loss_fn(model(x, targets)).backward()
                 sleep(sleep_after)
@@ -267,7 +267,7 @@ class MemoryMeasurement(_Measurement):
                 if targets is None:
                     loss = loss_fn(model(x), y)  # noqa: F841 (assigned to but never used)
                 else:
-                    loss = loss_fn(model(x, targets)).backward()
+                    loss = loss_fn(model(x, targets)).backward()  # noqa: F841 (assigned to but never used)
                 # sleep(sleep_after)
                 # del loss
                 # gc.collect()

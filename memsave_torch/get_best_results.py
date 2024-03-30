@@ -1,14 +1,11 @@
+"""Simple script that goes over the raw results and finds the best results."""
+
 from glob import glob
 from itertools import product
 
 import pandas as pd
 
-case_mapping = {
-    "None": "All",
-    "grad_input + no_grad_conv_weights + no_grad_conv_bias + no_grad_linear_weights + no_grad_linear_bias + no_grad_norm_weights + no_grad_norm_bias": "Input",
-    "no_grad_linear_weights + no_grad_linear_bias + no_grad_norm_weights + no_grad_norm_bias": "Conv",
-    "no_grad_conv_weights + no_grad_conv_bias + no_grad_linear_weights + no_grad_linear_bias": "Norm",
-}
+from memsave_torch.util.collect_results import case_mapping
 
 for device, arch in product(["cuda", "cpu"], ["linear", "conv"]):
     # usage stats

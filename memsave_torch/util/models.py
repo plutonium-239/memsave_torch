@@ -1,6 +1,8 @@
+"""Utility file defining the various models, add more in the conv_model_fns dict."""
+
 import itertools
 import math
-from typing import Tuple
+from typing import List, Tuple
 
 import torchvision.models as tvm
 from torch.nn import Conv2d, Flatten, Linear, MaxPool2d, Module, ReLU, Sequential
@@ -14,12 +16,24 @@ from memsave_torch.nn import (
 num_classes: int = 1
 
 
-def prefix_memsave_in(models):
-    models = [
-        [m, f"memsave_{m}"] for m in models
-    ]  # add memsave versions for each model
-    models = list(itertools.chain.from_iterable(models))  # flatten list of lists
-    return models
+def prefix_in_pairs(prefix: str, it: List[str]) -> List[str]:
+    """Prefixes the given `prefix` after each entry of the list `it`.
+
+    For example,
+    >>> models = ['resnet101', 'convnext']
+    >>> prefix_in_pairs('memsave_', models)
+    ['resnet101', 'memsave_resnet101', 'convnext', 'memsave_convnext']
+
+    Args:
+        prefix (str): Prefix to be added
+        it (List[str]): Description
+
+    Returns:
+        List[str]: The output iterable with items prefixed in pairs
+    """
+    new_it = [[m, f"{prefix}{m}"] for m in it]
+    new_it = list(itertools.chain.from_iterable(new_it))  # flatten list of lists
+    return new_it
 
 
 def convert_to_memory_saving_defaultsoff(
@@ -30,6 +44,19 @@ def convert_to_memory_saving_defaultsoff(
     relu=False,
     maxpool2d=False,
 ) -> Module:
+    """Extension of the `convert_to_memory_saving` function with all defaults as off
+
+    Args:
+        model (Module): Input model
+        linear (bool, optional): Whether to replace linear layers
+        conv2d (bool, optional): Whether to replace conv2d layers
+        batchnorm2d (bool, optional): Whether to replace batchnorm2d layers
+        relu (bool, optional): Whether to replace relu layers
+        maxpool2d (bool, optional): Whether to replace maxpool2d layers
+
+    Returns:
+        Module: The converted memory saving model
+    """
     return convert_to_memory_saving(model, linear, conv2d, batchnorm2d, relu, maxpool2d)
 
 
@@ -37,7 +64,7 @@ def convert_to_memory_saving_defaultsoff(
 conv_input_shape: Tuple[int, int, int] = (1, 1, 1)
 
 
-def conv_model1() -> Module:
+def _conv_model1() -> Module:
     return Sequential(
         Conv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
         MaxPool2d(kernel_size=3, stride=2, padding=1),
@@ -49,7 +76,7 @@ def conv_model1() -> Module:
     )  # (H/8)*(W/8)*64 (filters) -> / 8 because maxpool
 
 
-def conv_model2() -> Module:
+def _conv_model2() -> Module:
     return Sequential(
         MemSaveConv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
         MaxPool2d(kernel_size=3, stride=2, padding=1),
@@ -64,7 +91,7 @@ def conv_model2() -> Module:
     )
 
 
-def convrelu_model1() -> Module:
+def _convrelu_model1() -> Module:
     return Sequential(
         Conv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
         MaxPool2d(kernel_size=3, stride=2, padding=1),
@@ -83,7 +110,7 @@ def convrelu_model1() -> Module:
     )  # (H/8)*(W/8)*64 (filters) -> / 8 because maxpool
 
 
-def convrelupool_model1(num_blocks=5) -> Module:
+def _convrelupool_model1(num_blocks=5) -> Module:
     assert min(conv_input_shape[1:]) > 2 ** (num_blocks + 1)
     return Sequential(
         Conv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
@@ -116,20 +143,20 @@ detection_models = [
     "retinanet_resnet50_fpn_v2",
     "ssdlite320_mobilenet_v3_large",
 ]
-detection_models = prefix_memsave_in(detection_models)
+detection_models = prefix_in_pairs("memsave_", detection_models)
 segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
-segmentation_models = prefix_memsave_in(segmentation_models)
+segmentation_models = prefix_in_pairs("memsave_", segmentation_models)
 models_without_norm = ["deepmodel", "vgg16"]
-models_without_norm = prefix_memsave_in(models_without_norm)
+models_without_norm = prefix_in_pairs("memsave_", models_without_norm)
 
 conv_model_fns = {
-    "deepmodel": conv_model1,
-    "memsave_deepmodel": conv_model2,
-    "deeprelumodel": convrelu_model1,
-    "memsave_deeprelumodel": lambda: convert_to_memory_saving(convrelu_model1()),
-    "deeprelupoolmodel": convrelupool_model1,
+    "deepmodel": _conv_model1,
+    "memsave_deepmodel": _conv_model2,
+    "deeprelumodel": _convrelu_model1,
+    "memsave_deeprelumodel": lambda: convert_to_memory_saving(_convrelu_model1()),
+    "deeprelupoolmodel": _convrelupool_model1,
     "memsave_deeprelupoolmodel": lambda: convert_to_memory_saving(
-        convrelupool_model1()
+        _convrelupool_model1()
     ),
     "alexnet": tvm.alexnet,
     "memsave_alexnet": lambda: convert_to_memory_saving(tvm.alexnet()),
@@ -184,31 +211,46 @@ conv_model_fns = {
 
 
 class SegmentationLossWrapper(Module):
-    """Small wrapper around a loss to support interop with existing measurement code
-
-    Attributes:
-        loss_fn: A function which returns a loss nn.Module
-    """
+    """Small wrapper around a loss to support interop with existing measurement code"""
 
     def __init__(self, loss_fn_orig) -> None:
+        """Init
+
+        Attributes:
+            loss_fn: A function which returns a loss nn.Module
+        """
         super().__init__()
         self.loss_fn = loss_fn_orig()
 
     def forward(self, x, y):
+        """Forward
+
+        Args:
+            x: x
+            y: y
+
+        Returns:
+           output: loss
+        """
         return self.loss_fn(x["out"], y)
 
 
 class DetectionLossWrapper(Module):
-    """Small wrapper around a loss to support interop with existing measurement code
-
-    Attributes:
-        loss_fn: A function which returns a loss nn.Module
-    """
+    """Small wrapper around a loss to support interop with existing measurement code"""
 
     def __init__(self) -> None:
+        """Init"""
         super().__init__()
 
     def forward(self, loss_dict):
+        """Forward
+
+        Args:
+            loss_dict: loss_dict
+
+        Returns:
+            output: loss
+        """
         return sum(loss_dict.values())
 
 
@@ -216,7 +258,7 @@ class DetectionLossWrapper(Module):
 linear_input_shape: int = 1
 
 
-def linear_model1() -> Module:
+def _linear_model1() -> Module:
     return Sequential(
         Linear(linear_input_shape, 1024),
         *[Linear(1024, 1024) for _ in range(12)],
@@ -224,7 +266,7 @@ def linear_model1() -> Module:
     )
 
 
-def linear_model2() -> Module:
+def _linear_model2() -> Module:
     return Sequential(
         MemSaveLinear(linear_input_shape, 1024),
         *[MemSaveLinear(1024, 1024) for _ in range(12)],
@@ -233,6 +275,6 @@ def linear_model2() -> Module:
 
 
 linear_model_fns = {
-    "deeplinearmodel": linear_model1,
-    "memsave_deeplinearmodel": linear_model2,
+    "deeplinearmodel": _linear_model1,
+    "memsave_deeplinearmodel": _linear_model2,
 }

@@ -27,7 +27,8 @@ ignore = [
   'W291',
   # 'W503', not implemented as not accepted https://github.com/astral-sh/ruff/issues/4125
   # 'W504',
-  'B905'
+  'B905',
+  'D415'
 ]
 
 [lint.pydocstyle]

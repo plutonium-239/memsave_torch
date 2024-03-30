@@ -1,9 +1,6 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-where = ["memsave_torch"]
+build-backend = "flit_core.buildapi"
+requires = ["flit_core >=3.2,<4"]
 
 [project]
 name = "memsave_torch"
@@ -14,15 +11,15 @@ dependencies = [
 requires-python = ">=3.8"
 authors = [
   {name = "Samarth Bhatia", email = "plutonium.239.811@gmail.com"},
-  {name = "Felix Dangel"},
+  {name = "Felix Dangel", email="fdangel@vectorinstitute.ai"},
 ]
 description = "Saving Memory in PyTorch"
 readme = "README.md"
-license = {file = "LICENSE"}
 keywords = ["PyTorch", "Deep Learning", "Memory Efficient", "Memory Saving", "torch"]
 classifiers = [
   "Development Status :: 3 - Alpha",
-  "Programming Language :: Python"
+  "Programming Language :: Python",
+  "License :: OSI Approved :: MIT License"
 ]
 
 [project.urls]

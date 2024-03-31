@@ -25,6 +25,14 @@ classifiers = [
 [project.urls]
 Repository = "https://github.com/plutonium-239/memsave_torch"
 
+[project.optional-dependencies]
+test = [
+  'coveralls',
+  'pytest',
+  'pytest-cov',
+  'pytest-optional-tests',
+]
+
 [tool.pytest.ini_options]
 markers = [
   "quick: marks tests as quick (only run on make test or using pytest -m quick)",

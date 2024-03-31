@@ -107,7 +107,7 @@ def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module, clone_params:
         clone_params (bool): Whether to make a copy of the parameters or reuse them
     """
     attr_split = attr.split(".", 1)
-    if len(attr) == 1:
+    if len(attr_split) == 1:
         setattr(obj, attr_split[0], value)
         if clone_params:
             value.load_state_dict(value.state_dict())  # makes a copy

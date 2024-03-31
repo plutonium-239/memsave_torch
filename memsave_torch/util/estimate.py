@@ -11,6 +11,7 @@ Q3) The same as Q1) and Q2) but in terms of memory consumption.
 """
 
 import argparse
+import os
 from typing import Callable, Dict, List, Optional
 
 from torch import Tensor, device, manual_seed, rand, randint
@@ -79,7 +80,12 @@ def skip_case_check(args: argparse.Namespace) -> bool:
         if c not in args.case and args.model in models.models_without_norm:
             invalid = True
     if invalid:
-        with open(f"results/{args.estimate}-conv.txt", "a") as f:
+        with open(
+            os.path.join(
+                args.results_dir, f"raw/{args.estimate}-{args.architecture}.txt"
+            ),
+            "a",
+        ) as f:
             f.write("-1\n")
     return invalid
 
@@ -90,8 +96,10 @@ def estimate_speedup(
     x: Tensor,
     y: Tensor,
     targets: Optional[List[Dict[str, Tensor]]],
+    architecture: str,
     dev: device,
     case: List[str],
+    results_dir: str,
     return_val: bool = False,
 ):
     """Save an estimate of total training speed-up caused by a weight VJP speed-up.
@@ -102,8 +110,10 @@ def estimate_speedup(
         x: Input to the model.
         y: Labels of the input.
         targets: Targets in case of detection model
+        architecture: linear or conv
         dev: Device to run the computation on.
         case: str indicating which grads to take
+        results_dir: See args.results_dir
         return_val: Whether to return the value or save it (Default: Save)
 
     Returns:
@@ -131,7 +141,7 @@ def estimate_speedup(
 
     if return_val:
         return result
-    with open("results/time-conv.txt", "a") as f:
+    with open(os.path.join(results_dir, f"raw/time-{architecture}.txt"), "a") as f:
         # f.write(f"{args.model},{loss_fn.__name__},{dev},{case},{result},{x.shape},{y.shape}\n")
         f.write(f"{result}\n")
 
@@ -142,8 +152,10 @@ def estimate_mem_savings(
     x: Tensor,
     y: Tensor,
     targets: Optional[List[Dict[str, Tensor]]],
+    architecture: str,
     dev: device,
     case: List[str],
+    results_dir: str,
     return_val: bool = False,
 ):
     """Print an estimate of the memory savings caused by weight VJP memory savings.
@@ -154,8 +166,10 @@ def estimate_mem_savings(
         x: Input to the model.
         y: Labels of the input.
         targets: Targets in case of detection model
+        architecture: linear or conv
         dev: Device to run the computation on.
         case: str indicating which grads to take
+        results_dir: See args.results_dir
         return_val: Whether to return the value or save it (Default: Save)
 
     Returns:
@@ -181,7 +195,7 @@ def estimate_mem_savings(
 
     if return_val:
         return result
-    with open("results/memory-conv.txt", "a") as f:
+    with open(os.path.join(results_dir, f"raw/memory-{architecture}.txt"), "a") as f:
         # f.write(f"{args.model},{loss_fn.__name__},{dev},{case},{result},{x.shape},{y.shape}\n")
         f.write(f"{result}\n")
 
@@ -232,9 +246,13 @@ if __name__ == "__main__":
         default=False,
         help="Print result to stdout instead of writing to file",
     )
+    parser.add_argument(
+        "--results_dir", type=str, default="results/", help="the base results dir"
+    )
 
     args = parser.parse_args()
 
+    assert os.path.exists(args.results_dir)
     if not skip_case_check(args):
         dev = device(args.device)
 
@@ -297,11 +315,29 @@ if __name__ == "__main__":
 
         if args.estimate == "time":
             res = estimate_speedup(
-                model_fn, loss_fn, x, y, targets, dev, args.case, args.print
+                model_fn,
+                loss_fn,
+                x,
+                y,
+                targets,
+                args.architecture,
+                dev,
+                args.case,
+                args.results_dir,
+                args.print,
             )
         elif args.estimate == "memory":
             res = estimate_mem_savings(
-                model_fn, loss_fn, x, y, targets, dev, args.case, args.print
+                model_fn,
+                loss_fn,
+                x,
+                y,
+                targets,
+                args.architecture,
+                dev,
+                args.case,
+                args.results_dir,
+                args.print,
             )
         if args.print:
             print(res)

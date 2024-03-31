@@ -89,7 +89,7 @@ cases = [
     ],
 ]
 
-pbar = tqdm(total=len(models) * len(estimators) * 3, leave=False)
+pbar = tqdm(total=len(models) * len(estimators) * len(cases), leave=False)
 collector = collect_results.ResultsCollector(
     batch_size,
     input_channels,
@@ -111,7 +111,7 @@ for model in models:
             pbar.set_description(f"{model} {estimate} case {case}")
             case_str = f"--case {' '.join(case)}" if case is not None else ""
             cmd = (
-                f"python estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
+                f"python memsave_torch/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
                 + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
             )
             proc = subprocess.run(shlex.split(cmd), capture_output=True)

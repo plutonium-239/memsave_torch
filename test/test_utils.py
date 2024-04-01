@@ -29,11 +29,11 @@ def test_all():
     models = ["deeprelumodel"]
 
     models = prefix_in_pairs("memsave_", models)
-    batch_size = 64
+    batch_size = 2
     input_channels = 3
-    input_HW = 224
-    num_classes = 1000
-    device = "cuda"
+    input_HW = 32
+    num_classes = 20
+    device = "cpu"
     architecture = "conv"
     results_dir = ".test_results/"
 

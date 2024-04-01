@@ -6,7 +6,12 @@ requires = ["flit_core >=3.2,<4"]
 name = "memsave_torch"
 version = "1.0.0"
 dependencies = [
-  "torch"
+  "torch",
+  "torchvision",
+  "codetiming",
+  "memory_profiler",
+  "pandas",
+  "tqdm"
 ]
 requires-python = ">=3.8"
 authors = [

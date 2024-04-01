@@ -31,7 +31,7 @@ ruff:
 .PHONY: test test-full
 
 test:
-	@pytest -vx --cov=memsave_torch test -m quick
+	@pytest -vx --cov=memsave_torch/nn test -m quick
 
 test-full:
 	@pytest -vx --cov=memsave_torch test

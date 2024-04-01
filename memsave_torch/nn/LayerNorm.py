@@ -83,6 +83,8 @@ class MemSaveLayerNorm(nn.LayerNorm):
                 f"Trying to load a model saved in torch>=2.1, but system version is {torch_version}. \n"
                 + "This is problematic because torch 2.1 changed how LayerNorm bias works."
             )
+        else:
+            obj.bias = ln.bias
         return obj
 
 

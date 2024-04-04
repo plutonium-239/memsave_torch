@@ -119,7 +119,8 @@ class ResultsCollector:
             model (str): The name of the model
 
         Raises:
-            e: Description
+            AssertionError: If the temp file has more/less lines than expected (= number of cases)
+            ValueError: If the temp file has unallowed text (only floats are allowed)
         """
         with open(f"{self.base_location}/{estimate}-{self.architecture}.txt") as f:
             lines = f.readlines()

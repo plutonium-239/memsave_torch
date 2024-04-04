@@ -19,10 +19,10 @@ num_classes: int = 1
 def prefix_in_pairs(prefix: str, it: List[str]) -> List[str]:
     """Prefixes the given `prefix` after each entry of the list `it`.
 
-    For example,
-    >>> models = ['resnet101', 'convnext']
-    >>> prefix_in_pairs('memsave_', models)
-    ['resnet101', 'memsave_resnet101', 'convnext', 'memsave_convnext']
+    Example:
+        >>> models = ['resnet101', 'convnext']
+        >>> prefix_in_pairs('memsave_', models)
+        ['resnet101', 'memsave_resnet101', 'convnext', 'memsave_convnext']
 
     Args:
         prefix (str): Prefix to be added

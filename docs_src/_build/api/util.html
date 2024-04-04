@@ -1,0 +1,666 @@
+
+  <!DOCTYPE html>
+<html lang="en" data-accent-color="pink" data-content_root="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>util - MemSave PyTorch documentation</title>
+    <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="nn" href="nn.html" />
+
+  <script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(sessionStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=aecf457f" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=d42a0c83" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="stylesheet" type="text/css" href="../_static/style.css?v=866d4449" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/><meta property="og:title" content="util"/>
+<meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../index.html">
+      
+      
+      <strong>MemSave PyTorch</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav"></nav>
+      <div class="sy-head-extra flex items-center print:hidden">
+<form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form>
+        
+        
+        <div class="sy-head-social flex items-center">
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center"
+        data-aria-auto="Switch to light color mode"
+        data-aria-light="Switch to dark color mode"
+        data-aria-dark="Switch to auto color mode">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic_usage.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nn.html">nn</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">util</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector"><code class="docutils literal notranslate"><span class="pre">ResultsCollector</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.clear_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.clear_file()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.collect_from_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.collect_from_file()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.finish"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.finish()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.hyperparam_str"><code class="docutils literal notranslate"><span class="pre">hyperparam_str()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.collect_results.make_case_str"><code class="docutils literal notranslate"><span class="pre">make_case_str()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.estimate.estimate_mem_savings"><code class="docutils literal notranslate"><span class="pre">estimate_mem_savings()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.estimate.estimate_speedup"><code class="docutils literal notranslate"><span class="pre">estimate_speedup()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.estimate.parse_case"><code class="docutils literal notranslate"><span class="pre">parse_case()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.estimate.skip_case_check"><code class="docutils literal notranslate"><span class="pre">skip_case_check()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.MemoryMeasurement"><code class="docutils literal notranslate"><span class="pre">MemoryMeasurement</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.MemoryMeasurement.after_forward"><code class="docutils literal notranslate"><span class="pre">MemoryMeasurement.after_forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.RuntimeMeasurement"><code class="docutils literal notranslate"><span class="pre">RuntimeMeasurement</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.RuntimeMeasurement.forward_backward"><code class="docutils literal notranslate"><span class="pre">RuntimeMeasurement.forward_backward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.maybe_synchronize"><code class="docutils literal notranslate"><span class="pre">maybe_synchronize()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.measurements.separate_grad_arguments"><code class="docutils literal notranslate"><span class="pre">separate_grad_arguments()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.models.DetectionLossWrapper"><code class="docutils literal notranslate"><span class="pre">DetectionLossWrapper</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.util.models.DetectionLossWrapper.forward"><code class="docutils literal notranslate"><span class="pre">DetectionLossWrapper.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.util.models.SegmentationLossWrapper"><code class="docutils literal notranslate"><span class="pre">SegmentationLossWrapper</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.util.models.SegmentationLossWrapper.loss_fn"><code class="docutils literal notranslate"><span class="pre">SegmentationLossWrapper.loss_fn</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.models.SegmentationLossWrapper.forward"><code class="docutils literal notranslate"><span class="pre">SegmentationLossWrapper.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.util.models.convert_to_memory_saving_defaultsoff"><code class="docutils literal notranslate"><span class="pre">convert_to_memory_saving_defaultsoff()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.util.models.prefix_in_pairs"><code class="docutils literal notranslate"><span class="pre">prefix_in_pairs()</span></code></a></li>
+</ul>
+
+  </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList">
+      
+      
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">MemSave PyTorch</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li>
+      
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">API</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li>
+      
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">util</strong>
+        <meta itemprop="position" content="3" />
+      </li>
+      
+      
+    </ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="util">
+<h1>util<a class="headerlink" href="#util" title="Permalink to this heading">¶</a></h1>
+<p>A collection of scripts/utilities to measure the memory and time consumed during the forward and backward passes.</p>
+<span class="target" id="module-memsave_torch.util"></span><p>Various utilities for measuring time and memory consumption</p>
+<span class="target" id="module-memsave_torch.util.collect_results"></span><p>Utility class to collect the results of estimation and make a dataframe from all the models and cases.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">ResultsCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">batch_size:</span> <span class="pre">int,</span> <span class="pre">input_channels:</span> <span class="pre">int,</span> <span class="pre">input_HW:</span> <span class="pre">int,</span> <span class="pre">num_classes:</span> <span class="pre">int,</span> <span class="pre">device:</span> <span class="pre">str,</span> <span class="pre">architecture:</span> <span class="pre">str,</span> <span class="pre">vjp_improvements:</span> <span class="pre">~typing.List[float],</span> <span class="pre">cases:</span> <span class="pre">~typing.List[None</span> <span class="pre">|</span> <span class="pre">~typing.List[str]],</span> <span class="pre">results_dir:</span> <span class="pre">str,</span> <span class="pre">print:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">tqdm.write</span> <span class="pre">of</span> <span class="pre">&lt;class</span> <span class="pre">'tqdm.std.tqdm'&gt;&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class collects results by reading from the results/ directory</p>
+<p>Initialize the collector before all runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – batch_size</p></li>
+<li><p><strong>input_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – input_channels</p></li>
+<li><p><strong>input_HW</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – input_HW</p></li>
+<li><p><strong>num_classes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – num_classes</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – device</p></li>
+<li><p><strong>architecture</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – conv or linear</p></li>
+<li><p><strong>vjp_improvements</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>]</em>) – vjp_improvements</p></li>
+<li><p><strong>cases</strong> (<em>List</em><em>[</em><em>Union</em><em>[</em><em>None</em><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>]</em><em>]</em><em>]</em>) – list of cases</p></li>
+<li><p><strong>results_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The base results dir</p></li>
+<li><p><strong>print</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Which function to use for printing (i.e. <cite>print()</cite> causes problems in a tqdm context)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.clear_file">
+<span class="sig-name descname"><span class="pre">clear_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.clear_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the temp file for the given estimation, to be called before and after collecting stats for a run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – time or memory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.collect_from_file">
+<span class="sig-name descname"><span class="pre">collect_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.collect_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called after all cases of a model have finished.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – time or memory</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The name of the model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.12)"><strong>AssertionError</strong></a> – If the temp file has more/less lines than expected (= number of cases)</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – If the temp file has unallowed text (only floats are allowed)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called after ALL cases on all models have been run, saves dataframes to csv files.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.hyperparam_str">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">hyperparam_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" title="(in Python v3.12)"><span class="pre">SimpleNamespace</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#memsave_torch.util.collect_results.hyperparam_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format hyperparams into a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – args</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.collect_results.make_case_str">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">make_case_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#memsave_torch.util.collect_results.make_case_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format case into a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>case</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>]</em><em>]</em>) – Given case</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-memsave_torch.util.estimate"></span><p>Estimate possible speed-up when randomizing the weight VJP of convolutions.</p>
+<p>We take a CNN and answer the following question:</p>
+<p>Q1) What is the relative run time consumed by the weight VJP for convolutions?</p>
+<dl class="simple">
+<dt>Q2) Assume we achieve a speed-up <code class="docutils literal notranslate"><span class="pre">x</span></code> by randomizing the weight VJP, what would</dt><dd><p>be the speed-up for one optimization step (forward+backward)?</p>
+</dd>
+</dl>
+<p>Q3) The same as Q1) and Q2) but in terms of memory consumption.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.estimate.estimate_mem_savings">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.estimate.</span></span><span class="sig-name descname"><span class="pre">estimate_mem_savings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.2)"><span class="pre">device</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.estimate.estimate_mem_savings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print an estimate of the memory savings caused by weight VJP memory savings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_fn</strong> – Function that sets up the neural network.</p></li>
+<li><p><strong>loss_fn</strong> – Function that sets up the loss function.</p></li>
+<li><p><strong>x</strong> – Input to the model.</p></li>
+<li><p><strong>y</strong> – Labels of the input.</p></li>
+<li><p><strong>targets</strong> – Targets in case of detection model</p></li>
+<li><p><strong>architecture</strong> – linear or conv</p></li>
+<li><p><strong>dev</strong> – Device to run the computation on.</p></li>
+<li><p><strong>case</strong> – str indicating which grads to take</p></li>
+<li><p><strong>results_dir</strong> – See args.results_dir</p></li>
+<li><p><strong>return_val</strong> – Whether to return the value or save it (Default: Save)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The required estimate (only returned if return_val is True)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.estimate.estimate_speedup">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.estimate.</span></span><span class="sig-name descname"><span class="pre">estimate_speedup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.2)"><span class="pre">device</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.estimate.estimate_speedup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an estimate of total training speed-up caused by a weight VJP speed-up.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_fn</strong> – Function that sets up the neural network.</p></li>
+<li><p><strong>loss_fn</strong> – Function that sets up the loss function.</p></li>
+<li><p><strong>x</strong> – Input to the model.</p></li>
+<li><p><strong>y</strong> – Labels of the input.</p></li>
+<li><p><strong>targets</strong> – Targets in case of detection model</p></li>
+<li><p><strong>architecture</strong> – linear or conv</p></li>
+<li><p><strong>dev</strong> – Device to run the computation on.</p></li>
+<li><p><strong>case</strong> – str indicating which grads to take</p></li>
+<li><p><strong>results_dir</strong> – See args.results_dir</p></li>
+<li><p><strong>return_val</strong> – Whether to return the value or save it (Default: Save)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The required estimate (only returned if return_val is True)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.estimate.parse_case">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.estimate.</span></span><span class="sig-name descname"><span class="pre">parse_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#memsave_torch.util.estimate.parse_case" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small helper function to convert cases into kw-arguments for measurements</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>case</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>]</em><em>]</em>) – List of all cases</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary with keys as allowed_cases present in the input (which dont start with ‘<a href="#id1"><span class="problematic" id="id2">no_</span></a>’)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.estimate.skip_case_check">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.estimate.</span></span><span class="sig-name descname"><span class="pre">skip_case_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.12)"><span class="pre">Namespace</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#memsave_torch.util.estimate.skip_case_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decide whether to skip the case (when case has grad_norm_* but model does not have any normalization layers)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.Namespace" title="(in Python v3.12)"><em>argparse.Namespace</em></a>) – args</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether to skip or not</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-memsave_torch.util.measurements"></span><p>Contains a class to perform run time and memory measurements of forward/backward.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.MemoryMeasurement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.measurements.</span></span><span class="sig-name descname"><span class="pre">MemoryMeasurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.2)"><span class="pre">device</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.measurements.MemoryMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to measure memory usage after a forward pass.</p>
+<p>Store the model, loss function, inputs, labels, and the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_fn</strong> – A function that returns a model.</p></li>
+<li><p><strong>loss_fn</strong> – A function that returns a loss function.</p></li>
+<li><p><strong>x</strong> – The input tensor.</p></li>
+<li><p><strong>y</strong> – The output tensor.</p></li>
+<li><p><strong>dev</strong> – The device to measure run time on.</p></li>
+<li><p><strong>targets</strong> – Targets in case of detection model.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.MemoryMeasurement.after_forward">
+<span class="sig-name descname"><span class="pre">after_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_linear_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#memsave_torch.util.measurements.MemoryMeasurement.after_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return memory usage after a forward pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grad_linear_weights</strong> – Whether to compute the gradient of the linear
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_linear_bias</strong> – Whether to compute the gradient of the linear
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_conv_weights</strong> – Whether to compute the gradient of the convolution
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_conv_bias</strong> – Whether to compute the gradient of the convolution
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_norm_weights</strong> – Whether to compute the gradient of the normalization
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_norm_bias</strong> – Whether to compute the gradient of the normalization
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_input</strong> – Whether to compute the gradient of the input. Default: <cite>False</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The memory usage in bytes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.RuntimeMeasurement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.measurements.</span></span><span class="sig-name descname"><span class="pre">RuntimeMeasurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.2)"><span class="pre">device</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.2)"><span class="pre">Tensor</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.measurements.RuntimeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to perform run time measurements of forward+backward pass.</p>
+<p>Store the model, loss function, inputs, labels, and the device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_fn</strong> – A function that returns a model.</p></li>
+<li><p><strong>loss_fn</strong> – A function that returns a loss function.</p></li>
+<li><p><strong>x</strong> – The input tensor.</p></li>
+<li><p><strong>y</strong> – The output tensor.</p></li>
+<li><p><strong>dev</strong> – The device to measure run time on.</p></li>
+<li><p><strong>targets</strong> – Targets in case of detection model.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.RuntimeMeasurement.forward_backward">
+<span class="sig-name descname"><span class="pre">forward_backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_linear_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#memsave_torch.util.measurements.RuntimeMeasurement.forward_backward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a forward and backward pass and return the run time.</p>
+<p>Syncs CUDA threads if the device is a GPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grad_linear_weights</strong> – Whether to compute the gradient of the linear
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_linear_bias</strong> – Whether to compute the gradient of the linear
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_conv_weights</strong> – Whether to compute the gradient of the convolution
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_conv_bias</strong> – Whether to compute the gradient of the convolution
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_norm_weights</strong> – Whether to compute the gradient of the normalization
+layer weights. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_norm_bias</strong> – Whether to compute the gradient of the normalization
+layer bias. Default: <cite>True</cite>.</p></li>
+<li><p><strong>grad_input</strong> – Whether to compute the gradient of the input. Default: <cite>False</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The run time in seconds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.maybe_synchronize">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.measurements.</span></span><span class="sig-name descname"><span class="pre">maybe_synchronize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.2)"><span class="pre">device</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.measurements.maybe_synchronize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Synchronize CUDA kernels if device is GPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dev</strong> – PyTorch device.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.measurements.separate_grad_arguments">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.measurements.</span></span><span class="sig-name descname"><span class="pre">separate_grad_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_linear_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_conv_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norm_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.2)"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.2)"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#memsave_torch.util.measurements.separate_grad_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Separate the parameters of a model into leafs and non-leafs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – The model to separate the parameters of.</p></li>
+<li><p><strong>grad_linear_weights</strong> – Whether to compute the gradient of the linear layer
+weights.</p></li>
+<li><p><strong>grad_linear_bias</strong> – Whether to compute the gradient of the linear layer bias.</p></li>
+<li><p><strong>grad_conv_weights</strong> – Whether to compute the gradient of the convolution layer
+weights.</p></li>
+<li><p><strong>grad_conv_bias</strong> – Whether to compute the gradient of the convolution layer bias.</p></li>
+<li><p><strong>grad_norm_weights</strong> – Whether to compute the gradient of the normalization layer
+weights.</p></li>
+<li><p><strong>grad_norm_bias</strong> – Whether to compute the gradient of the normalization layer bias.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of lists of parameters. The first list contains the leafs, the second
+list contains the non-leafs.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – If an unknown layer with parameters is encountered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-memsave_torch.util.models"></span><p>Utility file defining the various models, add more in the conv_model_fns dict.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.util.models.DetectionLossWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.models.</span></span><span class="sig-name descname"><span class="pre">DetectionLossWrapper</span></span><a class="headerlink" href="#memsave_torch.util.models.DetectionLossWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small wrapper around a loss to support interop with existing measurement code</p>
+<p>Init</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.models.DetectionLossWrapper.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.models.DetectionLossWrapper.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>loss_dict</strong> – loss_dict</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>loss</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>output</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.util.models.SegmentationLossWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.models.</span></span><span class="sig-name descname"><span class="pre">SegmentationLossWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss_fn_orig</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.models.SegmentationLossWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small wrapper around a loss to support interop with existing measurement code</p>
+<p>Init</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="memsave_torch.util.models.SegmentationLossWrapper.loss_fn">
+<span class="sig-name descname"><span class="pre">loss_fn</span></span><a class="headerlink" href="#memsave_torch.util.models.SegmentationLossWrapper.loss_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function which returns a loss nn.Module</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.util.models.SegmentationLossWrapper.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.models.SegmentationLossWrapper.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – x</p></li>
+<li><p><strong>y</strong> – y</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>loss</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>output</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.models.convert_to_memory_saving_defaultsoff">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.models.</span></span><span class="sig-name descname"><span class="pre">convert_to_memory_saving_defaultsoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchnorm2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxpool2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></span><a class="headerlink" href="#memsave_torch.util.models.convert_to_memory_saving_defaultsoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extension of the <cite>convert_to_memory_saving</cite> function with all defaults as off</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Module</em>) – Input model</p></li>
+<li><p><strong>linear</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace linear layers</p></li>
+<li><p><strong>conv2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace conv2d layers</p></li>
+<li><p><strong>batchnorm2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace batchnorm2d layers</p></li>
+<li><p><strong>relu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace relu layers</p></li>
+<li><p><strong>maxpool2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace maxpool2d layers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted memory saving model</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.util.models.prefix_in_pairs">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.models.</span></span><span class="sig-name descname"><span class="pre">prefix_in_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">it</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#memsave_torch.util.models.prefix_in_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefixes the given <cite>prefix</cite> after each entry of the list <cite>it</cite>.</p>
+<p>For example,
+&gt;&gt;&gt; models = [‘resnet101’, ‘convnext’]
+&gt;&gt;&gt; prefix_in_pairs(’<a href="#id3"><span class="problematic" id="id4">memsave_</span></a>’, models)
+[‘resnet101’, ‘memsave_resnet101’, ‘convnext’, ‘memsave_convnext’]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Prefix to be added</p></li>
+<li><p><strong>it</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>]</em>) – Description</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The output iterable with items prefixed in pairs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="nn.html">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>Previous</span>
+        
+        <div class="title">nn</div>
+        
+      </div>
+    </a>
+  </div>
+  
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2024, Samarth Bhatia, Felix Dangel</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/shibuya.js?v=999236dc"></script>
+      <script src="../_static/autoscroll.js?v=f3ffc328"></script>
+    
+</body>
+</html>

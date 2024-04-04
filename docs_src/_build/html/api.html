@@ -1,0 +1,321 @@
+
+  <!DOCTYPE html>
+<html lang="en" data-accent-color="crimson" data-content_root="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>API - MemSave PyTorch documentation</title>
+    <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Installation" href="basic_usage.html" />
+
+  <script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(sessionStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=aecf457f" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=d42a0c83" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/><meta property="og:title" content="API"/>
+<meta name="twitter:card" content="summary"/>
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="index.html">
+      
+      
+      <strong>MemSave PyTorch</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav"></nav>
+      <div class="sy-head-extra flex items-center print:hidden">
+<form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form>
+        
+        
+        <div class="sy-head-social flex items-center">
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center"
+        data-aria-auto="Switch to light color mode"
+        data-aria-light="Switch to dark color mode"
+        data-aria-dark="Switch to auto color mode">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic_usage.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#module-memsave_torch.nn"><code class="docutils literal notranslate"><span class="pre">memsave_torch.nn</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.nn.convert_to_memory_saving"><code class="docutils literal notranslate"><span class="pre">convert_to_memory_saving()</span></code></a></li>
+<li><a class="reference internal" href="#implemented-layers">Implemented Layers</a><ul>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveConv2d"><code class="docutils literal notranslate"><span class="pre">MemSaveConv2d</span></code></a><ul>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveConv2d.__init__"><code class="docutils literal notranslate"><span class="pre">MemSaveConv2d.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveConv2d.from_nn_Conv2d"><code class="docutils literal notranslate"><span class="pre">MemSaveConv2d.from_nn_Conv2d()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveLinear"><code class="docutils literal notranslate"><span class="pre">MemSaveLinear</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveReLU"><code class="docutils literal notranslate"><span class="pre">MemSaveReLU</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveMaxPool2d"><code class="docutils literal notranslate"><span class="pre">MemSaveMaxPool2d</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveBatchNorm2d"><code class="docutils literal notranslate"><span class="pre">MemSaveBatchNorm2d</span></code></a></li>
+<li><a class="reference internal" href="#memsave_torch.nn.MemSaveLayerNorm"><code class="docutils literal notranslate"><span class="pre">MemSaveLayerNorm</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList">
+      
+      
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="index.html"><span itemprop="name">MemSave PyTorch</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li>
+      
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">API</strong>
+        <meta itemprop="position" content="2" />
+      </li>
+      
+      
+    </ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="module-memsave_torch">
+<span id="api"></span><h1>API<a class="headerlink" href="#module-memsave_torch" title="Permalink to this heading">¶</a></h1>
+<p>memsave_torch package</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">memsave_torch</span></code> package consists of two main modules <a class="reference internal" href="#module-memsave_torch.nn" title="memsave_torch.nn"><code class="xref py py-mod docutils literal notranslate"><span class="pre">memsave_torch.nn</span></code></a> and <code class="docutils literal notranslate"><span class="pre">util</span></code></p>
+<section id="module-memsave_torch.nn">
+<span id="memsave-torch-nn"></span><h2><code class="docutils literal notranslate"><span class="pre">memsave_torch.nn</span></code><a class="headerlink" href="#module-memsave_torch.nn" title="Permalink to this heading">¶</a></h2>
+<p>Module containing implementations of memory saving neural network layers.</p>
+<p>Currently implemented:
+- Linear
+- Conv2d
+- BatchNorm2d</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="memsave_torch.nn.convert_to_memory_saving">
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">convert_to_memory_saving</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchnorm2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxpool2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layernorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="headerlink" href="#memsave_torch.nn.convert_to_memory_saving" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given <cite>model</cite> to it’s MemSave version, with options to choose which layer types to replace.</p>
+<p>The <cite>clone_params</cite> option should be used when you plan on using both models simultaneously. Otherwise,
+the grad accumulation for one model wll affect the other (since their weights are the same Tensor object).
+For an example, see tests/test_layers.py.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>nn.Module</em>) – The input model</p></li>
+<li><p><strong>linear</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Linear</cite> layers</p></li>
+<li><p><strong>conv2d</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Conv2d</cite> layers</p></li>
+<li><p><strong>batchnorm2d</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.BatchNorm2d</cite> layers</p></li>
+<li><p><strong>relu</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.ReLU</cite> layers</p></li>
+<li><p><strong>maxpool2d</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.MaxPool2d</cite> layers</p></li>
+<li><p><strong>layernorm</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace <cite>nn.LayerNorm</cite> layers</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print which layers were replaced</p></li>
+<li><p><strong>clone_params</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to clone the layer parameters or use directly</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted memory saving model</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>memsavemodel (nn.Module)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="implemented-layers">
+<h3>Implemented Layers<a class="headerlink" href="#implemented-layers" title="Permalink to this heading">¶</a></h3>
+<p>Learnable</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveConv2d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveConv2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'zeros'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveConv2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveConv2d.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveConv2d.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'zeros'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#memsave_torch.nn.MemSaveConv2d.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inits a Conv2d layer with the given params.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> – in_channels</p></li>
+<li><p><strong>out_channels</strong> – out_channels</p></li>
+<li><p><strong>kernel_size</strong> – kernel_size</p></li>
+<li><p><strong>stride</strong> – stride</p></li>
+<li><p><strong>padding</strong> – padding</p></li>
+<li><p><strong>dilation</strong> – dilation</p></li>
+<li><p><strong>groups</strong> – groups</p></li>
+<li><p><strong>bias</strong> – bias</p></li>
+<li><p><strong>padding_mode</strong> – padding_mode</p></li>
+<li><p><strong>device</strong> – device</p></li>
+<li><p><strong>dtype</strong> – dtype</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveConv2d.from_nn_Conv2d">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_nn_Conv2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conv2d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Conv2d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveConv2d.from_nn_Conv2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a nn.Conv2d layer to MemSaveConv2d.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conv2d</strong> – The nn.Conv2d layer</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The MemSaveConv2d object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveLinear">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveLinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveLinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveLinear.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveReLU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveReLU</span></span><a class="headerlink" href="#memsave_torch.nn.MemSaveReLU" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveReLU.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveMaxPool2d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveMaxPool2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ceil_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveMaxPool2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveMaxPool2d.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveBatchNorm2d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveBatchNorm2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_running_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveBatchNorm2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveBatchNorm2d.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="memsave_torch.nn.MemSaveLayerNorm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveLayerNorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elementwise_affine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveLayerNorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>MemSaveLayerNorm.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="basic_usage.html">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>Previous</span>
+        
+        <div class="title">Installation</div>
+        
+      </div>
+    </a>
+  </div>
+  
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>2024, Samarth Bhatia, Felix Dangel</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/shibuya.js?v=999236dc"></script>
+    
+</body>
+</html>

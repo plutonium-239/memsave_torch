@@ -100,7 +100,7 @@ class MemSaveConv2d(nn.Conv2d):
         return obj
 
 
-class _MemSaveConv2d(torch.autograd.Function):
+class _MemSaveConv(torch.autograd.Function):
     @staticmethod
     def forward(x, weight, bias, stride, padding, dilation, groups):
         return nn.functional.conv2d(x, weight, bias, stride, padding, dilation, groups)
@@ -185,4 +185,4 @@ def conv2dMemSave(
     Returns:
         torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
     """
-    return _MemSaveConv2d.apply(input, weight, bias, stride, padding, dilation, groups)
+    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)

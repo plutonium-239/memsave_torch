@@ -7,7 +7,7 @@ from itertools import product
 
 import pandas as pd
 
-from memsave_torch.util.collect_results import case_mapping
+from experiments.util.collect_results import case_mapping
 
 
 def main(base_dir: str):

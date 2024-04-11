@@ -17,8 +17,8 @@ from typing import Callable, Dict, List, Optional
 from torch import Tensor, device, manual_seed, rand, randint
 from torch.nn import CrossEntropyLoss, Module
 
-from memsave_torch.util import models
-from memsave_torch.util.measurements import (
+from experiments.util import models
+from experiments.util.measurements import (
     MemoryMeasurement,
     RuntimeMeasurement,
 )

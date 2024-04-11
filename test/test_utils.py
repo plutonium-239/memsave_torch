@@ -11,8 +11,8 @@ def test_all():
     import subprocess
     from time import sleep
 
-    from memsave_torch.util import collect_results
-    from memsave_torch.util.models import prefix_in_pairs
+    from experiments.util import collect_results
+    from experiments.util.models import prefix_in_pairs
 
     estimators = ["time", "memory"]
 
@@ -66,7 +66,7 @@ def test_all():
             for case in cases:
                 case_str = f"--case {' '.join(case)}" if case is not None else ""
                 cmd = (
-                    f"python memsave_torch/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
+                    f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
                     + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes} "
                     + f"--results_dir {results_dir}"
                 )
@@ -81,6 +81,6 @@ def test_all():
 
     collector.finish()
 
-    import memsave_torch.get_best_results
+    import experiments.get_best_results
 
-    memsave_torch.get_best_results.main(results_dir)
+    experiments.get_best_results.main(results_dir)

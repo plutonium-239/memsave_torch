@@ -5,6 +5,7 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 
 import torch
 import torch.nn as nn
+from Conv2d import _MemSaveConv
 
 
 class MemSaveConv1d(nn.Conv1d):
@@ -100,73 +101,6 @@ class MemSaveConv1d(nn.Conv1d):
         return obj
 
 
-class _MemSaveConv1d(torch.autograd.Function):
-    @staticmethod
-    def forward(x, weight, bias, stride, padding, dilation, groups):
-        return nn.functional.conv1d(x, weight, bias, stride, padding, dilation, groups)
-
-    @staticmethod
-    def setup_context(ctx, inputs, output):
-        x, weight, bias, stride, padding, dilation, groups = inputs
-        # print('setting up context', ctx.needs_input_grad)
-        need_grad = []
-        if ctx.needs_input_grad[0]:
-            # print('weight saved')
-            need_grad.append(weight)
-        if ctx.needs_input_grad[1]:
-            # print('x saved')
-            need_grad.append(x)
-        # bias doesnt need anything for calc
-        ctx.bias_exists = bias is not None
-        ctx.stride = stride
-        ctx.padding = padding
-        ctx.dilation = dilation
-        ctx.groups = groups
-        ctx.x_shape = x.shape
-        ctx.weight_shape = weight.shape
-
-        ctx.save_for_backward(*need_grad)
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        x = weight = None
-
-        current_idx = 0
-        if ctx.needs_input_grad[0]:
-            # print('0 needs weight')
-            weight = ctx.saved_tensors[current_idx]
-            current_idx += 1
-        elif ctx.needs_input_grad[1]:
-            # print('1 needs x')
-            x = ctx.saved_tensors[current_idx]
-            current_idx += 1
-
-        if weight is not None:
-            x = torch.zeros(ctx.x_shape, device=weight.device)
-        if x is not None:
-            weight = torch.zeros(ctx.weight_shape, device=x.device)
-
-        # print(current_idx)
-
-        grad_x, grad_weight, grad_bias = torch.ops.aten.convolution_backward(
-            grad_output,
-            x,
-            weight,
-            weight.shape[0] if ctx.bias_exists else None,
-            ctx.stride,
-            ctx.padding,
-            ctx.dilation,
-            False,
-            [0],
-            ctx.groups,
-            ctx.needs_input_grad[:3],
-        )
-
-        # print('grads are ', (grad_x is not None), (grad_weight is not None), (grad_bias is not None))
-
-        return grad_x, grad_weight, grad_bias, None, None, None, None, None
-
-
 def conv1dMemSave(
     input, weight, bias, stride, padding, dilation, groups
 ) -> torch.Tensor:
@@ -184,4 +118,4 @@ def conv1dMemSave(
     Returns:
         torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
     """
-    return _MemSaveConv1d.apply(input, weight, bias, stride, padding, dilation, groups)
+    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)

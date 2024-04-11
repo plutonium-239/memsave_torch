@@ -9,6 +9,7 @@ Currently implemented:
 import torch.nn as nn
 
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
+from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
 from memsave_torch.nn.LayerNorm import MemSaveLayerNorm
 from memsave_torch.nn.Linear import MemSaveLinear
@@ -20,6 +21,7 @@ def convert_to_memory_saving(
     model: nn.Module,
     linear=True,
     conv2d=True,
+    conv1d=False,
     batchnorm2d=True,
     relu=True,
     maxpool2d=True,
@@ -37,6 +39,7 @@ def convert_to_memory_saving(
         model (nn.Module): The input model
         linear (bool, optional): Whether to replace `nn.Linear` layers
         conv2d (bool, optional): Whether to replace `nn.Conv2d` layers
+        conv1d (bool, optional): Whether to replace `nn.Conv1d` layers
         batchnorm2d (bool, optional): Whether to replace `nn.BatchNorm2d` layers
         relu (bool, optional): Whether to replace `nn.ReLU` layers
         maxpool2d (bool, optional): Whether to replace `nn.MaxPool2d` layers
@@ -63,6 +66,11 @@ def convert_to_memory_saving(
             "allowed": conv2d,
             "cls": nn.Conv2d,
             "convert_fn": MemSaveConv2d.from_nn_Conv2d,
+        },
+        {
+            "allowed": conv1d,
+            "cls": nn.Conv1d,
+            "convert_fn": MemSaveConv1d.from_nn_Conv1d,
         },
         {
             "allowed": batchnorm2d,

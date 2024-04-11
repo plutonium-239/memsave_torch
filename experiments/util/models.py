@@ -40,9 +40,11 @@ def convert_to_memory_saving_defaultsoff(
     model: Module,
     linear=False,
     conv2d=False,
+    conv1d=False,
     batchnorm2d=False,
     relu=False,
     maxpool2d=False,
+    layernorm=False,
 ) -> Module:
     """Extension of the `convert_to_memory_saving` function with all defaults as off
 
@@ -50,14 +52,25 @@ def convert_to_memory_saving_defaultsoff(
         model (Module): Input model
         linear (bool, optional): Whether to replace linear layers
         conv2d (bool, optional): Whether to replace conv2d layers
+        conv1d (bool, optional): Whether to replace conv1d layers
         batchnorm2d (bool, optional): Whether to replace batchnorm2d layers
         relu (bool, optional): Whether to replace relu layers
         maxpool2d (bool, optional): Whether to replace maxpool2d layers
+        layernorm (bool, optional): Whether to replace layernorm layers
 
     Returns:
         Module: The converted memory saving model
     """
-    return convert_to_memory_saving(model, linear, conv2d, batchnorm2d, relu, maxpool2d)
+    return convert_to_memory_saving(
+        model,
+        linear=linear,
+        conv2d=conv2d,
+        conv1d=conv1d,
+        batchnorm2d=batchnorm2d,
+        relu=relu,
+        maxpool2d=maxpool2d,
+        layernorm=layernorm,
+    )
 
 
 # CONV

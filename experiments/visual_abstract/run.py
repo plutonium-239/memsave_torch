@@ -33,7 +33,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def main():
+def main():  # noqa: C901
+    """Runs exps for generating the data of the visual abstract"""
     manual_seed(0)
 
     # create the input

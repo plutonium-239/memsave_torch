@@ -2,34 +2,26 @@
 
 # pip install transformers peft
 
-import sys
-from os import path
-
 import torch
 from peft import LoraConfig, get_peft_model
 from torch import manual_seed
-from torch.nn import Conv1d, LayerNorm, Linear
+from torch.nn import Module
 from transformers import (
     AutoModelForCausalLM,
 )
 
-HEREDIR = path.dirname(path.abspath(__file__))
-LIBDIR = path.join(HEREDIR, "memsave_torch")
-if LIBDIR not in sys.path:
-    sys.path.append(LIBDIR)
-
-from memsave_torch.nn import (
-    MemSaveConv1d,
-    MemSaveLayerNorm,
-    MemSaveLinear,
-    recursive_setattr,
-)
+from memsave_torch.nn import convert_to_memory_saving
 
 
-def print_trainable_parameters(model):
+def print_trainable_parameters(model: Module):
+    """Function that prints how many parameters are trainable in the given model
+
+    Args:
+        model (Module): The model
+    """
     trainable_params = 0
     all_param = 0
-    for name, param in model.named_parameters():
+    for param in model.parameters():
         all_param += param.numel()
         if param.requires_grad:
             trainable_params += param.numel()
@@ -39,6 +31,7 @@ def print_trainable_parameters(model):
 
 
 def main():
+    """Runs the LLM experiment after replacing layers"""
     manual_seed(0)
 
     memsave = True
@@ -58,26 +51,12 @@ def main():
         lora_dropout=0.1,
         bias="none",
     )
-    lora_model = get_peft_model(model, lora_config)
-    # print_trainable_parameters(lora_model)
 
     if memsave:
-        for name, layer in model.named_modules():
-            if isinstance(layer, Linear):
-                new_layer = MemSaveLinear.from_nn_Linear(layer)
-                for p1, p2 in zip(layer.parameters(), new_layer.parameters()):
-                    p2.requires_grad = p1.requires_grad
-                recursive_setattr(model, name, new_layer)
-            elif isinstance(layer, Conv1d):
-                new_layer = MemSaveConv1d.from_nn_Conv1d(layer)
-                for p1, p2 in zip(layer.parameters(), new_layer.parameters()):
-                    p2.requires_grad = p1.requires_grad
-                recursive_setattr(model, name, new_layer)
-            elif isinstance(layer, LayerNorm):
-                new_layer = MemSaveLayerNorm.from_nn_LayerNorm(layer)
-                for p1, p2 in zip(layer.parameters(), new_layer.parameters()):
-                    p2.requires_grad = p1.requires_grad
-                recursive_setattr(model, name, new_layer)
+        model = convert_to_memory_saving(model)
+
+    lora_model = get_peft_model(model, lora_config)
+    # print_trainable_parameters(lora_model)
 
     batch_size = 8
     seq_len = 512

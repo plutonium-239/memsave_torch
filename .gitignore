@@ -1,4 +1,5 @@
 **/__pycache__
 *.txt
 *.csv
+docs_src/_build/
 !requirements.txt

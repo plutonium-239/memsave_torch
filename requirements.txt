@@ -1,3 +1,5 @@
+# for the actual pip requirements, look in pyproject.toml 
+# these include deps for all optional installs as well
 codetiming==1.4.0
 memory_profiler==0.61.0
 pandas==2.0.3

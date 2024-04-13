@@ -8,8 +8,6 @@ version = "1.0.0"
 dependencies = [
   "torch",
   "torchvision",
-  "codetiming",
-  "memory_profiler",
   "pandas",
   "tqdm"
 ]
@@ -36,6 +34,10 @@ test = [
   'pytest',
   'pytest-cov',
   'pytest-optional-tests',
+]
+exp = [
+  "codetiming",
+  "memory_profiler"
 ]
 
 [tool.pytest.ini_options]

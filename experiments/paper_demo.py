@@ -99,6 +99,7 @@ collector = collect_results.ResultsCollector(
     architecture,
     vjp_improvements,
     cases,
+    'results'
 )
 
 for model in models:

@@ -5,7 +5,7 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 
 import torch
 import torch.nn as nn
-from Conv2d import _MemSaveConv
+from memsave_torch.nn.Conv2d import _MemSaveConv
 
 
 class MemSaveConv1d(nn.Conv1d):

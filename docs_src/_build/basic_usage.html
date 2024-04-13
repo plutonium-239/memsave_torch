@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Installation - MemSave PyTorch documentation</title>
-    <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API" href="api/index.html" /><link rel="prev" title="Welcome to MemSave PyTorch’s documentation!" href="index.html" />
+      <title>Installation / Quickstart - MemSave PyTorch documentation</title>
+    <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Reference" href="api/index.html" /><link rel="prev" title="Welcome to MemSave PyTorch’s documentation!" href="index.html" />
 
   <script>
     function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
@@ -24,7 +24,7 @@
   --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
 }
 </style>
-    <meta property="og:type" content="website"/><meta property="og:title" content="Installation"/>
+    <meta property="og:type" content="website"/><meta property="og:title" content="Installation / Quickstart"/>
 <meta name="twitter:card" content="summary"/>
   </head>
 <body><div class="document"><div class="sy-head">
@@ -71,10 +71,23 @@
       <div class="sy-scrollbar p-6">
         <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/nn.html">nn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/util/index.html">util</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation / Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/nn.html">nn</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveConv2d.html">MemSaveConv2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveLinear.html">MemSaveLinear</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveReLU.html">MemSaveReLU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveMaxPool2d.html">MemSaveMaxPool2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveBatchNorm2d.html">MemSaveBatchNorm2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/nn/memsave_torch.nn.MemSaveLayerNorm.html">MemSaveLayerNorm</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/util/index.html">experiments/util ⚠️</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/util/collect_results.html">ResultsCollector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/util/estimate.html">estimate.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/util/models.html">Models</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -118,7 +131,7 @@
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <strong itemprop="name">Installation</strong>
+        <strong itemprop="name">Installation / Quickstart</strong>
         <meta itemprop="position" content="2" />
       </li>
       
@@ -135,8 +148,8 @@
     <div class="flex flex-col break-words justify-between">
       <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
         <article class="yue" role="main">
-          <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
+          <section id="installation-quickstart">
+<h1>Installation / Quickstart<a class="headerlink" href="#installation-quickstart" title="Permalink to this heading">¶</a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span id="1-1">pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/plutonium-239/memsave_torch
 </span></pre></div>
 </div>
@@ -171,7 +184,7 @@
     <a href="api/index.html">
       <div class="page-info">
         <span>Next</span>
-        <div class="title">API</div>
+        <div class="title">API Reference</div>
       </div>
       <i class="i-icon chevron"></i>
     </a>

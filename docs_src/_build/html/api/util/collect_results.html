@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>collect_results.py - MemSave PyTorch documentation</title>
+      <title>ResultsCollector - MemSave PyTorch documentation</title>
     <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="estimate.py" href="estimate.html" /><link rel="prev" title="util" href="index.html" />
 
   <script>
@@ -24,7 +24,7 @@
   --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
 }
 </style>
-    <meta property="og:type" content="website"/><meta property="og:title" content="collect_results.py"/>
+    <meta property="og:type" content="website"/><meta property="og:title" content="ResultsCollector"/>
 <meta name="twitter:card" content="summary"/>
   </head>
 <body><div class="document"><div class="sy-head">
@@ -71,8 +71,8 @@
       <div class="sy-scrollbar p-6">
         <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../basic_usage.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../basic_usage.html">Installation / Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../nn.html">nn</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">util</a></li>
 </ul>
@@ -93,14 +93,14 @@
   <div class="localtoc">
     <h3>On this page</h3>
     <ul>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector"><code class="docutils literal notranslate"><span class="pre">ResultsCollector</span></code></a><ul>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.clear_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.clear_file()</span></code></a></li>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.collect_from_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.collect_from_file()</span></code></a></li>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.ResultsCollector.finish"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.finish()</span></code></a></li>
+<li><a class="reference internal" href="#experiments.util.collect_results.ResultsCollector"><code class="docutils literal notranslate"><span class="pre">ResultsCollector</span></code></a><ul>
+<li><a class="reference internal" href="#experiments.util.collect_results.ResultsCollector.clear_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.clear_file()</span></code></a></li>
+<li><a class="reference internal" href="#experiments.util.collect_results.ResultsCollector.collect_from_file"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.collect_from_file()</span></code></a></li>
+<li><a class="reference internal" href="#experiments.util.collect_results.ResultsCollector.finish"><code class="docutils literal notranslate"><span class="pre">ResultsCollector.finish()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.hyperparam_str"><code class="docutils literal notranslate"><span class="pre">hyperparam_str()</span></code></a></li>
-<li><a class="reference internal" href="#memsave_torch.util.collect_results.make_case_str"><code class="docutils literal notranslate"><span class="pre">make_case_str()</span></code></a></li>
+<li><a class="reference internal" href="#experiments.util.collect_results.hyperparam_str"><code class="docutils literal notranslate"><span class="pre">hyperparam_str()</span></code></a></li>
+<li><a class="reference internal" href="#experiments.util.collect_results.make_case_str"><code class="docutils literal notranslate"><span class="pre">make_case_str()</span></code></a></li>
 </ul>
 
   </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
@@ -125,7 +125,7 @@
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a itemprop="item" href="../index.html"><span itemprop="name">API</span></a>
+        <a itemprop="item" href="../index.html"><span itemprop="name">API Reference</span></a>
         <span>/</span>
         <meta itemprop="position" content="2" />
       </li>
@@ -137,7 +137,7 @@
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <strong itemprop="name">collect_results.py</strong>
+        <strong itemprop="name">ResultsCollector</strong>
         <meta itemprop="position" content="4" />
       </li>
       
@@ -154,13 +154,13 @@
     <div class="flex flex-col break-words justify-between">
       <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
         <article class="yue" role="main">
-          <section id="collect-results-py">
-<h1>collect_results.py<a class="headerlink" href="#collect-results-py" title="Permalink to this heading">¶</a></h1>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultsCollector</span></code> handles collection and organization of results from temp files generated by the <a class="reference internal" href="estimate.html#module-memsave_torch.util.estimate" title="memsave_torch.util.estimate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">memsave_torch.util.estimate</span></code></a> script.</p>
-<span class="target" id="module-memsave_torch.util.collect_results"></span><p>Utility class to collect the results of estimation and make a dataframe from all the models and cases.</p>
+          <section id="resultscollector">
+<h1>ResultsCollector<a class="headerlink" href="#resultscollector" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultsCollector</span></code> handles collection and organization of results from temp files generated by the <a class="reference internal" href="estimate.html#module-experiments.util.estimate" title="experiments.util.estimate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">experiments.util.estimate</span></code></a> script.</p>
+<span class="target" id="module-experiments.util.collect_results"></span><p>Utility class to collect the results of estimation and make a dataframe from all the models and cases.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">ResultsCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">batch_size:</span> <span class="pre">int,</span> <span class="pre">input_channels:</span> <span class="pre">int,</span> <span class="pre">input_HW:</span> <span class="pre">int,</span> <span class="pre">num_classes:</span> <span class="pre">int,</span> <span class="pre">device:</span> <span class="pre">str,</span> <span class="pre">architecture:</span> <span class="pre">str,</span> <span class="pre">vjp_improvements:</span> <span class="pre">~typing.List[float],</span> <span class="pre">cases:</span> <span class="pre">~typing.List[None</span> <span class="pre">|</span> <span class="pre">~typing.List[str]],</span> <span class="pre">results_dir:</span> <span class="pre">str,</span> <span class="pre">print:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">tqdm.write</span> <span class="pre">of</span> <span class="pre">&lt;class</span> <span class="pre">'tqdm.std.tqdm'&gt;&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.ResultsCollector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">experiments.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">ResultsCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">batch_size:</span> <span class="pre">int,</span> <span class="pre">input_channels:</span> <span class="pre">int,</span> <span class="pre">input_HW:</span> <span class="pre">int,</span> <span class="pre">num_classes:</span> <span class="pre">int,</span> <span class="pre">device:</span> <span class="pre">str,</span> <span class="pre">architecture:</span> <span class="pre">str,</span> <span class="pre">vjp_improvements:</span> <span class="pre">~typing.List[float],</span> <span class="pre">cases:</span> <span class="pre">~typing.List[None</span> <span class="pre">|</span> <span class="pre">~typing.List[str]],</span> <span class="pre">results_dir:</span> <span class="pre">str,</span> <span class="pre">print:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">tqdm.write</span> <span class="pre">of</span> <span class="pre">&lt;class</span> <span class="pre">'tqdm.std.tqdm'&gt;&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiments.util.collect_results.ResultsCollector" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class collects results by reading from the results/ directory</p>
 <p>Initialize the collector before all runs.</p>
 <dl class="field-list simple">
@@ -180,8 +180,8 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.clear_file">
-<span class="sig-name descname"><span class="pre">clear_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.clear_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.ResultsCollector.clear_file">
+<span class="sig-name descname"><span class="pre">clear_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiments.util.collect_results.ResultsCollector.clear_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clears the temp file for the given estimation, to be called before and after collecting stats for a run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -191,8 +191,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.collect_from_file">
-<span class="sig-name descname"><span class="pre">collect_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.collect_from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.ResultsCollector.collect_from_file">
+<span class="sig-name descname"><span class="pre">collect_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiments.util.collect_results.ResultsCollector.collect_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>To be called after all cases of a model have finished.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -211,16 +211,16 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.ResultsCollector.finish">
-<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.util.collect_results.ResultsCollector.finish" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.ResultsCollector.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#experiments.util.collect_results.ResultsCollector.finish" title="Permalink to this definition">¶</a></dt>
 <dd><p>To be called after ALL cases on all models have been run, saves dataframes to csv files.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.hyperparam_str">
-<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">hyperparam_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" title="(in Python v3.12)"><span class="pre">SimpleNamespace</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#memsave_torch.util.collect_results.hyperparam_str" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.hyperparam_str">
+<span class="sig-prename descclassname"><span class="pre">experiments.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">hyperparam_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/types.html#types.SimpleNamespace" title="(in Python v3.12)"><span class="pre">SimpleNamespace</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#experiments.util.collect_results.hyperparam_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format hyperparams into a string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -236,8 +236,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="memsave_torch.util.collect_results.make_case_str">
-<span class="sig-prename descclassname"><span class="pre">memsave_torch.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">make_case_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#memsave_torch.util.collect_results.make_case_str" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="experiments.util.collect_results.make_case_str">
+<span class="sig-prename descclassname"><span class="pre">experiments.util.collect_results.</span></span><span class="sig-name descname"><span class="pre">make_case_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#experiments.util.collect_results.make_case_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format case into a string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

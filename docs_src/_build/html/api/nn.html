@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>nn - MemSave PyTorch documentation</title>
-    <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="util" href="util/index.html" /><link rel="prev" title="API" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="util" href="util/index.html" /><link rel="prev" title="API Reference" href="index.html" />
 
   <script>
     function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
@@ -71,8 +71,8 @@
       <div class="sy-scrollbar p-6">
         <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../basic_usage.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic_usage.html">Installation / Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">nn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="util/index.html">util</a></li>
 </ul>
@@ -157,7 +157,7 @@
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a itemprop="item" href="index.html"><span itemprop="name">API</span></a>
+        <a itemprop="item" href="index.html"><span itemprop="name">API Reference</span></a>
         <span>/</span>
         <meta itemprop="position" content="2" />
       </li>
@@ -192,14 +192,9 @@
 <li><p><a class="reference internal" href="#memsave_torch.nn.MemSaveBatchNorm2d" title="memsave_torch.nn.MemSaveBatchNorm2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemSaveBatchNorm2d</span></code></a></p></li>
 <li><p><a class="reference internal" href="#memsave_torch.nn.MemSaveLayerNorm" title="memsave_torch.nn.MemSaveLayerNorm"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemSaveLayerNorm</span></code></a></p></li>
 </ul>
-<span class="target" id="module-memsave_torch.nn"></span><p>Module containing implementations of memory saving neural network layers.</p>
-<p>Currently implemented:
-- Linear
-- Conv2d
-- BatchNorm2d</p>
-<dl class="py function">
+<span class="target" id="module-memsave_torch.nn"></span><dl class="py function">
 <dt class="sig sig-object py" id="memsave_torch.nn.convert_to_memory_saving">
-<span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">convert_to_memory_saving</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchnorm2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxpool2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layernorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></span><a class="headerlink" href="#memsave_torch.nn.convert_to_memory_saving" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">convert_to_memory_saving</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv1d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchnorm2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxpool2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layernorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.2)"><span class="pre">Module</span></a></span></span><a class="headerlink" href="#memsave_torch.nn.convert_to_memory_saving" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts the given <cite>model</cite> to it’s MemSave version, with options to choose which layer types to replace.</p>
 <p>The <cite>clone_params</cite> option should be used when you plan on using both models simultaneously. Otherwise,
 the grad accumulation for one model wll affect the other (since their weights are the same Tensor object).
@@ -210,10 +205,12 @@ For an example, see tests/test_layers.py.</p>
 <li><p><strong>model</strong> (<em>nn.Module</em>) – The input model</p></li>
 <li><p><strong>linear</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Linear</cite> layers</p></li>
 <li><p><strong>conv2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Conv2d</cite> layers</p></li>
+<li><p><strong>conv1d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Conv1d</cite> layers</p></li>
 <li><p><strong>batchnorm2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.BatchNorm2d</cite> layers</p></li>
 <li><p><strong>relu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.ReLU</cite> layers</p></li>
 <li><p><strong>maxpool2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.MaxPool2d</cite> layers</p></li>
 <li><p><strong>layernorm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.LayerNorm</cite> layers</p></li>
+<li><p><strong>dropout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace <cite>nn.Dropout</cite> layers</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print which layers were replaced</p></li>
 <li><p><strong>clone_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to clone the layer parameters or use directly</p></li>
 </ul>
@@ -347,17 +344,6 @@ For an example, see tests/test_layers.py.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">memsave_torch.nn.</span></span><span class="sig-name descname"><span class="pre">MemSaveReLU</span></span><a class="headerlink" href="#memsave_torch.nn.MemSaveReLU" title="Permalink to this definition">¶</a></dt>
 <dd><p>MemSaveReLU.</p>
 <p>Inits a MemSaveReLU layer with the given params.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>in_features</strong> – in_features</p></li>
-<li><p><strong>out_features</strong> – out_features</p></li>
-<li><p><strong>bias</strong> – bias</p></li>
-<li><p><strong>device</strong> – device</p></li>
-<li><p><strong>dtype</strong> – dtype</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="memsave_torch.nn.MemSaveReLU.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#memsave_torch.nn.MemSaveReLU.forward" title="Permalink to this definition">¶</a></dt>
@@ -569,7 +555,7 @@ For an example, see tests/test_layers.py.</p>
       <div class="page-info">
         <span>Previous</span>
         
-        <div class="title">API</div>
+        <div class="title">API Reference</div>
         
       </div>
     </a>

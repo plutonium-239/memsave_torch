@@ -13,7 +13,7 @@ author = 'Samarth Bhatia, Felix Dangel'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx_copybutton', 'sphinx.ext.autosummary', 'sphinx.ext.napoleon', 'sphinx.ext.intersphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx_copybutton', 'sphinx.ext.autosummary', 'sphinx.ext.napoleon', 'sphinx.ext.intersphinx', 'sphinxemoji.sphinxemoji']
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

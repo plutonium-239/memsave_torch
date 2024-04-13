@@ -7,7 +7,7 @@ Welcome to MemSave PyTorch's documentation!
 ===========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Getting started
 
    basic_usage

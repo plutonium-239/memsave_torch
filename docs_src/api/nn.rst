@@ -1,7 +1,8 @@
 nn
 ===
 
-This module contains the following members: 
+This module tries to mirror the :mod:`torch.nn` module, offering all available layers to be readily replaced by calling the :func:`convert_to_memory_saving()` function.
+This module contains the following members:
 
 * :func:`convert_to_memory_saving <memsave_torch.nn.convert_to_memory_saving>`
 * :class:`MemSaveConv2d <memsave_torch.nn.MemSaveConv2d>`
@@ -11,31 +12,41 @@ This module contains the following members:
 * :class:`MemSaveBatchNorm2d <memsave_torch.nn.MemSaveBatchNorm2d>`
 * :class:`MemSaveLayerNorm <memsave_torch.nn.MemSaveLayerNorm>`
 
+
 .. module:: memsave_torch.nn
    
-   .. autofunction:: convert_to_memory_saving
+.. autofunction:: convert_to_memory_saving
 
-   Learnable Layers
-   ------------------
+Learnable Layers
+------------------
 
-   .. autoclass:: MemSaveConv2d
-      :members:
+.. autosummary::
+   :toctree: nn
+   :template: torch_module_extension.rst
+   :nosignatures:
 
-   .. autoclass:: MemSaveLinear
-      :members:
-   
-   Activations and Pooling Layers
-   --------------------------------
-   .. autoclass:: MemSaveReLU
-      :members:
+   MemSaveConv2d
+   MemSaveLinear
 
-   .. autoclass:: MemSaveMaxPool2d
-      :members:
 
-   Normalization Layers
-   --------------------------
-   .. autoclass:: MemSaveBatchNorm2d
-      :members:
+Activations and Pooling Layers
+--------------------------------
 
-   .. autoclass:: MemSaveLayerNorm
-      :members:
+.. autosummary::
+   :toctree: nn
+   :template: torch_module_extension.rst
+   :nosignatures:
+
+   MemSaveReLU
+   MemSaveMaxPool2d
+
+Normalization Layers
+--------------------------
+
+.. autosummary::
+   :toctree: nn
+   :template: torch_module_extension.rst
+   :nosignatures:
+
+   MemSaveBatchNorm2d
+   MemSaveLayerNorm

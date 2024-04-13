@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>util - MemSave PyTorch documentation</title>
-    <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="ResultsCollector" href="collect_results.html" /><link rel="prev" title="nn" href="../nn.html" />
+      <title>util ⚠️ - MemSave PyTorch documentation</title>
+    <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="ResultsCollector" href="collect_results.html" /><link rel="prev" title="MemSaveLayerNorm" href="../nn/memsave_torch.nn.MemSaveLayerNorm.html" />
 
   <script>
     function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
@@ -24,7 +24,7 @@
   --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
 }
 </style>
-    <meta property="og:type" content="website"/><meta property="og:title" content="util"/>
+    <meta property="og:type" content="website"/><meta property="og:title" content="util ⚠️"/>
 <meta name="twitter:card" content="summary"/>
   </head>
 <body><div class="document"><div class="sy-head">
@@ -71,10 +71,23 @@
       <div class="sy-scrollbar p-6">
         <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../basic_usage.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../nn.html">nn</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_usage.html">Installation / Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../nn.html">nn</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveConv2d.html">MemSaveConv2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveLinear.html">MemSaveLinear</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveReLU.html">MemSaveReLU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveMaxPool2d.html">MemSaveMaxPool2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveBatchNorm2d.html">MemSaveBatchNorm2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nn/memsave_torch.nn.MemSaveLayerNorm.html">MemSaveLayerNorm</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">util ⚠️</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="collect_results.html">ResultsCollector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="estimate.html">estimate.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models.html">Models</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -111,13 +124,13 @@
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a itemprop="item" href="../index.html"><span itemprop="name">API</span></a>
+        <a itemprop="item" href="../index.html"><span itemprop="name">API Reference</span></a>
         <span>/</span>
         <meta itemprop="position" content="2" />
       </li>
       
       <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <strong itemprop="name">util</strong>
+        <strong itemprop="name">util ⚠️</strong>
         <meta itemprop="position" content="3" />
       </li>
       
@@ -134,10 +147,14 @@
     <div class="flex flex-col break-words justify-between">
       <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
         <article class="yue" role="main">
-          <section id="util">
-<h1>util<a class="headerlink" href="#util" title="Permalink to this heading">¶</a></h1>
+          <section id="util-warning">
+<h1>util ⚠️<a class="headerlink" href="#util-warning" title="Permalink to this heading">¶</a></h1>
 <p>A collection of scripts/utilities to measure the memory and time consumed during the forward and backward passes.</p>
-<span class="target" id="module-memsave_torch.util"></span><p>Various utilities for measuring time and memory consumption</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This submodule is part of <cite>experiments</cite> and not <a class="reference internal" href="../index.html#module-memsave_torch" title="memsave_torch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">memsave_torch</span></code></a> and by nature of being experimental, is not subject to maintenance.</p>
+</div>
+<span class="target" id="module-experiments.util"></span><p>Various utilities for measuring time and memory consumption</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Utility classes and scripts</span></p>
 <ul>
@@ -152,12 +169,12 @@
         
         <div class="navigation flex print:hidden">
   <div class="navigation-prev">
-    <a href="../nn.html">
+    <a href="../nn/memsave_torch.nn.MemSaveLayerNorm.html">
       <i class="i-icon chevron"></i>
       <div class="page-info">
         <span>Previous</span>
         
-        <div class="title">nn</div>
+        <div class="title">MemSaveLayerNorm</div>
         
       </div>
     </a>

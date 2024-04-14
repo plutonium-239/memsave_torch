@@ -108,13 +108,10 @@ class _MemSaveConv(torch.autograd.Function):
     @staticmethod
     def setup_context(ctx, inputs, output):
         x, weight, bias, stride, padding, dilation, groups = inputs
-        # print('setting up context', ctx.needs_input_grad)
         need_grad = []
         if ctx.needs_input_grad[0]:
-            # print('weight saved')
             need_grad.append(weight)
         if ctx.needs_input_grad[1]:
-            # print('x saved')
             need_grad.append(x)
         # bias doesnt need anything for calc
         ctx.bias_exists = bias is not None
@@ -134,11 +131,9 @@ class _MemSaveConv(torch.autograd.Function):
 
         current_idx = 0
         if ctx.needs_input_grad[0]:
-            # print('0 needs weight')
             weight = ctx.saved_tensors[current_idx]
             current_idx += 1
         elif ctx.needs_input_grad[1]:
-            # print('1 needs x')
             x = ctx.saved_tensors[current_idx]
             current_idx += 1
 
@@ -146,8 +141,6 @@ class _MemSaveConv(torch.autograd.Function):
             x = torch.zeros(ctx.x_shape, device=ctx.device)
         if weight is None:
             weight = torch.zeros(ctx.weight_shape, device=ctx.device)
-
-        # print(current_idx)
 
         grad_x, grad_weight, grad_bias = torch.ops.aten.convolution_backward(
             grad_output,
@@ -162,8 +155,6 @@ class _MemSaveConv(torch.autograd.Function):
             ctx.groups,
             ctx.needs_input_grad[:3],
         )
-
-        # print('grads are ', (grad_x is not None), (grad_weight is not None), (grad_bias is not None))
 
         return grad_x, grad_weight, grad_bias, None, None, None, None, None
 

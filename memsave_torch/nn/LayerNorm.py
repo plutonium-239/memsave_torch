@@ -98,7 +98,6 @@ class _MemSaveLayerNorm(torch.autograd.Function):
         """
         outputs = torch.native_layer_norm(x, normalized_shape, weight, bias, eps)
 
-        # print('setting up context', ctx.needs_input_grad)
         ctx.mean = outputs[1]
         ctx.rstd = outputs[2]
         ctx.eps = eps
@@ -119,7 +118,6 @@ class _MemSaveLayerNorm(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        # print('backward', ctx.needs_input_grad)
         x = weight = None
         current_idx = 0
         if ctx.needs_input_grad[0]:
@@ -134,8 +132,6 @@ class _MemSaveLayerNorm(torch.autograd.Function):
         if weight is None:
             weight = torch.zeros(ctx.normalized_shape, device=ctx.device)
         bias = torch.zeros(ctx.normalized_shape, device=ctx.device)
-
-        # print(current_idx)
 
         grad_x, grad_weight, grad_bias = torch.ops.aten.native_layer_norm_backward(
             grad_output,

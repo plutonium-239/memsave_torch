@@ -63,7 +63,6 @@ class _MemSaveLinear(torch.autograd.Function):
     @staticmethod
     def setup_context(ctx, inputs, output):
         x, weight, bias = inputs
-        # print('setting up context', ctx.needs_input_grad)
         need_grad = []
         if ctx.needs_input_grad[0]:
             need_grad.append(weight)
@@ -75,16 +74,6 @@ class _MemSaveLinear(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        # print('NEEDING INPUT GRAD:', ctx.needs_input_grad)
-        # print('SAVED:', [s.shape for s in ctx.saved_tensors])
-
-        # new_inps = []
-        # st_iter = iter(ctx.saved_tensors)
-        # for needs in ctx.needs_input_grad:
-        # 	new_inps.append(next(st_iter) if needs else None)
-        # print(new_inps)
-        # st_iter = iter(ctx.saved_tensors)
-        # weight, x = [next(st_iter) if needs else None for needs in ctx.needs_input_grad]
         x = weight = None
         current_idx = 0
         if ctx.needs_input_grad[0]:

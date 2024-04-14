@@ -119,8 +119,6 @@ class _MemSaveMaxPool2d(torch.autograd.Function):
                 ctx.indices,
             )
 
-            # print('grads are ', (grad_x is not None), (grad_weight is not None), (grad_bias is not None))
-
         return grad_x, None, None, None, None, None
 
 

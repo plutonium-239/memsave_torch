@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 import torchvision.models as tvm
 from torch.nn import Conv2d, Flatten, Linear, MaxPool2d, Module, ReLU, Sequential
+from transformers import AutoConfig, AutoModelForCausalLM
 
 from memsave_torch.nn import (
     MemSaveConv2d,
@@ -26,7 +27,7 @@ def prefix_in_pairs(prefix: str, it: List[str]) -> List[str]:
 
     Args:
         prefix (str): Prefix to be added
-        it (List[str]): Description
+        it (List[str]): The list to be prefixed
 
     Returns:
         List[str]: The output iterable with items prefixed in pairs
@@ -71,6 +72,12 @@ def convert_to_memory_saving_defaultsoff(
         maxpool2d=maxpool2d,
         layernorm=layernorm,
     )
+
+
+def get_transformers_config(model_name: str) -> AutoConfig:
+    if model_name.startswith("memsave_"):
+        model_name = model_name.split("memsave_")[1]
+    return AutoConfig.from_pretrained(model_name)
 
 
 # CONV
@@ -161,6 +168,8 @@ segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
 segmentation_models = prefix_in_pairs("memsave_", segmentation_models)
 models_without_norm = ["deepmodel", "vgg16"]
 models_without_norm = prefix_in_pairs("memsave_", models_without_norm)
+transformers_models = ["gpt2"]
+transformers_models = prefix_in_pairs("memsave_", transformers_models)
 
 conv_model_fns = {
     "deepmodel": _conv_model1,
@@ -213,6 +222,11 @@ conv_model_fns = {
     "memsave_resnext101_64x4d": lambda: convert_to_memory_saving(
         tvm.resnext101_64x4d()
     ),
+    "gpt2": lambda: AutoModelForCausalLM.from_pretrained("gpt2"),
+    "memsave_gpt2": lambda: convert_to_memory_saving(
+        AutoModelForCausalLM.from_pretrained("gpt2")
+    ),
+    # For paper
     "memsave_resnet101_conv": lambda: convert_to_memory_saving_defaultsoff(
         tvm.resnet101(), conv2d=True
     ),
@@ -265,6 +279,26 @@ class DetectionLossWrapper(Module):
             output: loss
         """
         return sum(loss_dict.values())
+
+
+class TransformersModelWrapper(Module):
+    """Small wrapper around `transformers` models to support interop with existing measurement code"""
+
+    def __init__(self, model_fn) -> None:
+        """Init"""
+        super().__init__()
+        self.model = model_fn()
+
+    def forward(self, x):
+        """Forward
+
+        Args:
+            x: x
+
+        Returns:
+            output: model output
+        """
+        return self.model(input_ids=x, use_cache=False)["logits"]
 
 
 # LINEAR

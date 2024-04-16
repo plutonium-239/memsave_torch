@@ -315,7 +315,7 @@ if __name__ == "__main__":
             config = models.get_transformers_config(args.model)
             model_fn_orig = model_fn
             model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)
-            x = randint(config.vocab_size, (batch_size, args.input_hw), device=dev)
+            x = rand(batch_size, args.input_hw, config.n_embd, device=dev)
             y = randint(config.vocab_size, (batch_size, args.input_hw), device=dev)
 
         # warm-up

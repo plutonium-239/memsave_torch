@@ -46,7 +46,7 @@ models = [
 
 # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # models = ["resnet101", "memsave_resnet101_conv_full"]
-
+models = ["gpt2"]
 models = prefix_in_pairs("memsave_", models)
 # models = ["memsave_resnet101"]
 batch_size = 64

@@ -298,7 +298,7 @@ class TransformersModelWrapper(Module):
         Returns:
             output: model output
         """
-        return self.model(input_ids=x, use_cache=False)["logits"].permute(0, 2, 1)
+        return self.model(inputs_embeds=x, use_cache=False)["logits"].permute(0, 2, 1)
 
 
 # LINEAR

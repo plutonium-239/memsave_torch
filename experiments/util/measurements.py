@@ -26,6 +26,7 @@ from torch.nn import (
     Parameter,
     Embedding
 )
+from transformers import Conv1D
 from torchvision.models.convnext import LayerNorm2d
 
 from memsave_torch.nn.Conv2d import MemSaveConv2d
@@ -322,7 +323,7 @@ def separate_grad_arguments(
     Raises:
         NotImplementedError: If an unknown layer with parameters is encountered.
     """
-    linear = (Linear, MemSaveLinear)
+    linear = (Linear, MemSaveLinear, Conv1D)
     conv = (
         Conv1d,
         Conv2d,
@@ -346,7 +347,7 @@ def separate_grad_arguments(
             grad_bias: Whether to compute the gradient of the layer bias.
         """
         leafs.append(layer.weight) if grad_weight else no_leafs.append(layer.weight)
-        if layer.bias is not None:
+        if 'bias' in layer._parameters and layer.bias is not None:
             leafs.append(layer.bias) if grad_bias else no_leafs.append(layer.bias)
 
     layers = [m for m in model.modules() if len(list(m.modules())) == 1]

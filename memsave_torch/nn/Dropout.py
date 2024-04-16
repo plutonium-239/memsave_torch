@@ -27,7 +27,7 @@ class MemSaveDropout(nn.Dropout):
         Returns:
             torch.Tensor: Output
         """
-        return dropoutMemSave(x, self.p, self.train)
+        return dropoutMemSave(x, self.p, self.training)
 
     @classmethod
     def from_nn_dropout(cls, dropout: nn.Dropout):
@@ -65,15 +65,15 @@ class _MemSaveDropout(torch.autograd.Function):
         return grad_x
 
 
-def dropoutMemSave(x, p, train):
+def dropoutMemSave(x, p, training):
     """Functional form of the memory saving dropout.
 
     Args:
         x: Input to the network
         p: Probability of elements being zeroed
-        train: Whether the layer is in training mode (no dropout applied in eval)
+        training: Whether the layer is in training mode (no dropout applied in eval)
 
     Returns:
         torch.Tensor: Output of the network
     """
-    return _MemSaveDropout.apply(x, p, train)
+    return _MemSaveDropout.apply(x, p, training)

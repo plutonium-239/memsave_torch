@@ -311,6 +311,12 @@ if __name__ == "__main__":
             )
             loss_fn_orig = loss_fn
             loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)  # noqa: E731
+        elif args.model in models.transformers_models:
+            config = models.get_transformers_config(args.model)
+            model_fn_orig = model_fn
+            model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)
+            x = randint(config.vocab_size, (batch_size, args.input_hw), device=dev)
+            y = randint(config.vocab_size, (batch_size, args.input_hw), device=dev)
 
         # warm-up
         # with redirect_stdout(open(devnull, "w")):

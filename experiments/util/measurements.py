@@ -20,14 +20,14 @@ from torch.nn import (
     ConvTranspose1d,
     ConvTranspose2d,
     ConvTranspose3d,
+    Embedding,
     LayerNorm,
     Linear,
     Module,
     Parameter,
-    Embedding
 )
-from transformers import Conv1D
 from torchvision.models.convnext import LayerNorm2d
+from transformers import Conv1D
 
 from memsave_torch.nn.Conv2d import MemSaveConv2d
 from memsave_torch.nn.Linear import MemSaveLinear
@@ -118,12 +118,12 @@ class RuntimeMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
-        grad_embed_weights: bool = True
+        grad_embed_weights: bool = True,
     ) -> float:
         """Perform a forward and backward pass and return the run time.
-        
+
         Syncs CUDA threads if the device is a GPU.
-        
+
         Args:
             grad_linear_weights (bool, optional): Whether to compute the gradient of the linear
                 layer weights. Default: `True`.
@@ -138,9 +138,9 @@ class RuntimeMeasurement(_Measurement):
             grad_norm_bias (bool, optional): Whether to compute the gradient of the normalization
                 layer bias. Default: `True`.
             grad_input (bool, optional): Whether to compute the gradient of the input. Default: `False`.
-            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding 
+            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
                 layer weights. Default: `True`.
-        
+
         Returns:
             float: The run time in seconds.
         """
@@ -154,7 +154,7 @@ class RuntimeMeasurement(_Measurement):
             grad_conv_bias,
             grad_norm_weights,
             grad_norm_bias,
-            grad_embed_weights
+            grad_embed_weights,
         )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
@@ -197,7 +197,7 @@ class MemoryMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
-        grad_embed_weights: bool = True
+        grad_embed_weights: bool = True,
     ) -> float:
         """Return memory usage after a forward pass.
 
@@ -215,7 +215,7 @@ class MemoryMeasurement(_Measurement):
             grad_norm_bias: Whether to compute the gradient of the normalization
                 layer bias. Default: `True`.
             grad_input: Whether to compute the gradient of the input. Default: `False`.
-            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding 
+            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
                 layer weights. Default: `True`.
 
         Returns:
@@ -231,7 +231,7 @@ class MemoryMeasurement(_Measurement):
             grad_conv_bias,
             grad_norm_weights,
             grad_norm_bias,
-            grad_embed_weights
+            grad_embed_weights,
         )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
@@ -299,7 +299,7 @@ def separate_grad_arguments(
     grad_conv_bias: bool,
     grad_norm_weights: bool,
     grad_norm_bias: bool,
-    grad_embed_weights: bool
+    grad_embed_weights: bool,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Separate the parameters of a model into leafs and non-leafs.
 
@@ -334,7 +334,7 @@ def separate_grad_arguments(
         MemSaveConv2d,
     )
     norm = (BatchNorm1d, BatchNorm2d, BatchNorm3d, LayerNorm, LayerNorm2d)
-    embed = (Embedding)
+    embed = Embedding
 
     leafs, no_leafs = [], []
 
@@ -347,7 +347,7 @@ def separate_grad_arguments(
             grad_bias: Whether to compute the gradient of the layer bias.
         """
         leafs.append(layer.weight) if grad_weight else no_leafs.append(layer.weight)
-        if 'bias' in layer._parameters and layer.bias is not None:
+        if "bias" in layer._parameters and layer.bias is not None:
             leafs.append(layer.bias) if grad_bias else no_leafs.append(layer.bias)
 
     layers = [m for m in model.modules() if len(list(m.modules())) == 1]

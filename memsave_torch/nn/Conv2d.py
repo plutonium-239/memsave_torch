@@ -103,7 +103,17 @@ class MemSaveConv2d(nn.Conv2d):
 class _MemSaveConv(torch.autograd.Function):
     @staticmethod
     def forward(x, weight, bias, stride, padding, dilation, groups):
-        return nn.functional.conv2d(x, weight, bias, stride, padding, dilation, groups)
+        return torch.ops.aten.convolution(
+            x,
+            weight,
+            bias,
+            stride,
+            padding,
+            dilation,
+            False,
+            tuple([0] * len(padding)),
+            groups,
+        )
 
     @staticmethod
     def setup_context(ctx, inputs, output):

@@ -25,7 +25,7 @@ vjp_improvements = [
     0.01,  # unrealistic
 ]
 
-# repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)  
+# repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
 n_repeat = 5
 
 # CONV
@@ -93,9 +93,9 @@ cases = [
 ]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for i_repeat in range(n_repeat):
-        print(f' Repetition #{i_repeat} '.center(80, '-'))
+        print(f" Repetition #{i_repeat} ".center(80, "-"))
         pbar = tqdm(total=len(models) * len(estimators) * len(cases), leave=False)
         collector = collect_results.ResultsCollector(
             batch_size,

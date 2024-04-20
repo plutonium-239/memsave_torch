@@ -90,9 +90,9 @@ class _MemSaveLinear(torch.autograd.Function):
         grad_x = grad_weight = grad_bias = None
 
         if ctx.needs_input_grad[0]:
-            grad_x = grad_output.mm(weight)
+            grad_x = grad_output @ weight
         if ctx.needs_input_grad[1]:
-            grad_weight = grad_output.t().mm(x)
+            grad_weight = grad_output.mT @ x
         if ctx.needs_input_grad[2]:
             grad_bias = grad_output.sum(0)
 

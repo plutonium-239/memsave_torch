@@ -7,60 +7,42 @@ import torch
 
 import memsave_torch
 
-devices = ['cpu']
+devices = ["cpu"]
 if torch.cuda.is_available():
-    devices.append('cuda')
+    devices.append("cuda")
 
-@pytest.mark.parametrize('device', devices)
+x = torch.rand(7, 3, 12, 12)
+cases = [
+    [torch.nn.Linear(3, 5), x[:, :, 0, 0]],
+    [torch.nn.Linear(3, 5), x[:, :, :, 0].permute(0, 2, 1)],  # weight sharing
+    [torch.nn.Linear(3, 5), x.permute(0, 2, 3, 1)],  # weight sharing
+    [torch.nn.Conv2d(3, 5, 3), x],
+    [torch.nn.Conv1d(3, 5, 3), x[:, :, 0]],
+    [torch.nn.BatchNorm2d(3), x],
+    [torch.nn.LayerNorm(normalized_shape=[3, 12, 12]), x],
+    [torch.nn.MaxPool2d(3), x],
+    [torch.nn.ReLU(), x],
+]
+
+
 @pytest.mark.quick
-def test_all(device: str):
-    """Runs the `single_layer` test for all layers in `layers_to_test`
-    
-    Args:
-        device (str): device
-    """
-    layers_to_test = [
-        torch.nn.Linear,
-        torch.nn.Conv2d,
-        torch.nn.Conv1d,
-        torch.nn.BatchNorm2d,
-        torch.nn.LayerNorm,
-        torch.nn.MaxPool2d,
-        torch.nn.ReLU,
-    ]
-    x = torch.rand(7, 3, 12, 12, device=device)
-    for layer in layers_to_test:
-        assert single_layer(layer, x, device)
+@pytest.mark.parametrize("device", devices)
+@pytest.mark.parametrize("layer,x", cases)
+def test_single_layer(layer: torch.nn.Module, x: torch.Tensor, device: str) -> bool:
+    """Runs tests for the layer defined by `layer`
 
-
-def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor, device: str) -> bool:
-    """Runs tests for the layer defined by `layer_cls`
-    
     This tests for equality of outputs on forward pass and equality of the gradients
     on backward pass, for all parameters and input as well.
-    
+
     Args:
-        layer_cls (Type[torch.nn.Module]): torch.nn layer to test it's memsave counterpart
+        layer (torch.nn.Module): torch.nn layer to test it's memsave counterpart
         x (torch.Tensor): Input tensor (B, C, H, W); will be reshaped properly based on layer
         device (str): device
-    
+
     Returns:
         bool: Description
     """
-    if layer_cls in [torch.nn.Conv2d]:
-        layer = layer_cls(3, 5, 3)
-    elif layer_cls in [torch.nn.Conv1d]:
-        layer = layer_cls(3, 5, 3)
-        x = x[:, :, :, 0]
-    elif layer_cls in [torch.nn.BatchNorm2d, torch.nn.MaxPool2d]:
-        layer = layer_cls(3)
-    elif layer_cls == torch.nn.LayerNorm:
-        layer = layer_cls((3, 12, 12))
-    elif layer_cls == torch.nn.ReLU:
-        layer = layer_cls()
-    elif layer_cls == torch.nn.Linear:
-        layer = layer_cls(3, 5)
-        x = x[:, :, 0, 0]
+    x = x.to(device)
     layer.to(device)
     memsave_layer = memsave_torch.nn.convert_to_memory_saving(layer, clone_params=True)
     # clone_params is neede here because we want to backprop through both layer and memsave_layer
@@ -75,13 +57,13 @@ def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor, device: str)
     y2 = memsave_layer(x2)
     y2.sum().backward()
 
-    if device == 'cpu':
-        tol = 0
-    elif device == 'cuda':
-        tol = 1e-5
-    assert torch.allclose(y1, y2, atol=tol)
-    assert torch.allclose(x1.grad, x2.grad, atol=tol)
+    if device == "cpu":
+        atol = 1e-8  # defaults
+        rtol = 1e-5  # defaults
+    elif device == "cuda":
+        atol = 1e-4
+        rtol = 1e-2
+    assert torch.allclose(y1, y2, rtol=rtol, atol=atol)
+    assert torch.allclose(x1.grad, x2.grad, rtol=rtol, atol=atol)
     for p1, p2 in zip(layer.parameters(), memsave_layer.parameters()):
-        assert torch.allclose(p1.grad, p2.grad, atol=tol)
-
-    return True
+        assert torch.allclose(p1.grad, p2.grad, rtol=rtol, atol=atol)

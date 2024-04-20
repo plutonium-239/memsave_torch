@@ -1,5 +1,8 @@
 **/__pycache__
 *.txt
 *.csv
-docs_src/_build/
 !requirements.txt
+
+# generated docs
+docs_src/_build/
+docs_src/api/nn/

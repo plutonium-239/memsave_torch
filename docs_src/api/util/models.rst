@@ -6,5 +6,11 @@ This module defines mappings from strings to models. This was necessary to isola
 .. automodule:: experiments.util.models
    :members: prefix_in_pairs
 
-.. autodata:: experiments.util.models.conv_model_fns
+.. currentmodule:: experiments.util.models
+
+.. attribute:: conv_model_fns
+
+   .. dict2table:: experiments.util.models.conv_model_fns
+      :caption: All Models defined to be used as strings in :mod:`experiments.paper_demo` script
+      :filter-out: memsave_
 

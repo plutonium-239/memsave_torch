@@ -10,6 +10,7 @@ Welcome to MemSave PyTorch's documentation!
    :maxdepth: 3
    :caption: Getting started
 
+   Index <self>
    basic_usage
    api/index
 

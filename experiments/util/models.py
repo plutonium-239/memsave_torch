@@ -75,6 +75,14 @@ def convert_to_memory_saving_defaultsoff(
 
 
 def get_transformers_config(model_name: str) -> AutoConfig:
+    """Get the config for the given `model_name` from huggingface transformers. Handles memsave_ as well.
+    
+    Args:
+        model_name (str): Model name
+    
+    Returns:
+        AutoConfig: Config for given model
+    """
     if model_name.startswith("memsave_"):
         model_name = model_name.split("memsave_")[1]
     return AutoConfig.from_pretrained(model_name)

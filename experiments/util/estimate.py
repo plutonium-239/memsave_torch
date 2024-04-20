@@ -80,6 +80,10 @@ def skip_case_check(args: argparse.Namespace) -> bool:
         if c not in args.case and args.model in models.models_without_norm:
             invalid = True
     if invalid:
+        if args.print:
+            print("-1")
+            return invalid
+        # else:
         with open(
             os.path.join(
                 args.results_dir, f"raw/{args.estimate}-{args.architecture}.txt"

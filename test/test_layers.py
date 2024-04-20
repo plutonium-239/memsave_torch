@@ -22,6 +22,7 @@ def test_all(device: str):
     layers_to_test = [
         torch.nn.Linear,
         torch.nn.Conv2d,
+        torch.nn.Conv1d,
         torch.nn.BatchNorm2d,
         torch.nn.LayerNorm,
         torch.nn.MaxPool2d,
@@ -48,6 +49,9 @@ def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor, device: str)
     """
     if layer_cls in [torch.nn.Conv2d]:
         layer = layer_cls(3, 5, 3)
+    elif layer_cls in [torch.nn.Conv1d]:
+        layer = layer_cls(3, 5, 3)
+        x = x[:, :, :, 0]
     elif layer_cls in [torch.nn.BatchNorm2d, torch.nn.MaxPool2d]:
         layer = layer_cls(3)
     elif layer_cls == torch.nn.LayerNorm:

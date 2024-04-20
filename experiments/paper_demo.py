@@ -25,6 +25,9 @@ vjp_improvements = [
     0.01,  # unrealistic
 ]
 
+# repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)  
+n_repeat = 5
+
 # CONV
 # Valid choices for models are in models.conv_model_fns
 models = [
@@ -89,40 +92,44 @@ cases = [
     ],
 ]
 
-pbar = tqdm(total=len(models) * len(estimators) * len(cases), leave=False)
-collector = collect_results.ResultsCollector(
-    batch_size,
-    input_channels,
-    input_HW,
-    num_classes,
-    device,
-    architecture,
-    vjp_improvements,
-    cases,
-    'results'
-)
 
-for model in models:
-    for estimate in estimators:
-        outputs = []
+if __name__ == '__main__':
+    for i_repeat in range(n_repeat):
+        print(f' Repetition #{i_repeat} '.center(80, '-'))
+        pbar = tqdm(total=len(models) * len(estimators) * len(cases), leave=False)
+        collector = collect_results.ResultsCollector(
+            batch_size,
+            input_channels,
+            input_HW,
+            num_classes,
+            device,
+            architecture,
+            vjp_improvements,
+            cases,
+            "results",
+        )
 
-        collector.clear_file(estimate)
-        for case in cases:
-            pbar.update()
-            pbar.set_description(f"{model} {estimate} case {case}")
-            case_str = f"--case {' '.join(case)}" if case is not None else ""
-            cmd = (
-                f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
-                + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
-            )
-            proc = subprocess.run(shlex.split(cmd), capture_output=True)
-            assert proc.stderr in [
-                None,
-                b"",
-            ], f"Error in estimate.py: \n{proc.stderr.decode()}"
-            sleep(0.25)
+        for model in models:
+            for estimate in estimators:
+                outputs = []
 
-        collector.collect_from_file(estimate, model)
+                collector.clear_file(estimate)
+                for case in cases:
+                    pbar.update()
+                    pbar.set_description(f"{model} {estimate} case {case}")
+                    case_str = f"--case {' '.join(case)}" if case is not None else ""
+                    cmd = (
+                        f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
+                        + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
+                    )
+                    proc = subprocess.run(shlex.split(cmd), capture_output=True)
+                    assert proc.stderr in [
+                        None,
+                        b"",
+                    ], f"Error in estimate.py: \n{proc.stderr.decode()}"
+                    sleep(0.25)
 
-collector.finish()
-pbar.close()
+                collector.collect_from_file(estimate, model)
+
+        collector.finish()
+        pbar.close()

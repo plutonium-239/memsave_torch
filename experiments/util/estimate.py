@@ -1,6 +1,6 @@
 """Estimate possible speed-up when randomizing the weight VJP of convolutions.
 
-We take a CNN and answer the following question:
+We take a CNN and answer the following questions:
 
 Q1) What is the relative run time consumed by the weight VJP for convolutions?
 
@@ -48,7 +48,7 @@ def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
         case (Optional[List[str]]): List of all cases
 
     Returns:
-        Dict[str, bool]: dictionary with keys as allowed_cases present in the input (which dont start with 'no_')
+        Dict[str, bool]: dictionary with keys as allowed_cases present in the input (which dont start with ``no_``)
     """
     kw = {}
     if case is None:

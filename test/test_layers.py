@@ -7,10 +7,18 @@ import torch
 
 import memsave_torch
 
+devices = ['cpu']
+if torch.cuda.is_available():
+    devices.append('cuda')
 
+@pytest.mark.parametrize('device', devices)
 @pytest.mark.quick
-def test_all():
-    """Runs the `single_layer` test for all layers in `layers_to_test`"""
+def test_all(device: str):
+    """Runs the `single_layer` test for all layers in `layers_to_test`
+    
+    Args:
+        device (str): device
+    """
     layers_to_test = [
         torch.nn.Linear,
         torch.nn.Conv2d,
@@ -19,21 +27,22 @@ def test_all():
         torch.nn.MaxPool2d,
         torch.nn.ReLU,
     ]
-    x = torch.rand(7, 3, 12, 12)
+    x = torch.rand(7, 3, 12, 12, device=device)
     for layer in layers_to_test:
-        assert single_layer(layer, x)
+        assert single_layer(layer, x, device)
 
 
-def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor) -> bool:
+def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor, device: str) -> bool:
     """Runs tests for the layer defined by `layer_cls`
-
+    
     This tests for equality of outputs on forward pass and equality of the gradients
     on backward pass, for all parameters and input as well.
-
+    
     Args:
         layer_cls (Type[torch.nn.Module]): torch.nn layer to test it's memsave counterpart
         x (torch.Tensor): Input tensor (B, C, H, W); will be reshaped properly based on layer
-
+        device (str): device
+    
     Returns:
         bool: Description
     """
@@ -48,6 +57,7 @@ def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor) -> bool:
     elif layer_cls == torch.nn.Linear:
         layer = layer_cls(3, 5)
         x = x[:, :, 0, 0]
+    layer.to(device)
     memsave_layer = memsave_torch.nn.convert_to_memory_saving(layer, clone_params=True)
     # clone_params is neede here because we want to backprop through both layer and memsave_layer
 
@@ -61,9 +71,13 @@ def single_layer(layer_cls: Type[torch.nn.Module], x: torch.Tensor) -> bool:
     y2 = memsave_layer(x2)
     y2.sum().backward()
 
-    assert (y1 == y2).all()
-    assert (x1.grad == x2.grad).all()
+    if device == 'cpu':
+        tol = 0
+    elif device == 'cuda':
+        tol = 1e-5
+    assert torch.allclose(y1, y2, atol=tol)
+    assert torch.allclose(x1.grad, x2.grad, atol=tol)
     for p1, p2 in zip(layer.parameters(), memsave_layer.parameters()):
-        assert (p1.grad == p2.grad).all()
+        assert torch.allclose(p1.grad, p2.grad, atol=tol)
 
     return True

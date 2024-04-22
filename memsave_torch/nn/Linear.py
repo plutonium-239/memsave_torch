@@ -36,14 +36,18 @@ class MemSaveLinear(nn.Linear):
 
     @classmethod
     def from_nn_Linear(cls, linear: nn.Linear):
-        """Converts a nn.Linear layer to MemSaveLinear.
+        """Converts a nn.Linear/transformers.Conv1D layer to MemSaveLinear.
 
         Args:
-            linear : The nn.Linear layer
+            linear : The nn.Linear/transformers.Conv1D layer
 
         Returns:
             obj: The MemSaveLinear object
         """
+        if linear.__class__ == 'transformers.pytorch_utils.Conv1D':
+            # it only saves output features in the model (linear.nf); need to take input features from weight anyway
+            # weight and bias are still defined
+            linear.in_features, linear.out_features = linear.weight.shape
         obj = cls(
             linear.in_features,
             linear.out_features,

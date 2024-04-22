@@ -7,6 +7,7 @@ Currently implemented:
 """
 
 import torch.nn as nn
+import transformers
 
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
@@ -57,7 +58,7 @@ def convert_to_memory_saving(
     layers = [
         {
             "allowed": linear,
-            "cls": nn.Linear,
+            "cls": (nn.Linear, transformers.Conv1D),
             "convert_fn": MemSaveLinear.from_nn_Linear,
         },
         {"allowed": relu, "cls": nn.ReLU, "convert_fn": MemSaveReLU.from_nn_ReLU},

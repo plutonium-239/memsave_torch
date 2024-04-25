@@ -6,7 +6,7 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 import torch
 import torch.nn as nn
 
-from memsave_torch.nn.Conv2d import _MemSaveConv
+from memsave_torch.nn.functional import conv1dMemSave
 
 
 class MemSaveConv1d(nn.Conv1d):
@@ -100,23 +100,3 @@ class MemSaveConv1d(nn.Conv1d):
         obj.weight = conv1d.weight
         obj.bias = conv1d.bias
         return obj
-
-
-def conv1dMemSave(
-    input, weight, bias, stride, padding, dilation, groups
-) -> torch.Tensor:
-    """Functional form of the memory saving convolution.
-
-    Args:
-        input: input [B, C_in, H, W]
-        weight: weight
-        bias: bias
-        stride: stride
-        padding: padding
-        dilation: dilation
-        groups: groups
-
-    Returns:
-        torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
-    """
-    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)

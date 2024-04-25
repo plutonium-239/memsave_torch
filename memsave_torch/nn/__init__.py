@@ -8,6 +8,7 @@ Currently implemented:
 
 import torch.nn as nn
 
+from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d

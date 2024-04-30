@@ -28,7 +28,7 @@ class _MemSaveDropout(torch.autograd.Function):
         return grad_x
 
 
-def dropoutMemSave(x, p, training):
+def dropoutMemSave(x, p, training) -> torch.Tensor:
     """Functional form of the memory saving dropout.
 
     Args:

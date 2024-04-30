@@ -90,11 +90,11 @@ def batch_normMemSave(
     training=False,
     momentum=0.1,
     eps=1e-05,
-):
+) -> torch.Tensor:
     """Functional form of the memory saving batch_norm.
 
     Args:
-        input (TYPE): Input to the network [B, C, H, W]
+        input: Input to the network [B, C, H, W]
         running_mean: running_mean
         running_var: running_var
         weight: weight

@@ -19,7 +19,7 @@ A collection of scripts/utilities to measure the memory and time consumed during
    ..    :members:
 
    .. toctree::
-      :maxdepth: 2
+      :maxdepth: 3
       :caption: Utility classes and scripts
 
       collect_results

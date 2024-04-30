@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinxemoji.sphinxemoji",
+    "sphinx_sitemap",
     "dict2table",
 ]
 
@@ -43,6 +44,7 @@ intersphinx_mapping = {
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_baseurl = "https://memsave-torch.readthedocs.io/"
 html_theme = "shibuya"
 html_static_path = ["_static"]
 # html_js_files = ['autoscroll.js'] added in the theme itself: https://github.com/lepture/shibuya/issues/30

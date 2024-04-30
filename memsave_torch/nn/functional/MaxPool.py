@@ -77,13 +77,11 @@ def maxpool2dMemSave(
         padding: padding
         dilation: dilation
         ceil_mode: ceil_mode
-        return_indices: return_indices
+        return_indices: If true, also returns the max_indices
 
     Returns:
-        if return_indices:
-            out, indx: (Output of the maxpool operation [B, C, H_out, W_out], indices of maxpool)
-        else:
-            out: Output of the maxpool operation [B, C, H_out, W_out]
+        Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]: Output of the maxpool operation [B, C, H_out, W_out] \
+        (and optionally the indices when `return_indices=True`)
     """
     out, indx = _MemSaveMaxPool2d.apply(
         input, kernel_size, stride, padding, dilation, ceil_mode

@@ -26,7 +26,7 @@ class _MemSaveReLU(torch.autograd.Function):
         return grad_x
 
 
-def reluMemSave(x):
+def reluMemSave(x) -> torch.Tensor:
     """Functional form of the memory saving relu.
 
     Args:

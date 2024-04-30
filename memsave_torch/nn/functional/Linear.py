@@ -51,7 +51,7 @@ class _MemSaveLinear(torch.autograd.Function):
         return grad_x, grad_weight, grad_bias
 
 
-def linearMemSave(x, weight, bias=None):
+def linearMemSave(x, weight, bias=None) -> torch.Tensor:
     """Functional form of the memory saving linear.
 
     Args:

@@ -65,7 +65,9 @@ class _MemSaveLayerNorm(torch.autograd.Function):
         return grad_x, None, grad_weight, grad_bias, None
 
 
-def layer_normMemSave(input, normalized_shape, weight=None, bias=None, eps=1e-05):
+def layer_normMemSave(
+    input, normalized_shape, weight=None, bias=None, eps=1e-05
+) -> torch.Tensor:
     """Functional form of the memory saving layer_norm.
 
     Args:

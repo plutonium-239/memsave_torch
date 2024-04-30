@@ -5,7 +5,7 @@ API Reference
    :maxdepth: 2
    :caption: Available Modules
 
-   nn
+   nn/index
    util/index
 
 .. automodule:: memsave_torch

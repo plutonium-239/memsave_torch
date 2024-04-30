@@ -8,3 +8,4 @@ tqdm
 shibuya
 sphinx-copybutton
 sphinxemoji
+sphinx-sitemap

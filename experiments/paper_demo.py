@@ -28,7 +28,7 @@ vjp_improvements = [
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
 n_repeat = 5
 
-# CONV
+# ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
 models = [
     "deepmodel",
@@ -46,17 +46,36 @@ models = [
 
 # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # models = ["resnet101", "memsave_resnet101_conv_full"]
-models = ["gpt2"]
-models = prefix_in_pairs("memsave_", models)
-# models = ["memsave_resnet101"]
-batch_size = 64
-input_channels = 3
-input_HW = 224
-num_classes = 1000
-device = "cuda"
-architecture = "conv"
+# models = prefix_in_pairs("memsave_", models)
+# batch_size = 64
+# input_channels = 3
+# input_HW = 224
+# num_classes = 1000
+# device = "cuda"
+# architecture = "conv"
 
-# LINEAR
+# ============== TRANSFORMER CONFIG ==============
+# Valid choices for models are in models.transformer_model_fns
+models = [
+    "gpt2",
+    "bert",
+    "bart",
+    "roberta",
+    "t5",
+    "flan-t5",
+    "xlm-roberta",
+    "mistral-7b",
+    "llama3-8b",
+]
+models = prefix_in_pairs("memsave_", models)
+batch_size = 8
+input_channels = 2048
+input_HW = 256
+num_classes = 5000
+device = "cuda"
+architecture = "transformer"
+
+# ============== LINEAR CONFIG ==============
 # Valid choices for models are in models.linear_model_fns
 # models = ['deeplinearmodel']
 # models += [f"memsave_{m}" for m in models]  # add memsave versions for each model
@@ -89,6 +108,12 @@ cases = [
         "no_grad_conv_bias",
         "no_grad_linear_weights",
         "no_grad_linear_bias",
+    ],
+    [  # LINEAR
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",
     ],
 ]
 

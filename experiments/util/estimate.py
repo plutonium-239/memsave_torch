@@ -226,7 +226,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Which architecture to run",
-        choices=["conv", "linear"],
+        choices=["conv", "linear", "transformer"],
     )
     parser.add_argument(
         "--estimate",
@@ -269,6 +269,7 @@ if __name__ == "__main__":
             input_shape = (args.input_channels, args.input_hw, args.input_hw)
             models.conv_input_shape = input_shape
             model_fn = models.conv_model_fns.get(args.model)
+            y_args = {'size': (batch_size,), 'low': 0, 'high': num_classes}
             assert (
                 model_fn is not None
             ), f"Conv model name {args.model} not found, must be one of {list(models.conv_model_fns.keys())}"
@@ -276,16 +277,34 @@ if __name__ == "__main__":
             input_shape = [args.input_hw**2]
             models.linear_input_shape = input_shape[0]
             model_fn = models.linear_model_fns.get(args.model)
+            y_args = {'size': (batch_size,), 'low': 0, 'high': num_classes}
             assert (
                 model_fn is not None
             ), f"Linear model name {args.model} not found, must be one of {list(models.linear_model_fns.keys())}"
+        elif args.architecture == "transformer":
+            vocab_dim = args.num_classes
+            embed_dim = args.input_channels
+            seq_len = args.input_hw
+            model_fn = models.transformer_model_fns.get(args.model)
+            if args.model in models.hf_transformers_models:
+                model_fn_orig = model_fn
+                model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)
+                config = models.get_transformers_config(args.model)
+                vocab_dim = config.vocab_size
+                embed_dim = config.n_embd
+            models.transformer_input_shape = (vocab_dim, embed_dim)
+            input_shape = [seq_len, embed_dim]
+            y_args = {'size': (batch_size, seq_len), 'low': 0, 'high': vocab_dim}
+            assert (
+                model_fn is not None
+            ), f"Transformer model name {args.model} not found, must be one of {list(models.transformer_model_fns.keys())}"
 
         loss_fn = CrossEntropyLoss
 
         manual_seed(0)  # make deterministic
 
         x = rand(batch_size, *input_shape, device=dev)
-        y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
+        y = randint(**y_args, device=dev)
         targets = None
         if args.model in models.detection_models:
             # pred is a dictionary of losses
@@ -311,12 +330,6 @@ if __name__ == "__main__":
             )
             loss_fn_orig = loss_fn
             loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)  # noqa: E731
-        elif args.model in models.transformers_models:
-            config = models.get_transformers_config(args.model)
-            model_fn_orig = model_fn
-            model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)
-            x = rand(batch_size, args.input_hw, config.n_embd, device=dev)
-            y = randint(config.vocab_size, (batch_size, args.input_hw), device=dev)
 
         # warm-up
         # with redirect_stdout(open(devnull, "w")):

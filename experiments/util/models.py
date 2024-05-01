@@ -85,7 +85,8 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     """
     if model_name.startswith("memsave_"):
         model_name = model_name.split("memsave_")[1]
-    return AutoConfig.from_pretrained(model_name)
+    model_hf_name = hf_transformers_models_map[model_name]
+    return AutoConfig.from_pretrained(model_hf_name)
 
 
 # CONV
@@ -176,8 +177,6 @@ segmentation_models = ["deeplabv3_resnet101", "fcn_resnet101"]
 segmentation_models = prefix_in_pairs("memsave_", segmentation_models)
 models_without_norm = ["deepmodel", "vgg16"]
 models_without_norm = prefix_in_pairs("memsave_", models_without_norm)
-transformers_models = ["gpt2", "vit", "transformer"]
-transformers_models = prefix_in_pairs("memsave_", transformers_models)
 
 conv_model_fns = {
     "deepmodel": _conv_model1,
@@ -230,16 +229,6 @@ conv_model_fns = {
     "memsave_resnext101_64x4d": lambda: convert_to_memory_saving(
         tvm.resnext101_64x4d()
     ),
-    "gpt2": lambda: AutoModelForCausalLM.from_pretrained("gpt2"),
-    "memsave_gpt2": lambda: convert_to_memory_saving(
-        AutoModelForCausalLM.from_pretrained("gpt2")
-    ),
-    "vit": lambda: AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base'),
-    "memsave_vit": lambda: convert_to_memory_saving(
-        AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base')
-    ),
-    "transformer": Transformer,
-    "memsave_transformer": lambda: convert_to_memory_saving(Transformer()),
     # For paper
     "memsave_resnet101_conv": lambda: convert_to_memory_saving_defaultsoff(
         tvm.resnet101(), conv2d=True
@@ -294,6 +283,49 @@ class DetectionLossWrapper(Module):
         """
         return sum(loss_dict.values())
 
+# TRANSFORMER
+transformer_input_shape : Tuple[int, int] = (1, 1)  # (vocab_dim, embed_dim)
+
+hf_transformers_models = ["gpt2", "vit"]
+hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
+hf_transformers_models_map = {
+    'gpt2': 'gpt2',
+    'vit': 'facebook/vit-mae-base'
+}
+
+transformer_model_fns = {
+    "gpt2": lambda: AutoModelForCausalLM.from_pretrained("gpt2"),
+    "memsave_gpt2": lambda: convert_to_memory_saving(
+        AutoModelForCausalLM.from_pretrained("gpt2")
+    ),
+    "vit": lambda: AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base'),
+    "memsave_vit": lambda: convert_to_memory_saving(
+        AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base')
+    ),
+    "transformer": lambda: TorchTransformer(),
+    "memsave_transformer": lambda: convert_to_memory_saving(TorchTransformer()),
+}
+
+class TorchTransformer(Module):
+    """Small model to wrap `torch.nn.Transformer`"""
+    
+    def __init__(self) -> None:
+        """Init"""
+        super().__init__()
+        self.transformer = Transformer(d_model=transformer_input_shape[1], batch_first=True)
+        self.pred = Linear(transformer_input_shape[1], transformer_input_shape[0])
+
+    def forward(self, x):
+        """Forward
+
+        Args:
+            x: x
+
+        Returns:
+            output: model output
+        """
+        out = self.transformer.decoder(x, self.transformer.encoder(x))
+        return self.pred(out).permute(0, 2, 1)
 
 class TransformersModelWrapper(Module):
     """Small wrapper around `transformers` models to support interop with existing measurement code"""

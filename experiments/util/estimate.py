@@ -290,8 +290,9 @@ if __name__ == "__main__":
                 model_fn_orig = model_fn
                 model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)
                 config = models.get_transformers_config(args.model)
+                # as per transformers.PretrainedConfig these 2 should be present in all models:
                 vocab_dim = config.vocab_size
-                embed_dim = config.n_embd
+                embed_dim = config.hidden_size
             models.transformer_input_shape = (vocab_dim, embed_dim)
             input_shape = [seq_len, embed_dim]
             y_args = {'size': (batch_size, seq_len), 'low': 0, 'high': vocab_dim}

@@ -5,7 +5,16 @@ import math
 from typing import List, Tuple
 
 import torchvision.models as tvm
-from torch.nn import Conv2d, Flatten, Linear, MaxPool2d, Module, ReLU, Sequential, Transformer
+from torch.nn import (
+    Conv2d,
+    Flatten,
+    Linear,
+    MaxPool2d,
+    Module,
+    ReLU,
+    Sequential,
+    Transformer,
+)
 from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForPreTraining
 
 from memsave_torch.nn import (
@@ -76,10 +85,10 @@ def convert_to_memory_saving_defaultsoff(
 
 def get_transformers_config(model_name: str) -> AutoConfig:
     """Get the config for the given `model_name` from huggingface transformers. Handles memsave_ as well.
-    
+
     Args:
         model_name (str): Model name
-    
+
     Returns:
         AutoConfig: Config for given model
     """
@@ -283,36 +292,37 @@ class DetectionLossWrapper(Module):
         """
         return sum(loss_dict.values())
 
+
 # TRANSFORMER
-transformer_input_shape : Tuple[int, int] = (1, 1)  # (vocab_dim, embed_dim)
+transformer_input_shape: Tuple[int, int] = (1, 1)  # (vocab_dim, embed_dim)
 
 hf_transformers_models = ["gpt2", "vit"]
 hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
-hf_transformers_models_map = {
-    'gpt2': 'gpt2',
-    'vit': 'facebook/vit-mae-base'
-}
+hf_transformers_models_map = {"gpt2": "gpt2", "vit": "facebook/vit-mae-base"}
 
 transformer_model_fns = {
     "gpt2": lambda: AutoModelForCausalLM.from_pretrained("gpt2"),
     "memsave_gpt2": lambda: convert_to_memory_saving(
         AutoModelForCausalLM.from_pretrained("gpt2")
     ),
-    "vit": lambda: AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base'),
+    "vit": lambda: AutoModelForPreTraining.from_pretrained("facebook/vit-mae-base"),
     "memsave_vit": lambda: convert_to_memory_saving(
-        AutoModelForPreTraining.from_pretrained('facebook/vit-mae-base')
+        AutoModelForPreTraining.from_pretrained("facebook/vit-mae-base")
     ),
     "transformer": lambda: TorchTransformer(),
     "memsave_transformer": lambda: convert_to_memory_saving(TorchTransformer()),
 }
 
+
 class TorchTransformer(Module):
     """Small model to wrap `torch.nn.Transformer`"""
-    
+
     def __init__(self) -> None:
         """Init"""
         super().__init__()
-        self.transformer = Transformer(d_model=transformer_input_shape[1], batch_first=True)
+        self.transformer = Transformer(
+            d_model=transformer_input_shape[1], batch_first=True
+        )
         self.pred = Linear(transformer_input_shape[1], transformer_input_shape[0])
 
     def forward(self, x):
@@ -326,6 +336,7 @@ class TorchTransformer(Module):
         """
         out = self.transformer.decoder(x, self.transformer.encoder(x))
         return self.pred(out).permute(0, 2, 1)
+
 
 class TransformersModelWrapper(Module):
     """Small wrapper around `transformers` models to support interop with existing measurement code"""

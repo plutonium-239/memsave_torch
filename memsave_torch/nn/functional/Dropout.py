@@ -25,7 +25,7 @@ class _MemSaveDropout(torch.autograd.Function):
                 grad_output, ctx.mask, scale=1 / (1 - ctx.p)
             )
 
-        return grad_x
+        return grad_x, None, None
 
 
 def dropoutMemSave(x, p, training) -> torch.Tensor:

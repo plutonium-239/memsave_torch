@@ -38,6 +38,8 @@ allowed_cases = [
     "no_grad_norm_bias",
     "grad_input",
     "no_grad_input",
+    "grad_embed_weights",
+    "no_grad_embed_weights",
 ]
 
 

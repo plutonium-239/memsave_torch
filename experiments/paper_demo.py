@@ -26,7 +26,7 @@ vjp_improvements = [
 ]
 
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
-n_repeat = 5
+n_repeat = 1
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
@@ -64,8 +64,8 @@ models = [
     "t5",
     "flan-t5",
     "xlm-roberta",
-    "mistral-7b",
-    "llama3-8b",
+    # "mistral-7b",
+    # "llama3-8b",
 ]
 models = prefix_in_pairs("memsave_", models)
 batch_size = 8

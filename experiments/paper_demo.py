@@ -59,7 +59,7 @@ models = [
 models = [
     "gpt2",
     "bert",
-    "bart",
+    # "bart",
     "roberta",
     "t5",
     "flan-t5",
@@ -68,7 +68,7 @@ models = [
     # "llama3-8b",
 ]
 models = prefix_in_pairs("memsave_", models)
-batch_size = 8
+batch_size = 64
 input_channels = 2048
 input_HW = 256
 num_classes = 5000

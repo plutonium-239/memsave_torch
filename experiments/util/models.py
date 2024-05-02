@@ -94,8 +94,8 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     """
     if model_name.startswith("memsave_"):
         model_name = model_name.split("memsave_")[1]
-    model_hf_name = hf_transformers_models_map[model_name]
-    return AutoConfig.from_pretrained(model_hf_name)
+    model_hf_name, kwargs = hf_transformers_models_map[model_name]
+    return AutoConfig.from_pretrained(model_hf_name, **kwargs)
 
 
 # CONV
@@ -296,17 +296,18 @@ class DetectionLossWrapper(Module):
 # TRANSFORMER
 transformer_input_shape: Tuple[int, int] = (1, 1)  # (vocab_dim, embed_dim)
 
+# 'shortname': ('hf_repo_name', {extra_kwargs})
 hf_transformers_models_map = {
-    "gpt2": "gpt2", 
-    "vit": "facebook/vit-mae-base",
-    "bert": "google-bert/bert-base-uncased",
-    "bart": "facebook/bart-base",
-    "roberta": "FacebookAI/roberta-base",
-    "t5": "google-t5/t5-base",
-    "flan-t5": "google/flan-t5-base",
-    "xlm-roberta": "FacebookAI/xlm-roberta-base",
-    # "mistral-7b": "mistralai/Mistral-7B-v0.1", need to add transformers.models.mistral.modeling_mistral.MistralRMSNorm
-    # "llama3-8b": "meta-llama/Meta-Llama-3-8B", GATED
+    "gpt2": ("gpt2", {}), 
+    "vit": ("facebook/vit-mae-base", {}),
+    "bert": ("google-bert/bert-base-uncased", {'is_decoder': True}),
+    "bart": ("facebook/bart-base", {}),
+    "roberta": ("FacebookAI/roberta-base", {'is_decoder': True}),
+    "t5": ("google-t5/t5-base", {}),
+    "flan-t5": ("google/flan-t5-base", {}),
+    # "xlm-roberta": ("FacebookAI/xlm-roberta-base", {}), Needs work
+    # "mistral-7b": ("mistralai/Mistral-7B-v0.1", {}), need to add transformers.models.mistral.modeling_mistral.MistralRMSNorm
+    # "llama3-8b": ("meta-llama/Meta-Llama-3-8B", {}), GATED
 }
 hf_transformers_models = list(hf_transformers_models_map.keys())
 hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
@@ -314,23 +315,25 @@ hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
 transformer_model_fns = {
     "transformer": lambda: TorchTransformer(),
     "memsave_transformer": lambda: convert_to_memory_saving(TorchTransformer()),
-    "vit": lambda: AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit']),
+    "vit": lambda: AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit'][0]),
     "memsave_vit": lambda: convert_to_memory_saving(
-        AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit'])
+        AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit'][0])
     ),
 }
 
 from functools import partial
-fused = lambda name: convert_to_memory_saving(AutoModelForCausalLM.from_pretrained(name))
+fused = lambda name, kwargs: convert_to_memory_saving(AutoModelForCausalLM.from_pretrained(name, **kwargs))
 
 for m in hf_transformers_models:
+    if m in transformer_model_fns:
+        continue
     # Can't use lambdas in loops :')
     if not m.startswith('memsave_'):
-        hf_name = hf_transformers_models_map[m]
-        transformer_model_fns[m] = partial(AutoModelForCausalLM.from_pretrained, hf_name)
+        hf_name, kwargs = hf_transformers_models_map[m]
+        transformer_model_fns[m] = partial(AutoModelForCausalLM.from_pretrained, hf_name, **kwargs)
     else:
-        hf_name = hf_transformers_models_map[m.split('memsave_', 1)[1]]
-        transformer_model_fns[m] = partial(fused, hf_name)
+        hf_name, kwargs = hf_transformers_models_map[m.split('memsave_', 1)[1]]
+        transformer_model_fns[m] = partial(fused, hf_name, kwargs)
 
 
 class TorchTransformer(Module):
@@ -364,6 +367,7 @@ class TransformersModelWrapper(Module):
         """Init"""
         super().__init__()
         self.model = model_fn()
+        self.dec = self.model.config.is_encoder_decoder
 
     def forward(self, x):
         """Forward
@@ -374,7 +378,11 @@ class TransformersModelWrapper(Module):
         Returns:
             output: model output
         """
-        return self.model(inputs_embeds=x, use_cache=False)["logits"].permute(0, 2, 1)
+        if self.dec:
+            out = self.model(inputs_embeds=x, decoder_inputs_embeds=x, use_cache=False)
+        else:
+            out = self.model(inputs_embeds=x, use_cache=False)
+        return out.logits.permute(0, 2, 1)
 
 
 # LINEAR

@@ -15,7 +15,7 @@ from torch.nn import (
     Sequential,
     Transformer,
 )
-from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForPreTraining
+from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForPreTraining, AutoModel
 
 from memsave_torch.nn import (
     MemSaveConv2d,
@@ -305,8 +305,8 @@ hf_transformers_models_map = {
     "t5": "google-t5/t5-base",
     "flan-t5": "google/flan-t5-base",
     "xlm-roberta": "FacebookAI/xlm-roberta-base",
-    "mistral-7b": "mistralai/Mistral-7B-v0.1",
-    "llama3-8b": "meta-llama/Meta-Llama-3-8B",
+    # "mistral-7b": "mistralai/Mistral-7B-v0.1", need to add transformers.models.mistral.modeling_mistral.MistralRMSNorm
+    # "llama3-8b": "meta-llama/Meta-Llama-3-8B", GATED
 }
 hf_transformers_models = list(hf_transformers_models_map.keys())
 hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
@@ -314,17 +314,23 @@ hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
 transformer_model_fns = {
     "transformer": lambda: TorchTransformer(),
     "memsave_transformer": lambda: convert_to_memory_saving(TorchTransformer()),
+    "vit": lambda: AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit']),
+    "memsave_vit": lambda: convert_to_memory_saving(
+        AutoModelForPreTraining.from_pretrained(hf_transformers_models_map['vit'])
+    ),
 }
 
+from functools import partial
+fused = lambda name: convert_to_memory_saving(AutoModelForCausalLM.from_pretrained(name))
+
 for m in hf_transformers_models:
+    # Can't use lambdas in loops :')
     if not m.startswith('memsave_'):
         hf_name = hf_transformers_models_map[m]
-        transformer_model_fns[m] = lambda: AutoModelForPreTraining.from_pretrained(hf_name)
+        transformer_model_fns[m] = partial(AutoModelForCausalLM.from_pretrained, hf_name)
     else:
         hf_name = hf_transformers_models_map[m.split('memsave_', 1)[1]]
-        transformer_model_fns[m] = lambda: convert_to_memory_saving(
-            AutoModelForPreTraining.from_pretrained(hf_name)
-        )
+        transformer_model_fns[m] = partial(fused, hf_name)
 
 
 class TorchTransformer(Module):

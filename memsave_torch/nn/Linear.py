@@ -4,10 +4,14 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 """
 
 import torch.nn as nn
-import transformers
+import sys
 
 from memsave_torch.nn.functional import linearMemSave
 
+transformers_imported = False
+if 'transformers' in sys.modules:
+    import transformers
+    transformers_imported = True
 
 class MemSaveLinear(nn.Linear):
     """MemSaveLinear."""
@@ -45,7 +49,9 @@ class MemSaveLinear(nn.Linear):
         Returns:
             obj: The MemSaveLinear object
         """
-        isTransformersConv1D = isinstance(linear, transformers.Conv1D)
+        isTransformersConv1D = False
+        if transformers_imported:
+            isTransformersConv1D = isinstance(linear, transformers.Conv1D)
         if isTransformersConv1D:
             # it only saves output features in the model (linear.nf); need to take input features from weight anyway
             # weight and bias are still defined

@@ -3,7 +3,7 @@
 import itertools
 import math
 from functools import partial
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 
 import torchvision.models as tvm
 from torch.nn import (
@@ -102,8 +102,8 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     """
     if model_name.startswith("memsave_"):
         model_name = model_name.split("memsave_")[1]
-    model_hf_name, kwargs = hf_transformers_models_map[model_name]
-    return AutoConfig.from_pretrained(model_hf_name, **kwargs)
+    props = hf_transformers_models_map[model_name]
+    return AutoConfig.from_pretrained(props.hf_name, **props.extra_kwargs)
 
 
 # CONV
@@ -306,9 +306,16 @@ transformer_input_shape: Tuple[int, int] = (1, 1)  # (vocab_dim, embed_dim)
 
 
 class _HF_model:
-    def __init__(self, hf_name: str, extra_kwargs: dict = {}, model_cls: Any = AutoModelForCausalLM) -> None:
+    def __init__(
+        self,
+        hf_name: str,
+        extra_kwargs: Optional[dict] = None,
+        model_cls: Any = AutoModelForCausalLM,
+    ) -> None:
         self.hf_name = hf_name
         self.extra_kwargs = extra_kwargs
+        if self.extra_kwargs is None:
+            self.extra_kwargs = {}
         self.model_cls = model_cls
 
 

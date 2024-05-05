@@ -57,9 +57,10 @@ models = [
 # ============== TRANSFORMER CONFIG ==============
 # Valid choices for models are in models.transformer_model_fns
 models = [
+    "transformer",
     "gpt2",
     "bert",
-    # "bart",
+    "bart",
     "roberta",
     "t5",
     "flan-t5",
@@ -109,9 +110,10 @@ cases = [
         "no_grad_linear_weights",
         "no_grad_linear_bias",
     ],
-    [  # LINEAR
-        "no_grad_conv_weights",
-        "no_grad_conv_bias",
+    [  # LLM
+        "grad_input",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
         "no_grad_norm_weights",
         "no_grad_norm_bias",
     ],

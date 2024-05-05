@@ -6,8 +6,9 @@ Currently implemented:
 - BatchNorm2d
 """
 
-import torch.nn as nn
 import sys
+
+import torch.nn as nn
 
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
@@ -20,9 +21,11 @@ from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
 
 transformers_imported = False
-if 'transformers' in sys.modules:
+if "transformers" in sys.modules:
     import transformers
+
     transformers_imported = True
+
 
 def convert_to_memory_saving(
     model: nn.Module,

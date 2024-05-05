@@ -3,15 +3,18 @@
 This is done by not saving the inputs/weights if weight/inputs dont require grad.
 """
 
-import torch.nn as nn
 import sys
+
+import torch.nn as nn
 
 from memsave_torch.nn.functional import linearMemSave
 
 transformers_imported = False
-if 'transformers' in sys.modules:
+if "transformers" in sys.modules:
     import transformers
+
     transformers_imported = True
+
 
 class MemSaveLinear(nn.Linear):
     """MemSaveLinear."""

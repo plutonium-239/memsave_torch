@@ -3,7 +3,7 @@
 import itertools
 import math
 from functools import partial
-from typing import Any, List, Tuple, Optional, Dict
+from typing import Any, Dict, List, Tuple
 
 import torchvision.models as tvm
 from torch.nn import (

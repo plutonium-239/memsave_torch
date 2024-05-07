@@ -11,20 +11,20 @@ import transformers.models as tfm
 from transformers import AutoConfig
 
 to_test = {
-    'bert_encoder': ['bert', lambda model: model.bert.encoder.layer[0]],
-    'memsave_bert_encoder': ['memsave_bert', lambda model: model.bert.encoder.layer[0]],
-    'bart_encoder': ['bart', lambda model: model.decoder.layers[0]],
-    'memsave_bart_encoder': ['memsave_bart', lambda model: model.decoder.layers[0]],
-    'gpt2_layer': ['gpt2', lambda model: model.transformer.h[0]],
-    'memsave_gpt2_layer': ['memsave_gpt2', lambda model: model.transformer.h[0]],
-    't5_decoder': ['t5', lambda model: model.decoder.block[1]],
-    'memsave_t5_decoder': ['memsave_t5', lambda model: model.decoder.block[1]],
+    'bert_encoder': ['bert', lambda model_full: model_full.bert.encoder.layer[0]],
+    'memsave_bert_encoder': ['memsave_bert', lambda model_full: model_full.bert.encoder.layer[0]],
+    'bart_encoder': ['bart', lambda model_full: model_full.model.decoder.layers[0]],
+    'memsave_bart_encoder': ['memsave_bart', lambda model_full: model_full.model.decoder.layers[0]],
+    'gpt2_layer': ['gpt2', lambda model_full: model_full.transformer.h[0]],
+    'memsave_gpt2_layer': ['memsave_gpt2', lambda model_full: model_full.transformer.h[0]],
+    't5_decoder': ['t5', lambda model_full: model_full.decoder.block[1]],
+    'memsave_t5_decoder': ['memsave_t5', lambda model_full: model_full.decoder.block[1]],
 }
 
 def run_single(model, name, x):
     y = model(x)
     dot = make_dot(
-        y.mean(),
+        y[0].mean(),
         params=dict(model.named_parameters()),
         show_attrs=True,
         show_saved=True,
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         config = models.get_transformers_config(model_name)
 
         models.transformer_input_shape = (config.vocab_size, config.hidden_size)
-        x = torch.rand(7, *models.transformer_input_shape)
+        x = torch.rand(7, 128, config.hidden_size)
 
         model = models.transformer_model_fns.get(model_name)
         run_single(block_fn(model()), name, x)

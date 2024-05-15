@@ -28,9 +28,17 @@ from torch.nn import (
 )
 from torchvision.models.convnext import LayerNorm2d
 from transformers import Conv1D
+from transformers.models.mistral.modeling_mistral import MistralRMSNorm
+from transformers.models.t5.modeling_t5 import T5LayerNorm
 
-from memsave_torch.nn.Conv2d import MemSaveConv2d
-from memsave_torch.nn.Linear import MemSaveLinear
+from memsave_torch.nn import (
+    MemSaveBatchNorm2d,
+    MemSaveConv2d,
+    MemSaveLayerNorm,
+    MemSaveLinear,
+    MemSaveRMSLayerNorm,
+    RMSLayerNorm,
+)
 
 
 def maybe_synchronize(dev: device):
@@ -333,7 +341,19 @@ def separate_grad_arguments(
         ConvTranspose3d,
         MemSaveConv2d,
     )
-    norm = (BatchNorm1d, BatchNorm2d, BatchNorm3d, LayerNorm, LayerNorm2d)
+    norm = (
+        BatchNorm1d,
+        BatchNorm2d,
+        BatchNorm3d,
+        LayerNorm,
+        LayerNorm2d,
+        MemSaveBatchNorm2d,
+        MemSaveLayerNorm,
+        RMSLayerNorm,
+        MemSaveRMSLayerNorm,
+        T5LayerNorm,
+        MistralRMSNorm,
+    )
     embed = Embedding
 
     leafs, no_leafs = [], []

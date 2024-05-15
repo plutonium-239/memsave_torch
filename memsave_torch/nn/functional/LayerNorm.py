@@ -80,3 +80,61 @@ def layer_normMemSave(
         torch.Tensor: Output of the network [B, C, H, W]
     """
     return _MemSaveLayerNorm.apply(input, normalized_shape, weight, bias, eps)
+
+
+class _MemSaveRMSLayerNorm(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, x, weight, variance_epsilon):
+        # T5 uses a layer_norm which only scales and doesn't shift, which is also known as Root Mean
+        # Square Layer Normalization https://arxiv.org/abs/1910.07467 thus varience is calculated
+        # w/o mean and there is no bias. Additionally we want to make sure that the accumulation for
+        # half-precision inputs is done in fp32
+
+        rms_norm_inv = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + variance_epsilon)
+
+        need_grad = []
+        if ctx.needs_input_grad[0]:
+            need_grad.append(weight)
+        if ctx.needs_input_grad[1]:
+            need_grad.append(x)
+            ctx.rms_norm_inv = rms_norm_inv
+
+        ctx.save_for_backward(*need_grad)
+
+        ctx.hidden_size = weight.shape
+        # import ipdb; ipdb.set_trace()
+
+        return weight * x * rms_norm_inv
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        x = weight = None
+
+        grad_x, grad_weight = None, None
+
+        current_idx = 0
+        if ctx.needs_input_grad[0]:
+            weight = ctx.saved_tensors[current_idx]
+            current_idx += 1
+            grad_x = grad_output * weight * ctx.rms_norm_inv
+        if ctx.needs_input_grad[1]:
+            x = ctx.saved_tensors[current_idx]
+            current_idx += 1
+            grad_weight = grad_output * x * ctx.rms_norm_inv
+
+        return grad_x, grad_weight, None
+
+
+def rms_normMemSave(input, weight, eps=1e-05) -> torch.Tensor:
+    """Functional form of the memory saving layer_norm.
+
+    Args:
+        input: Input to the network [B, C, H, W]
+        normalized_shape: normalized_shape
+        weight: weight
+        bias: bias
+        eps: eps
+    Returns:
+        torch.Tensor: Output of the network [B, C, H, W]
+    """
+    return _MemSaveRMSLayerNorm.apply(input, weight, eps)

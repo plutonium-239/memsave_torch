@@ -15,7 +15,11 @@ from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
 from memsave_torch.nn.Dropout import MemSaveDropout
-from memsave_torch.nn.LayerNorm import MemSaveLayerNorm
+from memsave_torch.nn.LayerNorm import (
+    MemSaveLayerNorm,
+    MemSaveRMSLayerNorm,
+    RMSLayerNorm,
+)
 from memsave_torch.nn.Linear import MemSaveLinear
 from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
@@ -63,8 +67,14 @@ def convert_to_memory_saving(
         memsavemodel (nn.Module): The converted memory saving model
     """
     linear_cls = nn.Linear
+    layernorm_cls = RMSLayerNorm
     if transformers_imported:
         linear_cls = (nn.Linear, transformers.Conv1D)
+        layernorm_cls = (
+            RMSLayerNorm,
+            transformers.models.t5.modeling_t5.T5LayerNorm,
+            transformers.models.mistral.modeling_mistral.MistralRMSNorm,
+        )
     layers = [
         {
             "allowed": linear,
@@ -96,6 +106,11 @@ def convert_to_memory_saving(
             "allowed": layernorm,
             "cls": nn.LayerNorm,
             "convert_fn": MemSaveLayerNorm.from_nn_LayerNorm,
+        },
+        {
+            "allowed": layernorm,
+            "cls": layernorm_cls,
+            "convert_fn": MemSaveRMSLayerNorm.from_existing,
         },
         {
             "allowed": dropout,

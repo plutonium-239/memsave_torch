@@ -16,7 +16,7 @@ def main(base_dir: str):
     Args:
         base_dir (str): The base results dir
     """
-    for device, arch in product(["cuda", "cpu"], ["linear", "conv"]):
+    for device, arch in product(["cuda", "cpu"], ["linear", "conv", "transformer"]):
         # usage stats
         df = None
         idx_col = ["model", "case"]

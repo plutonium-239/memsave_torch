@@ -16,14 +16,22 @@ def main(base_dir: str):
     Args:
         base_dir (str): The base results dir
     """
+    # Don't recognize None as NaN
+    custom_na_values = pd._libs.parsers.STR_NA_VALUES - {"None"}
     for device, arch in product(["cuda", "cpu"], ["linear", "conv", "transformer"]):
         # usage stats
         df = None
         idx_col = ["model", "case"]
         for fname in glob(os.path.join(base_dir, f"usage_stats-{arch}-{device}-*.csv")):
             with open(fname) as f:
-                f.readline()
-                temp_df = pd.read_csv(f, index_col=idx_col)
+                # f.readline()
+                temp_df = pd.read_csv(
+                    f,
+                    index_col=idx_col,
+                    header=1,
+                    na_values=custom_na_values,
+                    keep_default_na=False,
+                )
             df = temp_df if df is None else pd.concat([df, temp_df])
         if df is not None:
             df = df.rename(index=case_mapping, level=1)

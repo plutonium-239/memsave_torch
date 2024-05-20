@@ -126,11 +126,13 @@ class RuntimeMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
-        grad_embed_weights: bool = True,
+        grad_embed_weights: bool = False,
     ) -> float:
         """Perform a forward and backward pass and return the run time.
 
         Syncs CUDA threads if the device is a GPU.
+        Note: We directly pass input embeddings to transformers so embed weights are never used and their
+        grad will be None.
 
         Args:
             grad_linear_weights (bool, optional): Whether to compute the gradient of the linear
@@ -205,9 +207,12 @@ class MemoryMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
-        grad_embed_weights: bool = True,
+        grad_embed_weights: bool = False,
     ) -> float:
         """Return memory usage after a forward pass.
+
+        Note: We directly pass input embeddings to transformers so embed weights are never used and their
+        grad will be None.
 
         Args:
             grad_linear_weights: Whether to compute the gradient of the linear
@@ -370,7 +375,26 @@ def separate_grad_arguments(
         if "bias" in layer._parameters and layer.bias is not None:
             leafs.append(layer.bias) if grad_bias else no_leafs.append(layer.bias)
 
-    layers = [m for m in model.modules() if len(list(m.modules())) == 1]
+    def check_lm_head(n) -> bool:
+        """Checks if the module name n corresponds to an LM Head
+
+        LM Head for transformers is not trainable (i.e. it is a module but it's weight is not a parameter)
+        and the weights are tied to the embedding layer
+
+        Args:
+            n (str): name of the module
+
+        Returns:
+            bool: Whether n is a LM head
+        """
+        lm_head_name = getattr(model, 'lm_head_name', None)
+        return lm_head_name is not None and lm_head_name in n
+
+    layers = [
+        m
+        for n, m in model.named_modules()
+        if len(list(m.modules())) == 1 and not check_lm_head(n)
+    ]
 
     for layer in layers:
         if isinstance(layer, linear):

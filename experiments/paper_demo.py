@@ -132,8 +132,9 @@ if __name__ == "__main__":
                 collector.clear_file(estimate)
                 for case in cases:
                     pbar.update()
-                    pbar.set_description(f"{model} {estimate} case {case}")
+                    case_display = collect_results.case_mapping[collect_results.make_case_str(case)]
                     case_str = f"--case {' '.join(case)}" if case is not None else ""
+                    pbar.set_description(f"{model} {estimate} case {case_display}")
                     cmd = (
                         f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
                         + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"

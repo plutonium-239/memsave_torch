@@ -98,24 +98,11 @@ cases = [
         "no_grad_norm_weights",
         "no_grad_norm_bias",
     ],
-    [  # CONV
-        "no_grad_linear_weights",
-        "no_grad_linear_bias",
-        "no_grad_norm_weights",
-        "no_grad_norm_bias",
-    ],
     [  # NORM
         "no_grad_conv_weights",
         "no_grad_conv_bias",
         "no_grad_linear_weights",
         "no_grad_linear_bias",
-    ],
-    [  # LLM
-        "grad_input",
-        "no_grad_linear_weights",
-        "no_grad_linear_bias",
-        "no_grad_norm_weights",
-        "no_grad_norm_bias",
     ],
 ]
 
@@ -137,6 +124,8 @@ if __name__ == "__main__":
         )
 
         for model in models:
+            if model == "flan-t5":
+                batch_size = 56
             for estimate in estimators:
                 outputs = []
 

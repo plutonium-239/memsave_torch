@@ -3,8 +3,9 @@
 import itertools
 import math
 from functools import partial
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
+import torch
 import torchvision.models as tvm
 from torch.nn import (
     Conv2d,
@@ -23,6 +24,9 @@ from transformers import (
     AutoModelForPreTraining,
     AutoModelForSeq2SeqLM,
     BartForConditionalGeneration,
+)
+from transformers import (
+    logging as tf_logging,
 )
 
 from memsave_torch.nn import (
@@ -311,24 +315,43 @@ class _HF_model:
         hf_name: str,
         extra_kwargs: Dict[str, Any],
         model_cls: Any = AutoModelForCausalLM,
+        lm_head_name: Optional[str] = None,
     ) -> None:
         self.hf_name = hf_name
         self.extra_kwargs = extra_kwargs
         if self.extra_kwargs is None:
             self.extra_kwargs = {}
         self.model_cls = model_cls
+        self.lm_head_name = lm_head_name
 
+
+tf_logging.disable_progress_bar()
+tf_logging.set_verbosity_error()
 
 hf_transformers_models_map = {
-    "gpt2": _HF_model("gpt2", {}),
+    "gpt2": _HF_model("gpt2", {}, lm_head_name="lm_head"),
     "vit": _HF_model("facebook/vit-mae-base", {}, AutoModelForPreTraining),
-    "bert": _HF_model("google-bert/bert-base-uncased", {"is_decoder": True}),
-    "bart": _HF_model("facebook/bart-base", {}, BartForConditionalGeneration),
-    "roberta": _HF_model("FacebookAI/roberta-base", {"is_decoder": True}),
-    "t5": _HF_model("google-t5/t5-base", {}, AutoModelForSeq2SeqLM),
-    "flan-t5": _HF_model("google/flan-t5-base", {}, AutoModelForSeq2SeqLM),
-    "xlm-roberta": _HF_model("FacebookAI/xlm-roberta-base", {}, AutoModelForMaskedLM),
-    # "mistral-7b": _HF_model("mistralai/Mistral-7B-v0.1", {}), need to add transformers.models.mistral.modeling_mistral.MistralRMSNorm
+    "bert": _HF_model(
+        "google-bert/bert-base-uncased",
+        {"is_decoder": True},
+        lm_head_name="cls.predictions.decoder",
+    ),
+    "bart": _HF_model(
+        "facebook/bart-base", {}, BartForConditionalGeneration, "lm_head"
+    ),
+    "roberta": _HF_model(
+        "FacebookAI/roberta-base", {"is_decoder": True}, lm_head_name="lm_head.decoder"
+    ),
+    "t5": _HF_model("google-t5/t5-base", {}, AutoModelForSeq2SeqLM, "lm_head"),
+    "flan-t5": _HF_model("google/flan-t5-base", {}, AutoModelForSeq2SeqLM, "lm_head"),
+    "xlm-roberta": _HF_model(
+        "FacebookAI/xlm-roberta-base", {}, AutoModelForMaskedLM, "lm_head.decoder"
+    ),
+    "mistral-7b": _HF_model(
+        "mistralai/Mistral-7B-v0.1",
+        {"torch_dtype": torch.bfloat16},
+        lm_head_name="lm_head",
+    ),
     # "llama3-8b": _HF_model("meta-llama/Meta-Llama-3-8B", {}), GATED
 }
 hf_transformers_models = list(hf_transformers_models_map.keys())
@@ -386,11 +409,20 @@ class TorchTransformer(Module):
 class TransformersModelWrapper(Module):
     """Small wrapper around `transformers` models to support interop with existing measurement code"""
 
-    def __init__(self, model_fn) -> None:
+    def __init__(self, model_fn, model_name) -> None:
         """Init"""
         super().__init__()
         self.model = model_fn()
         self.dec = self.model.config.is_encoder_decoder
+        self.model_name = model_name
+        model_name_pure = model_name
+        if model_name.startswith("memsave_"):
+            model_name_pure = model_name.split("memsave_")[1]
+        self.lm_head_name = hf_transformers_models_map[model_name_pure].lm_head_name
+
+        self.cache_kw = {"use_cache": False}
+        if "ForMaskedLM" in self.model.config.architectures:
+            self.cache_kw = {}
 
     def forward(self, x):
         """Forward
@@ -402,9 +434,9 @@ class TransformersModelWrapper(Module):
             output: model output
         """
         if self.dec:
-            out = self.model(inputs_embeds=x, decoder_inputs_embeds=x, use_cache=False)
+            out = self.model(inputs_embeds=x, decoder_inputs_embeds=x, **self.cache_kw)
         else:
-            out = self.model(inputs_embeds=x, use_cache=False)
+            out = self.model(inputs_embeds=x, **self.cache_kw)
         return out.logits.permute(0, 2, 1)
 
 

@@ -297,7 +297,9 @@ if __name__ == "__main__":
             model_fn = models.transformer_model_fns.get(args.model)
             if args.model in models.hf_transformers_models:
                 model_fn_orig = model_fn
-                model_fn = lambda: models.TransformersModelWrapper(model_fn_orig)  # noqa: E731
+                model_fn = lambda: models.TransformersModelWrapper(
+                    model_fn_orig, args.model
+                )  # noqa: E731
                 config = models.get_transformers_config(args.model)
                 # as per transformers.PretrainedConfig these 2 should be present in all models:
                 vocab_dim = config.vocab_size

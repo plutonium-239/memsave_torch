@@ -126,6 +126,8 @@ if __name__ == "__main__":
         for model in models:
             if model == "flan-t5":
                 batch_size = 56
+            if model == "mistral-7b":
+                batch_size = 16
             for estimate in estimators:
                 outputs = []
 

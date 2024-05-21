@@ -174,7 +174,10 @@ class ResultsCollector:
         """
         # print(f"{model} input ({input_channels},{input_HW},{input_HW}) {device}")
         # print('='*78)
-        s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
+        if self.architecture == "conv":
+            s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
+        elif self.architecture == "transformer":
+            s = f"{model} input ({self.batch_size},{self.input_HW},{self.input_channels}(or model hidden size)) {self.device}"
         print(s.center(78, "="))
 
         for out, case in zip(outputs, self.cases):

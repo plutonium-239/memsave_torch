@@ -421,7 +421,7 @@ class TransformersModelWrapper(Module):
         self.lm_head_name = hf_transformers_models_map[model_name_pure].lm_head_name
 
         self.cache_kw = {"use_cache": False}
-        if "ForMaskedLM" in self.model.config.architectures:
+        if any("ForMaskedLM" in a for a in self.model.config.architectures):
             self.cache_kw = {}
 
     def forward(self, x):

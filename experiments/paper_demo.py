@@ -64,8 +64,8 @@ models = [
     "roberta",
     "t5",
     "flan-t5",
-    "xlm-roberta",
-    # "mistral-7b",
+    # "xlm-roberta",
+    "mistral-7b",
     # "llama3-8b",
 ]
 models = prefix_in_pairs("memsave_", models)

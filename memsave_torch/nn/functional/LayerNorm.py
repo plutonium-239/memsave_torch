@@ -84,24 +84,24 @@ def layer_normMemSave(
 
 class _MemSaveRMSLayerNorm(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, x, weight, variance_epsilon):
+    def forward(ctx, x, weight, eps):
         # T5 uses a layer_norm which only scales and doesn't shift, which is also known as Root Mean
         # Square Layer Normalization https://arxiv.org/abs/1910.07467 thus varience is calculated
         # w/o mean and there is no bias. Additionally we want to make sure that the accumulation for
         # half-precision inputs is done in fp32
 
-        rms_norm_inv = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + variance_epsilon)
+        rms_norm_inv = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + eps)
 
         need_grad = []
         if ctx.needs_input_grad[0]:
             need_grad.append(weight)
-        if ctx.needs_input_grad[1]:
+        if any(ctx.needs_input_grad):
             need_grad.append(x)
-            ctx.rms_norm_inv = rms_norm_inv
+        # ctx.rms_norm_inv = rms_norm_inv
+        ctx.eps = eps
 
         ctx.save_for_backward(*need_grad)
 
-        ctx.hidden_size = weight.shape
         # import ipdb; ipdb.set_trace()
 
         return weight * x * rms_norm_inv
@@ -113,14 +113,27 @@ class _MemSaveRMSLayerNorm(torch.autograd.Function):
         grad_x, grad_weight = None, None
 
         current_idx = 0
+        rms_norm_inv = None
         if ctx.needs_input_grad[0]:
             weight = ctx.saved_tensors[current_idx]
             current_idx += 1
-            grad_x = grad_output * weight * ctx.rms_norm_inv
+            x = ctx.saved_tensors[current_idx]
+            x_sq_sum = x.pow(2).sum(-1, keepdims=True)
+            n = x.shape[-1]
+            rms_norm_inv = torch.rsqrt(x_sq_sum / n + ctx.eps)
+            grad_x = (
+                grad_output
+                * weight
+                * (1 / n)
+                * rms_norm_inv.pow(3)
+                * (x_sq_sum - x * (weight * x).sum(dim=-1, keepdims=True))
+            )
         if ctx.needs_input_grad[1]:
             x = ctx.saved_tensors[current_idx]
+            if rms_norm_inv is None:
+                rms_norm_inv = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + ctx.eps)
             current_idx += 1
-            grad_weight = grad_output * x * ctx.rms_norm_inv
+            grad_weight = grad_output * x * rms_norm_inv
 
         return grad_x, grad_weight, None
 

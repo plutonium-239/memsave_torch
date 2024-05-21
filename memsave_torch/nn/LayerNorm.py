@@ -168,7 +168,7 @@ class MemSaveRMSLayerNorm(RMSLayerNorm):
         Returns:
             obj: The MemSaveRMSLayerNorm object
         """
-        if ln.variance_epsilon is not None:  # T5LayerNorm
+        if getattr(ln, "variance_epsilon", None) is not None:  # T5LayerNorm
             ln.eps = ln.variance_epsilon
         obj = cls(
             ln.weight.shape,

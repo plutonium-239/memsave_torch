@@ -433,6 +433,9 @@ class TransformersModelWrapper(Module):
         Returns:
             output: model output
         """
+        if self.model.dtype != torch.float32:
+            x = x.to(self.model.dtype)
+            # HF takes care of converting logits to float32
         if self.dec:
             out = self.model(inputs_embeds=x, decoder_inputs_embeds=x, **self.cache_kw)
         else:

@@ -124,10 +124,11 @@ if __name__ == "__main__":
         )
 
         for model in models:
+            B = batch_size
             if model in ["flan-t5", "memsave_flan-t5"]:
-                batch_size = 56
+                B = 56
             if model in ["mistral-7b", "memsave_mistral-7b"]:
-                batch_size = 16
+                B = 16
             for estimate in estimators:
                 outputs = []
 
@@ -141,7 +142,7 @@ if __name__ == "__main__":
                     pbar.set_description(f"{model} {estimate} case {case_display}")
                     cmd = (
                         f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
-                        + f"--device {device} -B {batch_size} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
+                        + f"--device {device} -B {B} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
                     )
                     proc = subprocess.run(shlex.split(cmd), capture_output=True)
                     assert proc.stderr in [

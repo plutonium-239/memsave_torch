@@ -10,10 +10,13 @@ import torch
 class _MemSaveDropout(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, p, train):
-        out, mask = torch.ops.aten.native_dropout(x, p, train)
+        rng = torch.get_rng_state()
+        # dont need mask here, so dont call torch.ops, torch.dropout is faster
+        out = torch.dropout(x, p, train) 
         if ctx.needs_input_grad[0]:
             ctx.p = p
-            ctx.mask = mask
+            ctx.train = train
+            ctx.rng = rng
         return out
 
     @staticmethod
@@ -21,8 +24,13 @@ class _MemSaveDropout(torch.autograd.Function):
         grad_x = None
 
         if ctx.needs_input_grad[0]:
+            orig_rng = torch.get_rng_state()
+            torch.set_rng_state(ctx.rng)
+            mask = torch.empty_like(grad_output)
+            mask = mask.bernoulli_(0.5).bool()
+            torch.set_rng_state(orig_rng)
             grad_x = torch.ops.aten.native_dropout_backward(
-                grad_output, ctx.mask, scale=1 / (1 - ctx.p)
+                grad_output, mask, scale=1 / (1 - ctx.p)
             )
 
         return grad_x, None, None

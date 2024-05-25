@@ -29,9 +29,10 @@ class _MemSaveDropout(torch.autograd.Function):
             mask = torch.empty_like(grad_output)
             mask = mask.bernoulli_(0.5).bool()
             torch.set_rng_state(orig_rng)
-            grad_x = torch.ops.aten.native_dropout_backward(
-                grad_output, mask, scale=1 / (1 - ctx.p)
-            )
+            grad_x = grad_output*mask/(1-ctx.p)
+            # grad_x = torch.ops.aten.native_dropout_backward(
+            #     grad_output, mask, scale=1 / (1 - ctx.p)
+            # )
 
         return grad_x, None, None
 

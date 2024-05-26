@@ -74,6 +74,8 @@ def convert_to_memory_saving(
             RMSLayerNorm,
             transformers.models.t5.modeling_t5.T5LayerNorm,
             transformers.models.mistral.modeling_mistral.MistralRMSNorm,
+            transformers.models.llama.modeling_llama.LlamaRMSNorm,
+            transformers.models.phi3.modeling_phi3.Phi3RMSNorm
         )
     layers = [
         {

@@ -37,7 +37,8 @@ def _highlight(group, col_sort, col_bold):
     return group
 
 df2 = df2.groupby(['model_clean', 'case'])\
-    .apply(_highlight, ['Memory Usage (GB)', 'Time Taken (s)'], ['Memory [GiB]', 'Time [s]'])
+    .apply(_highlight, ['Memory Usage (GB)'], ['Memory [GiB]'])
+    # .apply(_highlight, ['Memory Usage (GB)', 'Time Taken (s)'], ['Memory [GiB]', 'Time [s]'])
 
 names = {
     'bert': 'BERT',

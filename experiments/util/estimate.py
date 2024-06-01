@@ -226,7 +226,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Which architecture to run",
-        choices=["conv", "linear"],
+        choices=["conv", "linear", "transformer", "VLM"],
     )
     parser.add_argument(
         "--estimate",
@@ -279,6 +279,40 @@ if __name__ == "__main__":
             assert (
                 model_fn is not None
             ), f"Linear model name {args.model} not found, must be one of {list(models.linear_model_fns.keys())}"
+        elif args.architecture == "transformer":
+            vocab_dim = args.num_classes
+            embed_dim = args.input_channels
+            seq_len = args.input_hw
+            model_fn = models.transformer_model_fns.get(args.model)
+            if args.model in models.hf_transformers_models:
+                model_fn_orig = model_fn
+                model_fn = lambda: models.TransformersModelWrapper(  # noqa: E731
+                    model_fn_orig, args.model
+                )
+                config = models.get_transformers_config(args.model)
+                # as per transformers.PretrainedConfig these 2 should be present in all models:
+                vocab_dim = config.vocab_size
+                embed_dim = config.hidden_size
+            models.transformer_input_shape = (vocab_dim, embed_dim)
+            input_shape = [seq_len, embed_dim]
+            y_args = {"size": (batch_size, seq_len), "low": 0, "high": vocab_dim}
+            assert (
+                model_fn is not None
+            ), f"Transformer model name {args.model} not found, must be one of {list(models.transformer_model_fns.keys())}"
+        elif args.architecture == "VLM":
+            # model format: `vlm!<vis_model>!<vis_model_arch>!<llm>`
+            # eg:           `vlm!vit!transformer!memsave_gpt2`
+            is_vlm, vis_model, vis_model_arch, llm = args.model.split("!")
+            assert is_vlm == "vlm"
+            assert vis_model_arch in ["transformer", "conv"]
+            model_fn = lambda: models.VLM(vis_model, vis_model_arch, llm)
+            config = models.get_transformers_config(llm)
+            vocab_dim = config.vocab_size
+            embed_dim = config.hidden_size
+            seq_len = (args.input_hw // 16) ** 2
+            y_args = {"size": (batch_size, seq_len), "low": 0, "high": vocab_dim}
+            input_shape = (args.input_channels, args.input_hw, args.input_hw)
+            models.conv_input_shape = input_shape
 
         loss_fn = CrossEntropyLoss
 

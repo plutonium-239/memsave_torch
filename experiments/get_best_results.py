@@ -7,7 +7,7 @@ from itertools import product
 
 import pandas as pd
 
-from experiments.util.collect_results import case_mapping
+from experiments.util.collect_results import case_inv_mapping
 
 
 def main(base_dir: str):
@@ -26,7 +26,7 @@ def main(base_dir: str):
                 temp_df = pd.read_csv(f, index_col=idx_col)
             df = temp_df if df is None else pd.concat([df, temp_df])
         if df is not None:
-            df = df.rename(index=case_mapping, level=1)
+            df = df.rename(index=case_inv_mapping, level=1)
             df["Memory Usage (GB)"] = df["Memory Usage (MB)"] / 1024
             df = df.drop(columns=["Memory Usage (MB)"])
             best_results = df.groupby(idx_col).min()

@@ -2,6 +2,8 @@
 *.txt
 *.csv
 !requirements.txt
+torchviz-output/
+torchview-output/
 
 # generated docs
 docs_src/_build/

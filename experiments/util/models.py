@@ -2,9 +2,9 @@
 
 import itertools
 import math
-from functools import partial
-from typing import Any, Dict, List, Optional, Tuple
 import warnings
+from functools import partial
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
 import torchvision.models as tvm
@@ -113,7 +113,18 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     return AutoConfig.from_pretrained(props.hf_name, **props.extra_kwargs)
 
 
-def get_arch_models(arch: str):
+def get_arch_models(arch: str) -> Tuple[Dict[str, Callable], Any]:
+    """Get the dict of all defined functions for an architecture
+
+    Args:
+        arch (str): The architecture
+
+    Returns:
+        Tuple[Dict[str, Callable], Any]: Dict of all defined functions
+
+    Raises:
+        ValueError: Invalid architecture
+    """
     if arch == "conv":
         return conv_model_fns, conv_input_shape
     if arch == "transformer":
@@ -471,6 +482,8 @@ class TransformersModelWrapper(Module):
 
 # VLM
 class VLM(Module):
+    """Small wrapper for making a VLM model with transformer llm and conv/transformer vision model"""
+
     def __init__(
         self,
         vision_model_name: str,
@@ -478,6 +491,7 @@ class VLM(Module):
         llm_name: str,
         nc: int = 1000,
     ) -> None:
+        """Init"""
         super().__init__()
         self.vision_model_name = vision_model_name
         self.vm_arch = vision_model_arch
@@ -492,6 +506,14 @@ class VLM(Module):
         self.patchify = Unfold(kernel_size=16, stride=16)
 
     def forward(self, x):
+        """Forward through vlm
+
+        Args:
+            x: x
+
+        Returns:
+            output: model output
+        """
         if self.vm_arch == "transformer" and self.vm.config.image_size != x.shape[-1]:
             x = functional.interpolate(
                 x, size=self.vm.config.image_size, mode="bicubic"

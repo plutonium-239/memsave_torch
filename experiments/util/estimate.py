@@ -305,7 +305,7 @@ if __name__ == "__main__":
             is_vlm, vis_model, vis_model_arch, llm = args.model.split("!")
             assert is_vlm == "vlm"
             assert vis_model_arch in ["transformer", "conv"]
-            model_fn = lambda: models.VLM(vis_model, vis_model_arch, llm)
+            model_fn = lambda: models.VLM(vis_model, vis_model_arch, llm)  # noqa: E731
             config = models.get_transformers_config(llm)
             vocab_dim = config.vocab_size
             embed_dim = config.hidden_size

@@ -53,8 +53,8 @@ def maybe_synchronize(dev: device):
         cuda.synchronize()
 
 
-class _Measurement:
-    """Base class for measurements."""
+class Measurement:
+    """Base class for measurements. This is meant to be subclassed and extended."""
 
     def __init__(
         self,
@@ -83,16 +83,52 @@ class _Measurement:
         self.targets = targets
 
     def set_up(
-        self, synchronize: bool = True
-    ) -> Tuple[Module, Module, Tensor, Tensor, Optional[List[Dict[str, Tensor]]]]:
+        self,
+        synchronize: bool = True,
+        grad_linear_weights: bool = True,
+        grad_linear_bias: bool = True,
+        grad_conv_weights: bool = True,
+        grad_conv_bias: bool = True,
+        grad_norm_weights: bool = True,
+        grad_norm_bias: bool = True,
+        grad_input: bool = False,
+        grad_embed_weights: bool = False,
+        surgical_first: bool = False,
+        surgical_last: bool = False,
+    ) -> Tuple[
+        Module,
+        Module,
+        Tensor,
+        Tensor,
+        Optional[List[Dict[str, Tensor]]],
+        List[Tensor],
+        List[Tensor],
+    ]:
         """Initialize model and loss function, load to device (including data).
 
         Syncs CUDA threads if the device is a GPU to avoid leaking run time
         of this function into the measurement.
 
         Args:
-            synchronize: Whether to synchronize CUDA threads after loading the
+            synchronize (bool, optional): Whether to synchronize CUDA threads after loading the
                 model, loss function, and data to the device. Default: `True`.
+            grad_linear_weights (bool, optional): Whether to compute the gradient of the linear
+                layer weights. Default: `True`.
+            grad_linear_bias (bool, optional): Whether to compute the gradient of the linear
+                layer bias. Default: `True`.
+            grad_conv_weights (bool, optional): Whether to compute the gradient of the convolution
+                layer weights. Default: `True`.
+            grad_conv_bias (bool, optional): Whether to compute the gradient of the convolution
+                layer bias. Default: `True`.
+            grad_norm_weights (bool, optional): Whether to compute the gradient of the normalization
+                layer weights. Default: `True`.
+            grad_norm_bias (bool, optional): Whether to compute the gradient of the normalization
+                layer bias. Default: `True`.
+            grad_input (bool, optional): Whether to compute the gradient of the input. Default: `False`.
+            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
+                layer weights. Default: `True`.
+            surgical_first (bool, optional): Corresponds to computing gradient only for the first quarter of layers
+            surgical_last (bool, optional): Corresponds to computing gradient only for the last quarter of layers
 
         Returns:
             The model, loss function, input tensor, and output tensor. All are loaded
@@ -110,64 +146,19 @@ class _Measurement:
         else:
             targets = None
 
-        if synchronize:
-            maybe_synchronize(self.dev)
-
-        return model, loss_fn, x, y, targets
-
-
-class RuntimeMeasurement(_Measurement):
-    """A class to perform run time measurements of forward+backward pass."""
-
-    def forward_backward(
-        self,
-        grad_linear_weights: bool = True,
-        grad_linear_bias: bool = True,
-        grad_conv_weights: bool = True,
-        grad_conv_bias: bool = True,
-        grad_norm_weights: bool = True,
-        grad_norm_bias: bool = True,
-        grad_input: bool = False,
-        grad_embed_weights: bool = False,
-    ) -> float:
-        """Perform a forward and backward pass and return the run time.
-
-        Syncs CUDA threads if the device is a GPU.
-        Note: We directly pass input embeddings to transformers so embed weights are never used and their
-        grad will be None.
-
-        Args:
-            grad_linear_weights (bool, optional): Whether to compute the gradient of the linear
-                layer weights. Default: `True`.
-            grad_linear_bias (bool, optional): Whether to compute the gradient of the linear
-                layer bias. Default: `True`.
-            grad_conv_weights (bool, optional): Whether to compute the gradient of the convolution
-                layer weights. Default: `True`.
-            grad_conv_bias (bool, optional): Whether to compute the gradient of the convolution
-                layer bias. Default: `True`.
-            grad_norm_weights (bool, optional): Whether to compute the gradient of the normalization
-                layer weights. Default: `True`.
-            grad_norm_bias (bool, optional): Whether to compute the gradient of the normalization
-                layer bias. Default: `True`.
-            grad_input (bool, optional): Whether to compute the gradient of the input. Default: `False`.
-            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
-                layer weights. Default: `True`.
-
-        Returns:
-            float: The run time in seconds.
-        """
-        model, loss_fn, x, y, targets = self.set_up()
-
-        leafs, no_leafs = separate_grad_arguments(
-            model,
-            grad_linear_weights,
-            grad_linear_bias,
-            grad_conv_weights,
-            grad_conv_bias,
-            grad_norm_weights,
-            grad_norm_bias,
-            grad_embed_weights,
-        )
+        if surgical_first or surgical_last:
+            leafs, no_leafs = separate_surgical(model, surgical_first, surgical_last)
+        else:
+            leafs, no_leafs = separate_grad_arguments(
+                model,
+                grad_linear_weights,
+                grad_linear_bias,
+                grad_conv_weights,
+                grad_conv_bias,
+                grad_norm_weights,
+                grad_norm_bias,
+                grad_embed_weights,
+            )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
         # targets will never require grad
@@ -177,6 +168,30 @@ class RuntimeMeasurement(_Measurement):
             leaf.requires_grad_(True)
         for no_leaf in no_leafs:
             no_leaf.requires_grad_(False)
+
+        if synchronize:
+            maybe_synchronize(self.dev)
+
+        return model, loss_fn, x, y, targets, leafs, no_leafs
+
+
+class RuntimeMeasurement(Measurement):
+    """A class to perform run time measurements of forward+backward pass."""
+
+    def forward_backward(self, **case_kwargs) -> float:
+        """Perform a forward and backward pass and return the run time.
+
+        Syncs CUDA threads if the device is a GPU.
+        Note: We directly pass input embeddings to transformers so embed weights are never used and their
+        grad will be None.
+
+        Args:
+            **case_kwargs: Strings denoting which grads to compute and which to not, check docs of `Measurement.set_up()`
+
+        Returns:
+            float: The run time in seconds.
+        """
+        model, loss_fn, x, y, targets, leafs, no_leafs = self.set_up(**case_kwargs)
 
         # obtain run time
         maybe_synchronize(self.dev)
@@ -197,65 +212,22 @@ class RuntimeMeasurement(_Measurement):
         return timer.last
 
 
-class MemoryMeasurement(_Measurement):
+class MemoryMeasurement(Measurement):
     """A class to measure memory usage after a forward pass."""
 
-    def after_forward(
-        self,
-        grad_linear_weights: bool = True,
-        grad_linear_bias: bool = True,
-        grad_conv_weights: bool = True,
-        grad_conv_bias: bool = True,
-        grad_norm_weights: bool = True,
-        grad_norm_bias: bool = True,
-        grad_input: bool = False,
-        grad_embed_weights: bool = False,
-    ) -> float:
+    def after_forward(self, **case_kwargs) -> float:
         """Return memory usage after a forward pass.
 
         Note: We directly pass input embeddings to transformers so embed weights are never used and their
         grad will be None.
 
         Args:
-            grad_linear_weights: Whether to compute the gradient of the linear
-                layer weights. Default: `True`.
-            grad_linear_bias: Whether to compute the gradient of the linear
-                layer bias. Default: `True`.
-            grad_conv_weights: Whether to compute the gradient of the convolution
-                layer weights. Default: `True`.
-            grad_conv_bias: Whether to compute the gradient of the convolution
-                layer bias. Default: `True`.
-            grad_norm_weights: Whether to compute the gradient of the normalization
-                layer weights. Default: `True`.
-            grad_norm_bias: Whether to compute the gradient of the normalization
-                layer bias. Default: `True`.
-            grad_input: Whether to compute the gradient of the input. Default: `False`.
-            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
-                layer weights. Default: `True`.
+            **case_kwargs: Strings denoting which grads to compute and which to not, check docs of `Measurement.set_up()`
 
         Returns:
             float: The memory usage in bytes.
         """
-        model, loss_fn, x, y, targets = self.set_up()
-
-        leafs, no_leafs = separate_grad_arguments(
-            model,
-            grad_linear_weights,
-            grad_linear_bias,
-            grad_conv_weights,
-            grad_conv_bias,
-            grad_norm_weights,
-            grad_norm_bias,
-            grad_embed_weights,
-        )
-        leafs = ([x] if grad_input else []) + leafs
-        no_leafs = ([y] if grad_input else [x, y]) + no_leafs
-
-        # make leaves differentiable, turn off non-leafs
-        for leaf in leafs:
-            leaf.requires_grad_(True)
-        for no_leaf in no_leafs:
-            no_leaf.requires_grad_(False)
+        model, loss_fn, x, y, targets, leafs, no_leafs = self.set_up(**case_kwargs)
 
         if str(self.dev) == "cpu":
 
@@ -411,5 +383,64 @@ def separate_grad_arguments(
             separate_layer(layer, grad_embed_weights, False)
         elif list(layer.parameters()):
             raise NotImplementedError(f"Unknown layer with parameters: {layer}.")
+
+    return leafs, no_leafs
+
+
+def separate_surgical(
+    model: Module, surgical_first: bool, surgical_last: bool
+) -> Tuple[List[Parameter], List[Parameter]]:
+    """Separate the parameters of a model into leafs and no-leafs for surgical fine-tuning
+
+    One and only one of `surgical_first` and `surgical_last` must be True
+    Args:
+        model (Module): The model to separate the parameters of.
+        surgical_first (bool): Whether to compute the gradients of the first quarter of layers with parameters.
+        surgical_last (bool): Whether to compute the gradients of the last quarter of layers with parameters.
+    """
+    assert (
+        surgical_first ^ surgical_last
+    ), "One and only one of surgical_first and surgical_last must be True"
+    leafs, no_leafs = [], []
+    counted_modules, total_modules = 0, 0
+
+    layers = [
+        m
+        for n, m in model.named_modules()
+        if len(list(m.modules())) == 1 and list(m.parameters())
+    ]
+
+    total_modules = len(layers)
+
+    def separate_layer(layer: Module, leaf: bool):
+        """Add parameters of layer to leafs or non-leafs.
+
+        Args:
+            layer: The layer whose parameters to add to (non-)leafs.
+            leaf: Whether the layer is a leaf or not.
+        """
+        leafs.append(layer.weight) if leaf else no_leafs.append(layer.weight)
+        if "bias" in layer._parameters and layer.bias is not None:
+            leafs.append(layer.bias) if leaf else no_leafs.append(layer.bias)
+
+    def check_condition(counted, total):
+        if surgical_first:
+            return counted <= total / 4
+        return counted >= 3 * total / 4
+
+    if surgical_last:
+        layers = layers[::-1]
+    # import ipdb; ipdb.set_trace()
+    for c in layers:
+        if not list(c.parameters()):
+            continue
+        if counted_modules <= total_modules / 4:
+            # Leaf
+            separate_layer(c, True)
+            counted_modules += 1
+        else:
+            # No Leaf
+            separate_layer(c, False)
+            # counted_modules += surgical_last
 
     return leafs, no_leafs

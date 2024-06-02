@@ -50,7 +50,7 @@ n_repeat = 5
 # num_classes = 1000
 # device = "cuda"
 # architecture = "conv"
-# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm'])
+# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm', 'SurgicalLast'])
 
 # ============== TRANSFORMER CONFIG ==============
 # Valid choices for models are in models.transformer_model_fns

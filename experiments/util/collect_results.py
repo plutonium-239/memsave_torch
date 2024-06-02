@@ -56,6 +56,8 @@ cases = {
         "no_grad_linear_weights",
         "no_grad_linear_bias",
     ],
+    "SurgicalFirst": ["surgical_first"],
+    "SurgicalLast": ["surgical_last"],
 }
 
 

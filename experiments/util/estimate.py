@@ -40,6 +40,8 @@ allowed_cases = [
     "no_grad_input",
     "grad_embed_weights",
     "no_grad_embed_weights",
+    "surgical_first",
+    "surgical_last",
 ]
 
 

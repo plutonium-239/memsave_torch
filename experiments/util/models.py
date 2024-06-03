@@ -28,9 +28,8 @@ from transformers import (
     AutoModelForSeq2SeqLM,
     BartForConditionalGeneration,
 )
-from transformers import (
-    logging as tf_logging,
-)
+from transformers import logging as tf_logging
+from transformers import utils as tf_utils
 
 from memsave_torch.nn import (
     MemSaveConv2d,
@@ -351,6 +350,8 @@ class _HF_model:
 
 tf_logging.disable_progress_bar()
 tf_logging.set_verbosity_error()
+tf_utils.logging.captureWarnings(True)
+
 
 hf_transformers_models_map = {
     "gpt2": _HF_model("gpt2", {}, lm_head_name="lm_head"),

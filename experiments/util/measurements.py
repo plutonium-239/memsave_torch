@@ -432,7 +432,7 @@ def separate_surgical(
         layers = layers[::-1]
     # import ipdb; ipdb.set_trace()
     for c in layers:
-        if not list(c.parameters()):
+        if not list(c.parameters()) or isinstance(c, Embedding):
             continue
         if counted_modules <= total_modules / 4:
             # Leaf

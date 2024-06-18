@@ -39,7 +39,8 @@ test = [
 exp = [
   "codetiming",
   "memory_profiler",
-  "transformers>=4.41"
+  "transformers>=4.41",
+  "tueplots"
 ]
 
 [tool.pytest.ini_options]

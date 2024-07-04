@@ -12,12 +12,10 @@ SCRIPT = path.join(HEREDIR, "run.py")
 
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
-# requires_grads = ["4+"]
 implementations = ["torch", "ours"]
-# implementations = ["ours"]
-architectures = ["linear", "conv", "norm_eval"]
-architectures = ["norm_eval"]
-architectures = ["linear"]
+architectures = ["linear", "conv", "bn"]
+modes = ["eval", "train"]
+skip_existing = True
 
 
 def _run(cmd: List[str]):
@@ -41,10 +39,12 @@ def _run(cmd: List[str]):
 
 
 if __name__ == "__main__":
-    for implementation, requires_grad, arch in product(
-        implementations, requires_grads, architectures
+    for implementation, requires_grad, architecture, mode in product(
+        implementations, requires_grads, architectures, modes
     ):
         if implementation == "ours" and requires_grad != "4":
+            continue
+        if mode == "eval" and architecture != "bn":
             continue
         for num_layers in range(1, max_num_layers + 1):
             _run(
@@ -52,8 +52,10 @@ if __name__ == "__main__":
                     "python",
                     SCRIPT,
                     f"--implementation={implementation}",
-                    f"--architecture={arch}",
+                    f"--architecture={architecture}",
                     f"--num_layers={num_layers}",
                     f"--requires_grad={requires_grad}",
+                    f"--mode={mode}",
                 ]
+                + (["--skip_existing"] if skip_existing else [])
             )

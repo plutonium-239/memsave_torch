@@ -32,7 +32,7 @@ linestyles = {
     "4": "dashdot",
     "4 (ours)": "dotted",
 }
-architectures = ["linear", "conv", "bn"]
+architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
 modes = ["train", "eval"]
 
 if __name__ == "__main__":

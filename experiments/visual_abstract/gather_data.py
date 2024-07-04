@@ -14,7 +14,7 @@ makedirs(DATADIR, exist_ok=True)
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
 implementations = ["torch", "ours"]
-architectures = ["linear", "conv", "bn"]
+architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
 modes = ["eval", "train"]
 
 if __name__ == "__main__":
@@ -22,8 +22,6 @@ if __name__ == "__main__":
         implementations, requires_grads, architectures, modes
     ):
         if implementation == "ours" and requires_grad != "4":
-            continue
-        if mode == "eval" and architecture != "bn":
             continue
 
         peakmems = []

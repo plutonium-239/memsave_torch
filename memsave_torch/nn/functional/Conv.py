@@ -113,3 +113,23 @@ def conv2dMemSave(
         torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
     """
     return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)
+
+
+def conv3dMemSave(
+    input, weight, bias, stride, padding, dilation, groups
+) -> torch.Tensor:
+    """Functional form of the memory saving convolution.
+
+    Args:
+        input: input [B, C_in, D, H, W]
+        weight: weight
+        bias: bias
+        stride: stride
+        padding: padding
+        dilation: dilation
+        groups: groups
+
+    Returns:
+        torch.Tensor: Output of the conv operation [B, C_out, D_out, H_out, W_out]
+    """
+    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)

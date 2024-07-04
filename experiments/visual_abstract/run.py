@@ -6,10 +6,16 @@ from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
-from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
+from memsave_torch.nn import (
+    MemSaveBatchNorm2d,
+    MemSaveConv1d,
+    MemSaveConv2d,
+    MemSaveConv3d,
+    MemSaveLinear,
+)
 from torch import allclose, manual_seed, rand, rand_like
 from torch.autograd import grad
-from torch.nn import BatchNorm2d, Conv2d, Linear, Sequential
+from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
 
 HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "raw")
@@ -29,8 +35,12 @@ def main(
     # create the input
     if architecture == "linear":
         X = rand(512, 1024, 256)
-    elif architecture in {"conv", "bn"}:
+    elif architecture == "conv1d":
+        X = rand(4096, 8, 4096)
+    elif architecture in {"conv2d", "bn2d"}:
         X = rand(256, 8, 256, 256)
+    elif architecture == "conv3d":
+        X = rand(64, 8, 64, 64, 64)
     else:
         raise ValueError(f"Invalid argument for architecture: {architecture}.")
     assert X.numel() == 2**27  # (requires 512 MiB of storage)
@@ -41,10 +51,16 @@ def main(
         if architecture == "linear":
             layer_cls = {"ours": MemSaveLinear, "torch": Linear}[implementation]
             layers[f"{architecture}{i}"] = layer_cls(256, 256, bias=False)
-        elif architecture == "conv":
+        elif architecture == "conv1d":
+            layer_cls = {"ours": MemSaveConv1d, "torch": Conv1d}[implementation]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
+        elif architecture == "conv2d":
             layer_cls = {"ours": MemSaveConv2d, "torch": Conv2d}[implementation]
             layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
-        elif architecture == "bn":
+        elif architecture == "conv3d":
+            layer_cls = {"ours": MemSaveConv3d, "torch": Conv3d}[implementation]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
+        elif architecture == "bn2d":
             layer_cls = {"ours": MemSaveBatchNorm2d, "torch": BatchNorm2d}[
                 implementation
             ]
@@ -139,7 +155,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--architecture",
         type=str,
-        choices=["linear", "conv", "bn"],
+        choices=["linear", "conv1d", "conv2d", "conv3d", "bn2d"],
         help="Which architecture to use.",
     )
     parser.add_argument("--mode", type=str, help="Mode of the network.")
@@ -166,7 +182,7 @@ if __name__ == "__main__":
             architecture=args.architecture,
             mode=args.mode,
         )
-        max_usage = memory_usage(f, interval=1e-3, max_usage=True)
+        max_usage = memory_usage(f, interval=1e-4, max_usage=True)
         print(f"Peak mem: {max_usage}.")
 
         with open(filename, "w") as f:

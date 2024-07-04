@@ -6,29 +6,24 @@ from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
-from memsave_torch.nn import (
-    MemSaveBatchNorm2d,
-    MemSaveConv1d,
-    MemSaveConv2d,
-    MemSaveConv3d,
-    MemSaveLinear,
-)
 from torch import allclose, manual_seed, rand, rand_like
 from torch.autograd import grad
 from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
+
+from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
 
 HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "raw")
 makedirs(DATADIR, exist_ok=True)
 
 
-def main(
+def main(  # noqa: C901
     architecture: str,
     implementation: str,
     mode: str,
     num_layers: int,
     requires_grad: str,
-):  # noqa: C901
+):
     """Runs exps for generating the data of the visual abstract"""
     manual_seed(0)
 

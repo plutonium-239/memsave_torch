@@ -13,7 +13,8 @@ SCRIPT = path.join(HEREDIR, "run.py")
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
 implementations = ["torch", "ours"]
-architectures = ["linear", "conv", "bn"]
+implementations = ["ours"]
+architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn"]
 modes = ["eval", "train"]
 skip_existing = True
 
@@ -44,8 +45,7 @@ if __name__ == "__main__":
     ):
         if implementation == "ours" and requires_grad != "4":
             continue
-        if mode == "eval" and architecture != "bn":
-            continue
+
         for num_layers in range(1, max_num_layers + 1):
             _run(
                 [

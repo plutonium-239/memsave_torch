@@ -7,12 +7,12 @@ Currently implemented:
 """
 
 import torch.nn as nn
-
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
-from memsave_torch.nn.LayerNorm import MemSaveLayerNorm
+from memsave_torch.nn.Conv3d import MemSaveConv3d
+from memsave_torch.nn.Dropout import MemSaveDropout
 from memsave_torch.nn.Linear import MemSaveLinear
 from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU

@@ -135,16 +135,20 @@ def get_arch_models(arch: str) -> Tuple[Dict[str, Callable], Any]:
     raise ValueError(f"arch={arch} not in allowed architectures")
 
 
-def set_BN_to_eval(model: Module):
-    """Sets all BatchNorm layers in the input `model` to eval mode (i.e. bn.eval()) in-place.
+def set_BN_to_eval(model: Module) -> Module:
+    """Sets all BatchNorm layers in the input `model` to eval mode (i.e. bn.eval()).
 
     Args:
         model (Module): Input model
+
+    Returns:
+        Module: Model with BN layers in eval mode
     """
     known_bn_layers = (BatchNorm2d, MemSaveBatchNorm2d)
     for layer in model.modules():
         if isinstance(layer, known_bn_layers):
             layer.eval()
+    return model
 
 
 # CONV

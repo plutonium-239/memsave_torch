@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import torch
 import torchvision.models as tvm
 from torch.nn import (
+    BatchNorm2d,
     Conv2d,
     Flatten,
     Linear,
@@ -32,6 +33,7 @@ from transformers import logging as tf_logging
 from transformers import utils as tf_utils
 
 from memsave_torch.nn import (
+    MemSaveBatchNorm2d,
     MemSaveConv2d,
     MemSaveLinear,
     convert_to_memory_saving,
@@ -131,6 +133,18 @@ def get_arch_models(arch: str) -> Tuple[Dict[str, Callable], Any]:
     if arch == "linear":
         return linear_model_fns, linear_input_shape
     raise ValueError(f"arch={arch} not in allowed architectures")
+
+
+def set_BN_to_eval(model: Module):
+    """Sets all BatchNorm layers in the input `model` to eval mode (i.e. bn.eval()) in-place.
+
+    Args:
+        model (Module): Input model
+    """
+    known_bn_layers = (BatchNorm2d, MemSaveBatchNorm2d)
+    for layer in model.modules():
+        if isinstance(layer, known_bn_layers):
+            layer.eval()
 
 
 # CONV

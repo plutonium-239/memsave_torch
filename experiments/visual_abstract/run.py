@@ -2,151 +2,178 @@
 
 from argparse import ArgumentParser
 from collections import OrderedDict
+from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
-from torch import manual_seed, rand
+from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
+from torch import allclose, manual_seed, rand, rand_like
+from torch.autograd import grad
 from torch.nn import BatchNorm2d, Conv2d, Linear, Sequential
 
-from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
-
-HERE = path.abspath(__file__)
-HEREDIR = path.dirname(HERE)
+HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "raw")
 makedirs(DATADIR, exist_ok=True)
 
 
-parser = ArgumentParser(description="Parse arguments.")
-parser.add_argument("--num_layers", type=int, help="Number of layers.")
-parser.add_argument(
-    "--requires_grad",
-    type=str,
-    choices=["all", "none", "4", "4+"],
-    help="Which layers are differentiable.",
-)
-parser.add_argument(
-    "--implementation",
-    type=str,
-    choices=["torch", "ours"],
-    help="Which implementation to use.",
-)
-parser.add_argument(
-    "--architecture",
-    type=str,
-    choices=["linear", "conv", "norm_eval"],
-    help="Which architecture to use.",
-)
-args = parser.parse_args()
-
-
-def main():  # noqa: C901
+def main(
+    architecture: str,
+    implementation: str,
+    mode: str,
+    num_layers: int,
+    requires_grad: str,
+):  # noqa: C901
     """Runs exps for generating the data of the visual abstract"""
     manual_seed(0)
 
     # create the input
+    if architecture == "linear":
+        X = rand(512, 1024, 256)
+    elif architecture in {"conv", "bn"}:
+        X = rand(256, 8, 256, 256)
+    else:
+        raise ValueError(f"Invalid argument for architecture: {architecture}.")
+    assert X.numel() == 2**27  # (requires 512 MiB of storage)
 
     # create the network
-    # preserve input size of convolutions
-    kernel_size = 3
-    padding = 1
-
-    num_layers = args.num_layers
     layers = OrderedDict()
     for i in range(num_layers):
-        if args.architecture == "linear":
-            num_channels = 1024
-            spatial_size = 224
-            batch_size = 256
-            X = rand(batch_size, spatial_size, num_channels)
-            if args.implementation == "ours":
-                layers[f"linear{i}"] = MemSaveLinear(
-                    num_channels, num_channels, bias=False
-                )
-            else:
-                layers[f"linear{i}"] = Linear(num_channels, num_channels, bias=False)
-        elif args.architecture == "conv":
-            num_channels = 8
-            spatial_size = 256
-            batch_size = 256
-            X = rand(batch_size, num_channels, spatial_size, spatial_size)
-            if args.implementation == "ours":
-                layers[f"conv{i}"] = MemSaveConv2d(
-                    num_channels, num_channels, kernel_size, padding=padding, bias=False
-                )
-            else:
-                layers[f"conv{i}"] = Conv2d(
-                    num_channels, num_channels, kernel_size, padding=padding, bias=False
-                )
-        elif args.architecture == "norm_eval":
-            num_channels = 8
-            spatial_size = 256
-            batch_size = 256
-            X = rand(batch_size, num_channels, spatial_size, spatial_size)
-            if args.implementation == "ours":
-                layers[f"norm_eval{i}"] = MemSaveBatchNorm2d(
-                    num_channels,
-                )
-            else:
-                layers[f"norm_eval{i}"] = BatchNorm2d(num_channels)
-            layers[f"norm_eval{i}"].eval()
+        if architecture == "linear":
+            layer_cls = {"ours": MemSaveLinear, "torch": Linear}[implementation]
+            layers[f"{architecture}{i}"] = layer_cls(256, 256, bias=False)
+        elif architecture == "conv":
+            layer_cls = {"ours": MemSaveConv2d, "torch": Conv2d}[implementation]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
+        elif architecture == "bn":
+            layer_cls = {"ours": MemSaveBatchNorm2d, "torch": BatchNorm2d}[
+                implementation
+            ]
+            layers[f"{architecture}{i}"] = layer_cls(8)
         else:
-            raise ValueError(f"Invalid args: {args}.")
+            raise ValueError(f"Invalid argument for architecture: {architecture}.")
 
     net = Sequential(layers)
 
+    # randomly initialize parameters
+    for param in net.parameters():
+        param.data = rand_like(param)
+
+    # randomly initialize running mean and std of BN
+    for module in net.modules():
+        if isinstance(module, (BatchNorm2d, MemSaveBatchNorm2d)):
+            module.running_mean = rand_like(module.running_mean)
+            module.running_var = rand_like(module.running_var)
+
     # set differentiability
-    if args.requires_grad == "none":
+    if requires_grad == "none":
         for param in net.parameters():
             param.requires_grad_(False)
-    elif args.requires_grad == "all":
+    elif requires_grad == "all":
         for param in net.parameters():
             param.requires_grad_(True)
-    elif args.requires_grad == "4":
+    elif requires_grad == "4":
         for name, param in net.named_parameters():
-            param.requires_grad_(f"{args.architecture}3" in name)
-    elif args.requires_grad == "4+":
+            param.requires_grad_(f"{architecture}3" in name)
+    elif requires_grad == "4+":
         for name, param in net.named_parameters():
-            number = int(name.replace(args.architecture, "").split(".")[0])
+            number = int(name.replace(architecture, "").split(".")[0])
             param.requires_grad_(number >= 3)
     else:
-        raise ValueError(f"Invalid requires_grad: {args.requires_grad}.")
-
-    # turn off gradients for the first layer
-    # net.conv0.weight.requires_grad_(False)
-
-    # turn of gradients for all layers
-    # for param in net.parameters():
-    #     param.requires_grad_(False)
-
-    # turn off all gradients except for the first layer
-    # for name, param in net.named_parameters():
-    #     param.requires_grad_("conv0" in name)
-
-    # turn off all gradients except for the second layer
-    # for name, param in net.named_parameters():
-    #     param.requires_grad_("conv1" in name)
-
-    # turn off all gradients except for the third layer
-    # for name, param in net.named_parameters():
-    #     param.requires_grad_("conv2" in name)
+        raise ValueError(f"Invalid requires_grad: {requires_grad}.")
 
     for name, param in net.named_parameters():
         print(f"{name} requires_grad = {param.requires_grad}")
+
+    # set mode
+    if mode == "eval":
+        net.eval()
+    elif mode == "train":
+        net.train()
+    else:
+        raise ValueError(f"Invalid mode: {mode}.")
 
     # forward pass
     output = net(X)
     assert output.shape == X.shape
 
-    return output
+    return output, net
+
+
+def check_equality(architecture: str, mode: str, num_layers: int, requires_grad: str):
+    """Compare forward pass and gradients of PyTorch and Memsave."""
+    output_ours, net_ours = main(architecture, "ours", mode, num_layers, requires_grad)
+    grad_args_ours = [p for p in net_ours.parameters() if p.requires_grad]
+    grad_ours = grad(output_ours.sum(), grad_args_ours) if grad_args_ours else []
+
+    output_torch, net_torch = main(
+        architecture, "ours", mode, num_layers, requires_grad
+    )
+    grad_args_torch = [p for p in net_torch.parameters() if p.requires_grad]
+    grad_torch = grad(output_torch.sum(), grad_args_torch) if grad_args_torch else []
+
+    assert allclose(output_ours, output_torch)
+    assert len(list(net_ours.parameters())) == len(list(net_torch.parameters()))
+    for p1, p2 in zip(net_ours.parameters(), net_torch.parameters()):
+        assert allclose(p1, p2)
+    assert len(grad_ours) == len(grad_torch)
+    for g1, g2 in zip(grad_ours, grad_torch):
+        assert allclose(g1, g2)
 
 
 if __name__ == "__main__":
-    max_usage = memory_usage(main, interval=1e-3, max_usage=True)
-    print(f"Peak mem: {max_usage}.")
+    # arguments
+    parser = ArgumentParser(description="Parse arguments.")
+    parser.add_argument("--num_layers", type=int, help="Number of layers.")
+    parser.add_argument(
+        "--requires_grad",
+        type=str,
+        choices=["all", "none", "4", "4+"],
+        help="Which layers are differentiable.",
+    )
+    parser.add_argument(
+        "--implementation",
+        type=str,
+        choices=["torch", "ours"],
+        help="Which implementation to use.",
+    )
+    parser.add_argument(
+        "--architecture",
+        type=str,
+        choices=["linear", "conv", "bn"],
+        help="Which architecture to use.",
+    )
+    parser.add_argument("--mode", type=str, help="Mode of the network.")
+    parser.add_argument(
+        "--skip_existing", action="store_true", help="Skip existing files."
+    )
+    args = parser.parse_args()
+
     filename = path.join(
         DATADIR,
-        f"peakmem_implementation_{args.architecture}_{args.implementation}_num_layers_{args.num_layers}_requires_grad_{args.requires_grad}.txt",
+        f"peakmem_{args.architecture}_mode_{args.mode}_implementation_"
+        + f"{args.implementation}_num_layers_{args.num_layers}"
+        + f"_requires_grad_{args.requires_grad}.txt",
     )
+    if path.exists(filename) and args.skip_existing:
+        print(f"Skipping existing file: {filename}.")
+    else:
+        # measure memory
+        f = partial(
+            main,
+            num_layers=args.num_layers,
+            requires_grad=args.requires_grad,
+            implementation=args.implementation,
+            architecture=args.architecture,
+            mode=args.mode,
+        )
+        max_usage = memory_usage(f, interval=1e-3, max_usage=True)
+        print(f"Peak mem: {max_usage}.")
 
-    with open(filename, "w") as f:
-        f.write(f"{max_usage}")
+        with open(filename, "w") as f:
+            f.write(f"{max_usage}")
+
+        print("Performing equality check.")
+        check_equality(
+            args.architecture, args.mode, args.num_layers, args.requires_grad
+        )
+        print("Equality check passed.")

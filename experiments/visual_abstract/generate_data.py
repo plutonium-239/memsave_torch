@@ -5,16 +5,16 @@ from os import path
 from subprocess import CalledProcessError, run
 from typing import List
 
+from tqdm import tqdm
+
 HERE = path.abspath(__file__)
 HEREDIR = path.dirname(HERE)
 SCRIPT = path.join(HEREDIR, "run.py")
 
-
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
 implementations = ["torch", "ours"]
-implementations = ["ours"]
-architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn"]
+architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
 modes = ["eval", "train"]
 skip_existing = True
 
@@ -40,9 +40,8 @@ def _run(cmd: List[str]):
 
 
 if __name__ == "__main__":
-    for implementation, requires_grad, architecture, mode in product(
-        implementations, requires_grads, architectures, modes
-    ):
+    configs = list(product(implementations, requires_grads, architectures, modes))
+    for implementation, requires_grad, architecture, mode in tqdm(configs):
         if implementation == "ours" and requires_grad != "4":
             continue
 

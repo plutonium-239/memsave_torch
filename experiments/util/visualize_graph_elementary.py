@@ -11,54 +11,67 @@ from experiments.util.collect_results import select_cases
 from experiments.util.estimate import parse_case
 from experiments.util.measurements import separate_grad_arguments
 
+
+def eval_bn(num_features):
+    m = torch.nn.BatchNorm2d(num_features)
+    m.eval()
+    return m
+
+
 to_test = [
     {
         "name": "Linear2dims",
         "layer_fn": lambda: torch.nn.Linear(3, 5),
         "data_fn": lambda: torch.rand(7, 12, 3),  # weight sharing
-        "grads": ["All", "Input", "Linear"],
+        "grads": ["All", "Input", "Linear", "Everything", "Nothing"],
     },
     {
         "name": "Conv2d",
         "layer_fn": lambda: torch.nn.Conv2d(3, 5, 3),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input", "Conv"],
+        "grads": ["All", "Input", "Conv", "Everything", "Nothing"],
     },
     {
         "name": "BatchNorm2d",
         "layer_fn": lambda: torch.nn.BatchNorm2d(3),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input", "Norm"],
+        "grads": ["All", "Input", "Norm", "Everything", "Nothing"],
+    },
+    {
+        "name": "BatchNorm2d_Eval",
+        "layer_fn": lambda: eval_bn(3),
+        "data_fn": lambda: torch.rand(7, 3, 12, 12),
+        "grads": ["All", "Input", "Norm", "Everything", "Nothing"],
     },
     {
         "name": "LayerNorm",
         "layer_fn": lambda: torch.nn.LayerNorm([3, 12, 12]),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input", "Norm"],
+        "grads": ["All", "Input", "Norm", "Everything", "Nothing"],
     },
     {
         "name": "Dropout",
         "layer_fn": lambda: torch.nn.Dropout(),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input"],
+        "grads": ["All", "Input", "Everything", "Nothing"],
     },
     {
         "name": "MaxPool2d",
         "layer_fn": lambda: torch.nn.MaxPool2d(3),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input"],
+        "grads": ["All", "Input", "Everything", "Nothing"],
     },
     {
         "name": "ReLU",
         "layer_fn": lambda: torch.nn.ReLU(),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input"],
+        "grads": ["All", "Input", "Everything", "Nothing"],
     },
     {
         "name": "SiLU",
         "layer_fn": lambda: torch.nn.SiLU(),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
-        "grads": ["All", "Input"],
+        "grads": ["All", "Input", "Everything", "Nothing"],
     },
 ]
 

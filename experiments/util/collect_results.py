@@ -38,6 +38,17 @@ cases = {
         "no_grad_norm_weights",
         "no_grad_norm_bias",
     ],
+    "Everything": [  # INPUT
+        "grad_input"
+    ],
+    "Nothing": [
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",
+    ],
     "Conv": [  # CONV
         "no_grad_linear_weights",
         "no_grad_linear_bias",
@@ -217,6 +228,8 @@ class ResultsCollector:
             s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
         elif self.architecture == "transformer":
             s = f"{model} input ({self.batch_size},{self.input_HW},{self.input_channels}(or model hidden size)) {self.device}"
+        elif self.architecture == "linear":
+            s = f"{model} input ({self.batch_size},{self.input_HW**2}) {self.device}"
         print(s.center(78, "="))
 
         for out, case in zip(outputs, self.cases):

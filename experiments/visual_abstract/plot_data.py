@@ -33,50 +33,57 @@ linestyles = {
     "4": "dashdot",
     "4 (ours)": "dotted",
 }
+architectures = ["linear", "conv", "norm_eval"]
+architectures = ["norm_eval"]
+architectures = ["conv"]
 
-with plt.rc_context(bundles.cvpr2024()):
-    fig, ax = plt.subplots()
-    ax.set_xlabel("Number of layers")
-    ax.set_ylabel("Peak memory [MiB]")
+for arch in architectures:
+    with plt.rc_context(bundles.icml2024()):
+        plt.rcParams.update({"figure.figsize": (3.25, 2.5)})
+        fig, ax = plt.subplots()
+        ax.set_xlabel("Number of layers")
+        ax.set_ylabel("Peak memory [MiB]")
 
-    markerstyle = {"markersize": 3.5, "fillstyle": "none"}
+        markerstyle = {"markersize": 3.5, "fillstyle": "none"}
 
-    # visualize PyTorch's behavior
-    implementation = "torch"
+        # visualize PyTorch's behavior
+        implementation = "torch"
 
-    for requires_grad in requires_grads:
+        for requires_grad in requires_grads:
+            df = read_csv(
+                path.join(
+                    DATADIR,
+                    f"peakmem_implementation_{arch}_{implementation}_requires_grad_{requires_grad}.csv",
+                )
+            )
+            ax.plot(
+                df["num_layers"],
+                df["peakmem"],
+                label=legend_entries[requires_grad],
+                marker=markers[requires_grad],
+                linestyle=linestyles[requires_grad],
+                **markerstyle,
+            )
+
+        # visualize our layer's behavior
+        implementation, requires_grad = "ours", "4"
+        key = f"{requires_grad} ({implementation})"
         df = read_csv(
             path.join(
                 DATADIR,
-                f"peakmem_implementation_{implementation}_requires_grad_{requires_grad}.csv",
+                f"peakmem_implementation_{arch}_{implementation}_requires_grad_{requires_grad}.csv",
             )
         )
         ax.plot(
             df["num_layers"],
             df["peakmem"],
-            label=legend_entries[requires_grad],
-            marker=markers[requires_grad],
-            linestyle=linestyles[requires_grad],
+            label=legend_entries[key],
+            marker=markers[key],
+            linestyle=linestyles[key],
             **markerstyle,
         )
 
-    # visualize our layer's behavior
-    implementation, requires_grad = "ours", "4"
-    key = f"{requires_grad} ({implementation})"
-    df = read_csv(
-        path.join(
-            DATADIR,
-            f"peakmem_implementation_{implementation}_requires_grad_{requires_grad}.csv",
+        plt.legend()
+        plt.savefig(
+            path.join(HEREDIR, f"visual_abstract_{arch}.pdf"), bbox_inches="tight"
         )
-    )
-    ax.plot(
-        df["num_layers"],
-        df["peakmem"],
-        label=legend_entries[key],
-        marker=markers[key],
-        linestyle=linestyles[key],
-        **markerstyle,
-    )
-
-    plt.legend()
-    plt.savefig(path.join(HEREDIR, "visual_abstract.pdf"), bbox_inches="tight")

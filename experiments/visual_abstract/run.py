@@ -6,9 +6,9 @@ from os import makedirs, path
 
 from memory_profiler import memory_usage
 from torch import manual_seed, rand
-from torch.nn import Conv2d, Sequential
+from torch.nn import BatchNorm2d, Conv2d, Linear, Sequential
 
-from memsave_torch.nn import MemSaveConv2d
+from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
 
 HERE = path.abspath(__file__)
 HEREDIR = path.dirname(HERE)
@@ -30,6 +30,12 @@ parser.add_argument(
     choices=["torch", "ours"],
     help="Which implementation to use.",
 )
+parser.add_argument(
+    "--architecture",
+    type=str,
+    choices=["linear", "conv", "norm_eval"],
+    help="Which architecture to use.",
+)
 args = parser.parse_args()
 
 
@@ -38,10 +44,6 @@ def main():  # noqa: C901
     manual_seed(0)
 
     # create the input
-    num_channels = 8
-    spatial_size = 256
-    batch_size = 256
-    X = rand(batch_size, num_channels, spatial_size, spatial_size)
 
     # create the network
     # preserve input size of convolutions
@@ -51,16 +53,44 @@ def main():  # noqa: C901
     num_layers = args.num_layers
     layers = OrderedDict()
     for i in range(num_layers):
-        if args.implementation == "torch":
-            layers[f"conv{i}"] = Conv2d(
-                num_channels, num_channels, kernel_size, padding=padding, bias=False
-            )
-        elif args.implementation == "ours":
-            layers[f"conv{i}"] = MemSaveConv2d(
-                num_channels, num_channels, kernel_size, padding=padding, bias=False
-            )
+        if args.architecture == "linear":
+            num_channels = 1024
+            spatial_size = 224
+            batch_size = 256
+            X = rand(batch_size, spatial_size, num_channels)
+            if args.implementation == "ours":
+                layers[f"linear{i}"] = MemSaveLinear(
+                    num_channels, num_channels, bias=False
+                )
+            else:
+                layers[f"linear{i}"] = Linear(num_channels, num_channels, bias=False)
+        elif args.architecture == "conv":
+            num_channels = 8
+            spatial_size = 256
+            batch_size = 256
+            X = rand(batch_size, num_channels, spatial_size, spatial_size)
+            if args.implementation == "ours":
+                layers[f"conv{i}"] = MemSaveConv2d(
+                    num_channels, num_channels, kernel_size, padding=padding, bias=False
+                )
+            else:
+                layers[f"conv{i}"] = Conv2d(
+                    num_channels, num_channels, kernel_size, padding=padding, bias=False
+                )
+        elif args.architecture == "norm_eval":
+            num_channels = 8
+            spatial_size = 256
+            batch_size = 256
+            X = rand(batch_size, num_channels, spatial_size, spatial_size)
+            if args.implementation == "ours":
+                layers[f"norm_eval{i}"] = MemSaveBatchNorm2d(
+                    num_channels,
+                )
+            else:
+                layers[f"norm_eval{i}"] = BatchNorm2d(num_channels)
+            layers[f"norm_eval{i}"].eval()
         else:
-            raise ValueError(f"Invalid implementation: {args.implementation}.")
+            raise ValueError(f"Invalid args: {args}.")
 
     net = Sequential(layers)
 
@@ -73,10 +103,10 @@ def main():  # noqa: C901
             param.requires_grad_(True)
     elif args.requires_grad == "4":
         for name, param in net.named_parameters():
-            param.requires_grad_("conv3" in name)
+            param.requires_grad_(f"{args.architecture}3" in name)
     elif args.requires_grad == "4+":
         for name, param in net.named_parameters():
-            number = int(name.replace("conv", "").replace(".weight", ""))
+            number = int(name.replace(args.architecture, "").split(".")[0])
             param.requires_grad_(number >= 3)
     else:
         raise ValueError(f"Invalid requires_grad: {args.requires_grad}.")
@@ -115,7 +145,7 @@ if __name__ == "__main__":
     print(f"Peak mem: {max_usage}.")
     filename = path.join(
         DATADIR,
-        f"peakmem_implementation_{args.implementation}_num_layers_{args.num_layers}_requires_grad_{args.requires_grad}.txt",
+        f"peakmem_implementation_{args.architecture}_{args.implementation}_num_layers_{args.num_layers}_requires_grad_{args.requires_grad}.txt",
     )
 
     with open(filename, "w") as f:

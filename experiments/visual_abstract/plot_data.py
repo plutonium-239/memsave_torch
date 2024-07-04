@@ -1,14 +1,13 @@
 """Visualize memory consumpion."""
 
+from itertools import product
 from os import path
 
 from matplotlib import pyplot as plt
 from pandas import read_csv
 from tueplots import bundles
 
-HERE = path.abspath(__file__)
-HEREDIR = path.dirname(HERE)
-
+HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "gathered")
 
 requires_grads = ["all", "none", "4+", "4"]
@@ -33,57 +32,61 @@ linestyles = {
     "4": "dashdot",
     "4 (ours)": "dotted",
 }
-architectures = ["linear", "conv", "norm_eval"]
-architectures = ["norm_eval"]
-architectures = ["conv"]
+architectures = ["linear", "conv", "bn"]
+modes = ["train", "eval"]
 
-for arch in architectures:
-    with plt.rc_context(bundles.icml2024()):
-        plt.rcParams.update({"figure.figsize": (3.25, 2.5)})
-        fig, ax = plt.subplots()
-        ax.set_xlabel("Number of layers")
-        ax.set_ylabel("Peak memory [MiB]")
+if __name__ == "__main__":
+    for architecture, mode in product(architectures, modes):
+        if mode == "eval" and architecture != "bn":
+            continue
 
-        markerstyle = {"markersize": 3.5, "fillstyle": "none"}
+        with plt.rc_context(bundles.icml2024()):
+            # plt.rcParams.update({"figure.figsize": (3.25, 2.5)})
+            fig, ax = plt.subplots()
+            ax.set_xlabel("Number of layers")
+            ax.set_ylabel("Peak memory [MiB]")
 
-        # visualize PyTorch's behavior
-        implementation = "torch"
+            markerstyle = {"markersize": 3.5, "fillstyle": "none"}
 
-        for requires_grad in requires_grads:
-            df = read_csv(
-                path.join(
+            # visualize PyTorch's behavior
+            implementation = "torch"
+
+            for requires_grad in requires_grads:
+                readpath = path.join(
                     DATADIR,
-                    f"peakmem_implementation_{arch}_{implementation}_requires_grad_{requires_grad}.csv",
+                    f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
+                    + f"_requires_grad_{requires_grad}.csv",
                 )
+                df = read_csv(readpath)
+                ax.plot(
+                    df["num_layers"],
+                    df["peakmem"],
+                    label=legend_entries[requires_grad],
+                    marker=markers[requires_grad],
+                    linestyle=linestyles[requires_grad],
+                    **markerstyle,
+                )
+
+            # visualize our layer's behavior
+            implementation, requires_grad = "ours", "4"
+            key = f"{requires_grad} ({implementation})"
+            readpath = path.join(
+                DATADIR,
+                f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
+                + f"_requires_grad_{requires_grad}.csv",
             )
+            df = read_csv(readpath)
             ax.plot(
                 df["num_layers"],
                 df["peakmem"],
-                label=legend_entries[requires_grad],
-                marker=markers[requires_grad],
-                linestyle=linestyles[requires_grad],
+                label=legend_entries[key],
+                marker=markers[key],
+                linestyle=linestyles[key],
                 **markerstyle,
             )
 
-        # visualize our layer's behavior
-        implementation, requires_grad = "ours", "4"
-        key = f"{requires_grad} ({implementation})"
-        df = read_csv(
-            path.join(
-                DATADIR,
-                f"peakmem_implementation_{arch}_{implementation}_requires_grad_{requires_grad}.csv",
+            plt.legend()
+            plt.savefig(
+                path.join(HEREDIR, f"visual_abstract_{architecture}_{mode}.pdf"),
+                bbox_inches="tight",
             )
-        )
-        ax.plot(
-            df["num_layers"],
-            df["peakmem"],
-            label=legend_entries[key],
-            marker=markers[key],
-            linestyle=linestyles[key],
-            **markerstyle,
-        )
-
-        plt.legend()
-        plt.savefig(
-            path.join(HEREDIR, f"visual_abstract_{arch}.pdf"), bbox_inches="tight"
-        )

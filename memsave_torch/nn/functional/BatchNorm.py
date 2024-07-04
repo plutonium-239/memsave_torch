@@ -38,8 +38,12 @@ class _MemSaveBatchNorm(torch.autograd.Function):
         need_grad = []  # save_mean and save_invstd
         if ctx.needs_input_grad[0]:
             need_grad.append(weight)
-        if any(ctx.needs_input_grad):
-            need_grad.append(x)
+        if ctx.training:
+            if any(ctx.needs_input_grad):
+                need_grad.append(x)
+        else:
+            if ctx.needs_input_grad[3]:
+                need_grad.append(x)
         # bias doesnt need anything for calc
 
         ctx.save_for_backward(*need_grad)
@@ -54,7 +58,8 @@ class _MemSaveBatchNorm(torch.autograd.Function):
         if ctx.needs_input_grad[0]:
             weight = ctx.saved_tensors[current_idx]
             current_idx += 1
-            x = ctx.saved_tensors[current_idx]
+            if ctx.training:
+                x = ctx.saved_tensors[current_idx]
         if ctx.needs_input_grad[3]:
             x = ctx.saved_tensors[current_idx]
 

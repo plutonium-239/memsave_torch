@@ -37,9 +37,6 @@ modes = ["train", "eval"]
 
 if __name__ == "__main__":
     for architecture, mode in product(architectures, modes):
-        if mode == "eval" and architecture != "bn":
-            continue
-
         with plt.rc_context(bundles.icml2024()):
             # plt.rcParams.update({"figure.figsize": (3.25, 2.5)})
             fig, ax = plt.subplots()

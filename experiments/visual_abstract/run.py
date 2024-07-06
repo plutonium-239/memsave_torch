@@ -10,7 +10,14 @@ from torch import allclose, manual_seed, rand, rand_like
 from torch.autograd import grad
 from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
 
-from memsave_torch.nn import MemSaveBatchNorm2d, MemSaveConv2d, MemSaveLinear
+from memsave_torch.nn import (
+    MemSaveBatchNorm2d,
+    MemSaveConv1d,
+    MemSaveConv2d,
+    MemSaveConv3d,
+    MemSaveLinear,
+)
+
 
 HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "raw")

@@ -117,7 +117,7 @@ def check_equality(architecture: str, mode: str, num_layers: int, requires_grad:
     grad_ours = grad(output_ours.sum(), grad_args_ours) if grad_args_ours else []
 
     output_torch, net_torch = main(
-        architecture, "ours", mode, num_layers, requires_grad
+        architecture, "torch", mode, num_layers, requires_grad
     )
     grad_args_torch = [p for p in net_torch.parameters() if p.requires_grad]
     grad_torch = grad(output_torch.sum(), grad_args_torch) if grad_args_torch else []

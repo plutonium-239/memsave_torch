@@ -4,20 +4,11 @@ This is done by not saving the whole input/output `float32` tensor and instead j
 """
 
 import torch.nn as nn
-
 from memsave_torch.nn.functional import dropoutMemSave
 
 
 class MemSaveDropout(nn.Dropout):
     """MemSaveDropout."""
-
-    def __init__(self, p=0.5):
-        """Inits a MemSaveDropout layer with the given params.
-
-        Args:
-            p: Probability of elements being zeroed
-        """
-        super().__init__(p)
 
     def forward(self, x):
         """Forward pass.

@@ -43,7 +43,6 @@ architectures = {
     "conv_transpose3d",
 }
 modes = {"train", "eval"}
-
 if __name__ == "__main__":
     for architecture, mode in product(architectures, modes):
         with plt.rc_context(bundles.icml2024()):

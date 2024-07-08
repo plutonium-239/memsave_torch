@@ -6,16 +6,29 @@ from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
-from torch import allclose, manual_seed, rand, rand_like
-from torch.autograd import grad
-from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
-
 from memsave_torch.nn import (
     MemSaveBatchNorm2d,
     MemSaveConv1d,
     MemSaveConv2d,
     MemSaveConv3d,
+    MemSaveConvTranspose1d,
+    MemSaveConvTranspose2d,
+    MemSaveConvTranspose3d,
     MemSaveLinear,
+)
+from memsave_torch.nn.ConvTranspose1d import MemSaveConvTranspose1d
+from torch import allclose, manual_seed, rand, rand_like
+from torch.autograd import grad
+from torch.nn import (
+    BatchNorm2d,
+    Conv1d,
+    Conv2d,
+    Conv3d,
+    ConvTranspose1d,
+    ConvTranspose2d,
+    ConvTranspose3d,
+    Linear,
+    Sequential,
 )
 
 HEREDIR = path.dirname(path.abspath(__file__))
@@ -36,11 +49,11 @@ def main(  # noqa: C901
     # create the input
     if architecture == "linear":
         X = rand(512, 1024, 256)
-    elif architecture == "conv1d":
+    elif architecture in {"conv1d", "conv_transpose1d"}:
         X = rand(4096, 8, 4096)
-    elif architecture in {"conv2d", "bn2d"}:
+    elif architecture in {"conv2d", "bn2d", "conv_transpose2d"}:
         X = rand(256, 8, 256, 256)
-    elif architecture == "conv3d":
+    elif architecture in {"conv3d", "conv_transpose3d"}:
         X = rand(64, 8, 64, 64, 64)
     else:
         raise ValueError(f"Invalid argument for architecture: {architecture}.")
@@ -66,6 +79,21 @@ def main(  # noqa: C901
                 implementation
             ]
             layers[f"{architecture}{i}"] = layer_cls(8)
+        elif architecture == "conv_transpose1d":
+            layer_cls = {"ours": MemSaveConvTranspose1d, "torch": ConvTranspose1d}[
+                implementation
+            ]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
+        elif architecture == "conv_transpose2d":
+            layer_cls = {"ours": MemSaveConvTranspose2d, "torch": ConvTranspose2d}[
+                implementation
+            ]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
+        elif architecture == "conv_transpose3d":
+            layer_cls = {"ours": MemSaveConvTranspose3d, "torch": ConvTranspose3d}[
+                implementation
+            ]
+            layers[f"{architecture}{i}"] = layer_cls(8, 8, 3, padding=1, bias=False)
         else:
             raise ValueError(f"Invalid argument for architecture: {architecture}.")
 
@@ -144,22 +172,33 @@ if __name__ == "__main__":
     parser.add_argument(
         "--requires_grad",
         type=str,
-        choices=["all", "none", "4", "4+"],
+        choices={"all", "none", "4", "4+"},
         help="Which layers are differentiable.",
     )
     parser.add_argument(
         "--implementation",
         type=str,
-        choices=["torch", "ours"],
+        choices={"torch", "ours"},
         help="Which implementation to use.",
     )
     parser.add_argument(
         "--architecture",
         type=str,
-        choices=["linear", "conv1d", "conv2d", "conv3d", "bn2d"],
+        choices={
+            "linear",
+            "conv1d",
+            "conv2d",
+            "conv3d",
+            "bn2d",
+            "conv_transpose1d",
+            "conv_transpose2d",
+            "conv_transpose3d",
+        },
         help="Which architecture to use.",
     )
-    parser.add_argument("--mode", type=str, help="Mode of the network.")
+    parser.add_argument(
+        "--mode", type=str, help="Mode of the network.", choices={"train", "eval"}
+    )
     parser.add_argument(
         "--skip_existing", action="store_true", help="Skip existing files."
     )

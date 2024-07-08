@@ -44,13 +44,14 @@ n_repeat = 5
 #     "resnext101_64x4d",
 # ]
 # models = prefix_in_pairs("memsave_", models)
+# # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # batch_size = 64
 # input_channels = 3
 # input_HW = 224
 # num_classes = 1000
 # device = "cuda"
 # architecture = "conv"
-# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm', 'SurgicalLast'])
+# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm', 'SurgicalFirst', 'SurgicalLast'])
 
 # ============== TRANSFORMER CONFIG ==============
 # Valid choices for models are in models.transformer_model_fns
@@ -78,15 +79,15 @@ cases = collect_results.select_cases(["All", "Input", "Norm"])
 
 # ============== LINEAR CONFIG ==============
 # Valid choices for models are in models.linear_model_fns
-# models = ['deeplinearmodel']
+# models = ["deeplinearmodel"]
 # models += [f"memsave_{m}" for m in models]  # add memsave versions for each model
-# batch_size = 32768
-# input_channels = 3
-# input_HW = 64
+# batch_size = 1024
+# input_channels = 3  # ignored
+# input_HW = 64  # square of this is passed in estimate.py
 # num_classes = 1000
-# device = 'cuda'
-# architecture = 'linear' # use high batch size
-# cases = collect_results.select_cases(['All', 'Input', 'Linear'])
+# device = "cuda"
+# architecture = "linear"  # use high batch size
+# cases = collect_results.select_cases(["All", "Input", "Linear"])
 
 
 if __name__ == "__main__":

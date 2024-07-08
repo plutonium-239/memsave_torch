@@ -12,10 +12,19 @@ makedirs(RAWDATADIR, exist_ok=True)
 makedirs(DATADIR, exist_ok=True)
 
 max_num_layers = 10
-requires_grads = ["all", "none", "4", "4+"]
-implementations = ["torch", "ours"]
-architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
-modes = ["eval", "train"]
+requires_grads = {"all", "none", "4", "4+"}
+implementations = {"torch", "ours"}
+architectures = {
+    "linear",
+    "conv1d",
+    "conv2d",
+    "conv3d",
+    "bn2d",
+    "conv_transpose1d",
+    "conv_transpose2d",
+    "conv_transpose3d",
+}
+modes = {"eval", "train"}
 
 if __name__ == "__main__":
     for implementation, requires_grad, architecture, mode in product(

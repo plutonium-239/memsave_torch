@@ -14,7 +14,16 @@ SCRIPT = path.join(HEREDIR, "run.py")
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
 implementations = ["torch", "ours"]
-architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
+architectures = [
+    "linear",
+    "conv1d",
+    "conv2d",
+    "conv3d",
+    "bn2d",
+    "conv1d_transpose",
+    "conv2d_transpose",
+    "conv3d_transpose",
+]
 modes = ["eval", "train"]
 skip_existing = True
 

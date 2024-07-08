@@ -38,9 +38,9 @@ architectures = {
     "conv2d",
     "conv3d",
     "bn2d",
-    "conv1d_transpose",
-    "conv2d_transpose",
-    "conv3d_transpose",
+    "conv_transpose1d",
+    "conv_transpose2d",
+    "conv_transpose3d",
 }
 modes = {"train", "eval"}
 

@@ -43,8 +43,10 @@ architectures = {
     "conv_transpose3d",
 }
 modes = {"train", "eval"}
+use_compiles = {False, True}
+
 if __name__ == "__main__":
-    for architecture, mode in product(architectures, modes):
+    for architecture, mode, use_compile in product(architectures, modes, use_compiles):
         with plt.rc_context(bundles.icml2024()):
             fig, ax = plt.subplots()
             ax.set_xlabel("Number of layers")
@@ -59,7 +61,8 @@ if __name__ == "__main__":
                 readpath = path.join(
                     DATADIR,
                     f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-                    + f"_requires_grad_{requires_grad}.csv",
+                    + f"_requires_grad_{requires_grad}"
+                    + f"{'_use_compile' if use_compile else ''}.csv",
                 )
                 df = read_csv(readpath)
                 ax.plot(
@@ -77,7 +80,8 @@ if __name__ == "__main__":
             readpath = path.join(
                 DATADIR,
                 f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-                + f"_requires_grad_{requires_grad}.csv",
+                + f"_requires_grad_{requires_grad}"
+                + f"{'_use_compile' if use_compile else ''}.csv",
             )
             df = read_csv(readpath)
             ax.plot(

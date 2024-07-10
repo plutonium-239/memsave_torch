@@ -25,10 +25,11 @@ architectures = {
     "conv_transpose3d",
 }
 modes = {"eval", "train"}
+use_compiles = {False, True}
 
 if __name__ == "__main__":
-    for implementation, requires_grad, architecture, mode in product(
-        implementations, requires_grads, architectures, modes
+    for implementation, requires_grad, architecture, mode, use_compile in product(
+        implementations, requires_grads, architectures, modes, use_compiles
     ):
         if implementation == "ours" and requires_grad != "4":
             continue
@@ -39,7 +40,8 @@ if __name__ == "__main__":
             readpath = path.join(
                 RAWDATADIR,
                 f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-                + f"_num_layers_{num_layers}_requires_grad_{requires_grad}.txt",
+                + f"_num_layers_{num_layers}_requires_grad_{requires_grad}"
+                f"{'_use_compile' if use_compile else ''}.txt",
             )
             with open(readpath, "r") as f:
                 peakmems.append(float(f.read()))
@@ -48,6 +50,7 @@ if __name__ == "__main__":
         savepath = path.join(
             DATADIR,
             f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-            + f"_requires_grad_{requires_grad}.csv",
+            + f"_requires_grad_{requires_grad}{'_use_compile' if use_compile else ''}"
+            + ".csv",
         )
         df.to_csv(savepath, index=False)

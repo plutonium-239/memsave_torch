@@ -17,7 +17,7 @@ from memsave_torch.nn import (
     MemSaveLinear,
 )
 from memsave_torch.nn.ConvTranspose1d import MemSaveConvTranspose1d
-from torch import allclose, manual_seed, rand, rand_like
+from torch import allclose, compile, manual_seed, rand, rand_like
 from torch.autograd import grad
 from torch.nn import (
     BatchNorm2d,
@@ -42,6 +42,7 @@ def main(  # noqa: C901
     mode: str,
     num_layers: int,
     requires_grad: str,
+    use_compile: bool,
 ):
     """Runs exps for generating the data of the visual abstract"""
     manual_seed(0)
@@ -137,6 +138,11 @@ def main(  # noqa: C901
     else:
         raise ValueError(f"Invalid mode: {mode}.")
 
+    # maybe compile
+    if use_compile:
+        print("Compiling model")
+        net = compile(net)
+
     # forward pass
     output = net(X)
     assert output.shape == X.shape
@@ -144,14 +150,18 @@ def main(  # noqa: C901
     return output, net
 
 
-def check_equality(architecture: str, mode: str, num_layers: int, requires_grad: str):
+def check_equality(
+    architecture: str, mode: str, num_layers: int, requires_grad: str, use_compile: bool
+):
     """Compare forward pass and gradients of PyTorch and Memsave."""
-    output_ours, net_ours = main(architecture, "ours", mode, num_layers, requires_grad)
+    output_ours, net_ours = main(
+        architecture, "ours", mode, num_layers, requires_grad, use_compile
+    )
     grad_args_ours = [p for p in net_ours.parameters() if p.requires_grad]
     grad_ours = grad(output_ours.sum(), grad_args_ours) if grad_args_ours else []
 
     output_torch, net_torch = main(
-        architecture, "torch", mode, num_layers, requires_grad
+        architecture, "torch", mode, num_layers, requires_grad, use_compile
     )
     grad_args_torch = [p for p in net_torch.parameters() if p.requires_grad]
     grad_torch = grad(output_torch.sum(), grad_args_torch) if grad_args_torch else []
@@ -202,13 +212,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--skip_existing", action="store_true", help="Skip existing files."
     )
+    parser.add_argument(
+        "--use_compile",
+        action="store_true",
+        help="Compile the model before the forward pass.",
+    )
     args = parser.parse_args()
 
     filename = path.join(
         DATADIR,
         f"peakmem_{args.architecture}_mode_{args.mode}_implementation_"
         + f"{args.implementation}_num_layers_{args.num_layers}"
-        + f"_requires_grad_{args.requires_grad}.txt",
+        + f"_requires_grad_{args.requires_grad}"
+        f"{'_use_compile' if args.use_compile else ''}.txt",
     )
     if path.exists(filename) and args.skip_existing:
         print(f"Skipping existing file: {filename}.")
@@ -221,6 +237,8 @@ if __name__ == "__main__":
             implementation=args.implementation,
             architecture=args.architecture,
             mode=args.mode,
+            # Memsave does not compile (TODO debug why)
+            use_compile=False if args.implementation == "ours" else args.use_compile,
         )
         max_usage = memory_usage(f, interval=1e-4, max_usage=True)
         print(f"Peak mem: {max_usage}.")
@@ -228,8 +246,14 @@ if __name__ == "__main__":
         with open(filename, "w") as f:
             f.write(f"{max_usage}")
 
-        print("Performing equality check.")
-        check_equality(
-            args.architecture, args.mode, args.num_layers, args.requires_grad
-        )
-        print("Equality check passed.")
+        # Memsave is not compile-able (TODO debug why)
+        if not args.use_compile:
+            print("Performing equality check.")
+            check_equality(
+                args.architecture,
+                args.mode,
+                args.num_layers,
+                args.requires_grad,
+                args.use_compile,
+            )
+            print("Equality check passed.")

@@ -27,6 +27,7 @@ vjp_improvements = [
 
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
 n_repeat = 5
+batchnorm_eval = True # BatchNorm in eval mode
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
@@ -105,6 +106,7 @@ if __name__ == "__main__":
             cases,
             "results",
         )
+        bn_eval_str = "--bn_eval" if batchnorm_eval else ""
 
         for model in models:
             B = batch_size
@@ -127,7 +129,7 @@ if __name__ == "__main__":
                     pbar.set_description(f"{model} {estimate} case {case_display}")
                     cmd = (
                         f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
-                        + f"--device {device} -B {B} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
+                        + f"--device {device} -B {B} -C_in {input_channels} -HW {input_HW} -n_class {num_classes} {bn_eval_str}"
                     )
                     proc = subprocess.run(shlex.split(cmd), capture_output=True)
                     assert proc.stderr in [

@@ -49,7 +49,7 @@ class _MemSaveConv(torch.autograd.Function):
         if ctx.needs_input_grad[0]:
             weight = ctx.saved_tensors[current_idx]
             current_idx += 1
-        elif ctx.needs_input_grad[1]:
+        if ctx.needs_input_grad[1]:
             x = ctx.saved_tensors[current_idx]
             current_idx += 1
 

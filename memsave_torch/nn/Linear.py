@@ -6,7 +6,6 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 import sys
 
 import torch.nn as nn
-
 from memsave_torch.nn.functional import linearMemSave
 
 transformers_imported = False
@@ -18,18 +17,6 @@ if "transformers" in sys.modules:
 
 class MemSaveLinear(nn.Linear):
     """MemSaveLinear."""
-
-    def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
-        """Inits a MemSaveLinear layer with the given params.
-
-        Args:
-            in_features: in_features
-            out_features: out_features
-            bias: bias
-            device: device
-            dtype: dtype
-        """
-        super().__init__(in_features, out_features, bias, device, dtype)
 
     def forward(self, x):
         """Forward pass.

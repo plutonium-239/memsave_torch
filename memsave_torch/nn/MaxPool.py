@@ -8,35 +8,11 @@ are saving the input anyway, but we want to use it with MemSaveConv2d
 
 import torch
 import torch.nn as nn
-
 from memsave_torch.nn.functional import maxpool2dMemSave
 
 
 class MemSaveMaxPool2d(nn.MaxPool2d):
     """MemSaveMaxPool2d."""
-
-    def __init__(
-        self,
-        kernel_size,
-        stride=1,
-        padding=0,
-        dilation=1,
-        return_indices=False,
-        ceil_mode=False,
-    ) -> None:
-        """Inits a Conv2d layer with the given params.
-
-        Args:
-            kernel_size: kernel_size
-            stride: stride
-            padding: padding
-            dilation: dilation
-            return_indices: return_indices
-            ceil_mode: ceil_mode
-        """
-        super().__init__(
-            kernel_size, stride, padding, dilation, return_indices, ceil_mode
-        )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Forward pass.

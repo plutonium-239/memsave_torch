@@ -10,7 +10,7 @@ from tueplots import bundles
 HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "gathered")
 
-requires_grads = ["all", "none", "4+", "4"]
+requires_grads = {"all", "none", "4+", "4"}
 legend_entries = {
     "all": "Fully differentiable",
     "none": "Fully non-differentiable",
@@ -32,13 +32,22 @@ linestyles = {
     "4": "dashdot",
     "4 (ours)": "dotted",
 }
-architectures = ["linear", "conv1d", "conv2d", "conv3d", "bn2d"]
-modes = ["train", "eval"]
+architectures = {
+    "linear",
+    "conv1d",
+    "conv2d",
+    "conv3d",
+    "bn2d",
+    "conv_transpose1d",
+    "conv_transpose2d",
+    "conv_transpose3d",
+}
+modes = {"train", "eval"}
+use_compiles = {False, True}
 
 if __name__ == "__main__":
-    for architecture, mode in product(architectures, modes):
+    for architecture, mode, use_compile in product(architectures, modes, use_compiles):
         with plt.rc_context(bundles.icml2024()):
-            # plt.rcParams.update({"figure.figsize": (3.25, 2.5)})
             fig, ax = plt.subplots()
             ax.set_xlabel("Number of layers")
             ax.set_ylabel("Peak memory [MiB]")
@@ -52,7 +61,8 @@ if __name__ == "__main__":
                 readpath = path.join(
                     DATADIR,
                     f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-                    + f"_requires_grad_{requires_grad}.csv",
+                    + f"_requires_grad_{requires_grad}"
+                    + f"{'_use_compile' if use_compile else ''}.csv",
                 )
                 df = read_csv(readpath)
                 ax.plot(
@@ -70,7 +80,8 @@ if __name__ == "__main__":
             readpath = path.join(
                 DATADIR,
                 f"peakmem_{architecture}_mode_{mode}_implementation_{implementation}"
-                + f"_requires_grad_{requires_grad}.csv",
+                + f"_requires_grad_{requires_grad}"
+                + f"{'_use_compile' if use_compile else ''}.csv",
             )
             df = read_csv(readpath)
             ax.plot(

@@ -9,12 +9,14 @@ Currently implemented:
 import sys
 
 import torch.nn as nn
-
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
 from memsave_torch.nn.Conv3d import MemSaveConv3d
+from memsave_torch.nn.ConvTranspose1d import MemSaveConvTranspose1d
+from memsave_torch.nn.ConvTranspose2d import MemSaveConvTranspose2d
+from memsave_torch.nn.ConvTranspose3d import MemSaveConvTranspose3d
 from memsave_torch.nn.Dropout import MemSaveDropout
 from memsave_torch.nn.LayerNorm import (
     MemSaveLayerNorm,

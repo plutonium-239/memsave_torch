@@ -163,7 +163,9 @@ def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module, clone_params:
     if len(attr_split) == 1:
         setattr(obj, attr_split[0], value)
         if clone_params:
-            value.load_state_dict(value.state_dict())  # makes a copy
+            # value.load_state_dict(value.state_dict())  # makes a copy
+            for name,param in value._parameters.items():
+                value._parameters[name] = nn.Parameter(param.clone().detach())
     else:
         recursive_setattr(
             getattr(obj, attr_split[0]), attr_split[1], value, clone_params

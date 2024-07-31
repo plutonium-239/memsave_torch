@@ -83,18 +83,20 @@ if __name__ == "__main__":
                 + f"_requires_grad_{requires_grad}"
                 + f"{'_use_compile' if use_compile else ''}.csv",
             )
-            df = read_csv(readpath)
-            ax.plot(
-                df["num_layers"],
-                df["peakmem"],
-                label=legend_entries[key],
-                marker=markers[key],
-                linestyle=linestyles[key],
-                **markerstyle,
-            )
+            if path.exists(readpath):
+                # for skipping memsave+compiled
+                df = read_csv(readpath)
+                ax.plot(
+                    df["num_layers"],
+                    df["peakmem"],
+                    label=legend_entries[key],
+                    marker=markers[key],
+                    linestyle=linestyles[key],
+                    **markerstyle,
+                )
 
             plt.legend()
             plt.savefig(
-                path.join(HEREDIR, f"visual_abstract_{architecture}_{mode}.pdf"),
+                path.join(HEREDIR, f"visual_abstract_{architecture}_{mode}{'_use_compile' if use_compile else ''}.pdf"),
                 bbox_inches="tight",
             )

@@ -9,6 +9,7 @@ Currently implemented:
 import sys
 
 import torch.nn as nn
+
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
@@ -181,7 +182,7 @@ def recursive_setattr(obj: nn.Module, attr: str, value: nn.Module, clone_params:
         setattr(obj, attr_split[0], value)
         if clone_params:
             # value.load_state_dict(value.state_dict())  # makes a copy
-            for name,param in value._parameters.items():
+            for name, param in value._parameters.items():
                 value._parameters[name] = nn.Parameter(param.clone().detach())
     else:
         recursive_setattr(

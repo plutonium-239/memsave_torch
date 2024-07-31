@@ -6,6 +6,7 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 import sys
 
 import torch.nn as nn
+
 from memsave_torch.nn.functional import linearMemSave
 
 transformers_imported = False

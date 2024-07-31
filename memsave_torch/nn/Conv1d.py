@@ -6,7 +6,7 @@ This is done by not saving the inputs/weights if weight/inputs dont require grad
 import torch
 import torch.nn as nn
 
-from memsave_torch.nn.functional import conv1dMemSave
+from memsave_torch.nn.functional import convMemSave
 
 
 class MemSaveConv1d(nn.Conv1d):
@@ -59,12 +59,12 @@ class MemSaveConv1d(nn.Conv1d):
         """Forward pass.
 
         Args:
-            input: Input to the network [B, C_in, H, W]
+            input (torch.Tensor): Input to the network [B, C_in, H, W]
 
         Returns:
             torch.Tensor: Output [B, C_out, H_out, W_out]
         """
-        return conv1dMemSave(
+        return convMemSave(
             input,
             self.weight,
             self.bias,
@@ -72,6 +72,8 @@ class MemSaveConv1d(nn.Conv1d):
             self.padding,
             self.dilation,
             self.groups,
+            self.transposed,
+            self.output_padding,
         )
 
     @classmethod
@@ -82,7 +84,7 @@ class MemSaveConv1d(nn.Conv1d):
             conv1d : The nn.Conv1d layer
 
         Returns:
-            obj: The MemSaveConv1d object
+            MemSaveConv1d: The MemSaveConv1d object
         """
         obj = cls(
             conv1d.in_channels,

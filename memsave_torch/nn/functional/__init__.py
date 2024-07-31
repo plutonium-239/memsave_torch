@@ -8,16 +8,7 @@ These are not exported but can still be used as: `from memsave_torch.nn.function
 """
 
 from memsave_torch.nn.functional.BatchNorm import batch_normMemSave  # noqa: F401
-from memsave_torch.nn.functional.Conv import (  # noqa: F401
-    conv1dMemSave,
-    conv2dMemSave,
-    conv3dMemSave,
-)
-from memsave_torch.nn.functional.ConvTranspose import (  # noqa: F401
-    conv_transpose1dMemSave,
-    conv_transpose2dMemSave,
-    conv_transpose3dMemSave,
-)
+from memsave_torch.nn.functional.Conv import convMemSave  # noqa: F401
 from memsave_torch.nn.functional.Dropout import dropoutMemSave  # noqa: F401
 from memsave_torch.nn.functional.Linear import linearMemSave  # noqa: F401
 from memsave_torch.nn.functional.MaxPool import maxpool2dMemSave  # noqa: F401

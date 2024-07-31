@@ -8,7 +8,9 @@ import torch
 
 class _MemSaveConv(torch.autograd.Function):
     @staticmethod
-    def forward(x, weight, bias, stride, padding, dilation, groups):
+    def forward(
+        x, weight, bias, stride, padding, dilation, groups, transposed, output_padding
+    ):
         return torch.ops.aten.convolution(
             x,
             weight,
@@ -16,14 +18,24 @@ class _MemSaveConv(torch.autograd.Function):
             stride,
             padding,
             dilation,
-            False,
-            tuple([0] * len(padding)),
+            transposed,
+            output_padding,
             groups,
         )
 
     @staticmethod
     def setup_context(ctx, inputs, output):
-        x, weight, bias, stride, padding, dilation, groups = inputs
+        (
+            x,
+            weight,
+            bias,
+            stride,
+            padding,
+            dilation,
+            groups,
+            transposed,
+            output_padding,
+        ) = inputs
         need_grad = []
         if ctx.needs_input_grad[0]:
             need_grad.append(weight)
@@ -38,6 +50,8 @@ class _MemSaveConv(torch.autograd.Function):
         ctx.x_shape = x.shape
         ctx.weight_shape = weight.shape
         ctx.device = x.device
+        ctx.transposed = transposed
+        ctx.output_padding = output_padding
 
         ctx.save_for_backward(*need_grad)
 
@@ -66,8 +80,8 @@ class _MemSaveConv(torch.autograd.Function):
             ctx.stride,
             ctx.padding,
             ctx.dilation,
-            False,
-            [0],
+            ctx.transposed,
+            ctx.output_padding,
             ctx.groups,
             ctx.needs_input_grad[:3],
         )
@@ -75,61 +89,35 @@ class _MemSaveConv(torch.autograd.Function):
         return grad_x, grad_weight, grad_bias, None, None, None, None, None
 
 
-def conv1dMemSave(
-    input, weight, bias, stride, padding, dilation, groups
+def convMemSave(
+    input, weight, bias, stride, padding, dilation, groups, transposed, output_padding
 ) -> torch.Tensor:
     """Functional form of the memory saving convolution.
 
+    Input can be 3D, 4D or 5D.
+
     Args:
-        input: input [B, C_in, H, W]
+        input: input [B, C_in, (None, H, D), W]
         weight: weight
         bias: bias
         stride: stride
         padding: padding
         dilation: dilation
         groups: groups
+        transposed: transposed
+        output_padding: output_padding
 
-    Returns:
+    No Longer Returned:
         torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
     """
-    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)
-
-
-def conv2dMemSave(
-    input, weight, bias, stride, padding, dilation, groups
-) -> torch.Tensor:
-    """Functional form of the memory saving convolution.
-
-    Args:
-        input: input [B, C_in, H, W]
-        weight: weight
-        bias: bias
-        stride: stride
-        padding: padding
-        dilation: dilation
-        groups: groups
-
-    Returns:
-        torch.Tensor: Output of the conv operation [B, C_out, H_out, W_out]
-    """
-    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)
-
-
-def conv3dMemSave(
-    input, weight, bias, stride, padding, dilation, groups
-) -> torch.Tensor:
-    """Functional form of the memory saving convolution.
-
-    Args:
-        input: input [B, C_in, D, H, W]
-        weight: weight
-        bias: bias
-        stride: stride
-        padding: padding
-        dilation: dilation
-        groups: groups
-
-    Returns:
-        torch.Tensor: Output of the conv operation [B, C_out, D_out, H_out, W_out]
-    """
-    return _MemSaveConv.apply(input, weight, bias, stride, padding, dilation, groups)
+    return _MemSaveConv.apply(
+        input,
+        weight,
+        bias,
+        stride,
+        padding,
+        dilation,
+        groups,
+        transposed,
+        output_padding,
+    )

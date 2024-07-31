@@ -8,6 +8,7 @@ are saving the input anyway, but we want to use it with MemSaveConv2d
 
 import torch
 import torch.nn as nn
+
 from memsave_torch.nn.functional import maxpool2dMemSave
 
 

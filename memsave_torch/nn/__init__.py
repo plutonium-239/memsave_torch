@@ -110,6 +110,21 @@ def convert_to_memory_saving(
             "convert_fn": MemSaveConv3d.from_nn_Conv3d,
         },
         {
+            "allowed": conv1d,
+            "cls": nn.ConvTranspose1d,
+            "convert_fn": MemSaveConvTranspose1d.from_nn_ConvTranspose1d,
+        },
+        {
+            "allowed": conv2d,
+            "cls": nn.ConvTranspose2d,
+            "convert_fn": MemSaveConvTranspose2d.from_nn_ConvTranspose2d,
+        },
+        {
+            "allowed": conv3d,
+            "cls": nn.ConvTranspose3d,
+            "convert_fn": MemSaveConvTranspose3d.from_nn_ConvTranspose3d,
+        },
+        {
             "allowed": batchnorm2d,
             "cls": nn.BatchNorm2d,
             "convert_fn": MemSaveBatchNorm2d.from_nn_BatchNorm2d,

@@ -6,17 +6,6 @@ from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
-from memsave_torch.nn import (
-    MemSaveBatchNorm2d,
-    MemSaveConv1d,
-    MemSaveConv2d,
-    MemSaveConv3d,
-    MemSaveConvTranspose1d,
-    MemSaveConvTranspose2d,
-    MemSaveConvTranspose3d,
-    MemSaveLinear,
-)
-from memsave_torch.nn.ConvTranspose1d import MemSaveConvTranspose1d
 from torch import allclose, compile, manual_seed, rand, rand_like
 from torch.autograd import grad
 from torch.nn import (
@@ -29,6 +18,17 @@ from torch.nn import (
     ConvTranspose3d,
     Linear,
     Sequential,
+)
+
+from memsave_torch.nn import (
+    MemSaveBatchNorm2d,
+    MemSaveConv1d,
+    MemSaveConv2d,
+    MemSaveConv3d,
+    MemSaveConvTranspose1d,
+    MemSaveConvTranspose2d,
+    MemSaveConvTranspose3d,
+    MemSaveLinear,
 )
 
 

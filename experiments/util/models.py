@@ -2,9 +2,9 @@
 
 import itertools
 import math
-from functools import partial
-from typing import Any, Dict, List, Optional, Tuple
 import warnings
+from functools import partial
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
 import torchvision.models as tvm
@@ -111,7 +111,18 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     return AutoConfig.from_pretrained(props.hf_name, **props.extra_kwargs)
 
 
-def get_arch_models(arch: str):
+def get_arch_models(arch: str) -> Tuple[Dict[str, Callable], Any]:
+    """Get the dict of all defined functions for an architecture
+
+    Args:
+        arch (str): The architecture
+
+    Returns:
+        Tuple[Dict[str, Callable], Any]: Dict of all defined functions
+
+    Raises:
+        ValueError: Invalid architecture
+    """
     if arch == "conv":
         return conv_model_fns, conv_input_shape
     if arch == "transformer":

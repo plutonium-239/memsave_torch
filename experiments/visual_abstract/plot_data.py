@@ -97,6 +97,9 @@ if __name__ == "__main__":
 
             plt.legend()
             plt.savefig(
-                path.join(HEREDIR, f"visual_abstract_{architecture}_{mode}{'_use_compile' if use_compile else ''}.pdf"),
+                path.join(
+                    HEREDIR,
+                    f"visual_abstract_{architecture}_{mode}{'_use_compile' if use_compile else ''}.pdf",
+                ),
                 bbox_inches="tight",
             )

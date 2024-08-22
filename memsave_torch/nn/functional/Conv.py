@@ -86,7 +86,7 @@ class _MemSaveConv(torch.autograd.Function):
             ctx.needs_input_grad[:3],
         )
 
-        return grad_x, grad_weight, grad_bias, None, None, None, None, None
+        return grad_x, grad_weight, grad_bias, None, None, None, None, None, None
 
 
 def convMemSave(

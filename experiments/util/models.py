@@ -17,6 +17,8 @@ from torch.nn import (
     ReLU,
     Sequential,
     Transformer,
+    Unfold,
+    functional,
 )
 from transformers import (
     AutoConfig,
@@ -478,6 +480,57 @@ class TransformersModelWrapper(Module):
             out = self.model(inputs_embeds=x, **self.cache_kw)
         return out.logits.permute(0, 2, 1)
 
+
+# VLM
+class VLM(Module):
+    """Small wrapper for making a VLM model with transformer llm and conv/transformer vision model"""
+
+    def __init__(
+        self,
+        vision_model_name: str,
+        vision_model_arch: str,
+        llm_name: str,
+        nc: int = 1000,
+    ) -> None:
+        """Init"""
+        super().__init__()
+        self.vision_model_name = vision_model_name
+        self.vm_arch = vision_model_arch
+        self.llm_name = llm_name
+        model_fns, input_shape = get_arch_models(vision_model_arch)
+        if vision_model_arch == "conv":
+            assert vision_model_name in segmentation_models
+        self.vm = model_fns[vision_model_name]()
+        self.llm = TransformersModelWrapper(transformer_model_fns[llm_name], llm_name)
+        vision_final_dim = 3 * 16 * 16 if vision_model_arch == "transformer" else nc
+        self.proj = Linear(vision_final_dim, self.llm.model.config.hidden_size)
+        self.patchify = Unfold(kernel_size=16, stride=16)
+
+    def forward(self, x):
+        """Forward through vlm
+
+        Args:
+            x: x
+
+        Returns:
+            output: model output
+        """
+        if self.vm_arch == "transformer" and self.vm.config.image_size != x.shape[-1]:
+            x = functional.interpolate(
+                x, size=self.vm.config.image_size, mode="bicubic"
+            )
+        x = self.vm(x)
+        if self.vm_arch == "conv":
+            import ipdb
+
+            ipdb.set_trace()
+            x = self.patchify(x["out"]).permute(0, 2, 1)
+            # [B, nc*n_patches, patch_size**2]
+        else:
+            x = x.logits
+        x = self.proj(x)
+        # [B, patch_size**2, llm_hidden]
+        return self.llm(x)
 
 # LINEAR
 linear_input_shape: int = 1

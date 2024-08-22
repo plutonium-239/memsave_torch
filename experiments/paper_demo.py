@@ -27,7 +27,7 @@ vjp_improvements = [
 
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
 n_repeat = 5
-batchnorm_eval = True # BatchNorm in eval mode
+batchnorm_eval = True  # BatchNorm in eval mode
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns

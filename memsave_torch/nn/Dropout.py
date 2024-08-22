@@ -42,4 +42,3 @@ class MemSaveDropout(nn.Dropout):
         """
         obj = cls(dropout.p)
         return obj
-

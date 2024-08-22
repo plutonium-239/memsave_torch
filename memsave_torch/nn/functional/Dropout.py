@@ -15,7 +15,8 @@ class _MemSaveDropout(torch.autograd.Function):
         out = torch.dropout(x, p, train)
         if ctx.needs_input_grad[0]:
             ctx.p = p
-            ctx.mask = mask
+            ctx.train = train
+            ctx.rng = rng
         return out
 
     @staticmethod

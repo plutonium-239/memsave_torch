@@ -29,6 +29,7 @@ from torch.nn import (
 from torchvision.models.convnext import LayerNorm2d
 from transformers import Conv1D
 
+from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
 from memsave_torch.nn.Linear import MemSaveLinear
 
@@ -317,6 +318,7 @@ def separate_grad_arguments(
         LayerNorm,
         LayerNorm2d,
         MemSaveBatchNorm2d,
+    )
     embed = Embedding
 
     leafs, no_leafs = [], []

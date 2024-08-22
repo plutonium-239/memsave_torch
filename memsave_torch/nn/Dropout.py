@@ -3,7 +3,6 @@
 This is done by not saving the whole input/output `float32` tensor and instead just saving the `bool` mask (8bit).
 """
 
-import torch
 import torch.nn as nn
 
 from memsave_torch.nn.functional import dropoutMemSave

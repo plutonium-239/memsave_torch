@@ -22,13 +22,13 @@ DATADIR = path.join(HEREDIR, "raw")
 makedirs(DATADIR, exist_ok=True)
 
 
-def main(
+def main(  # noqa: C901
     architecture: str,
     implementation: str,
     mode: str,
     num_layers: int,
     requires_grad: str,
-):  # noqa: C901
+):
     """Runs exps for generating the data of the visual abstract"""
     manual_seed(0)
 

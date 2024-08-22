@@ -4,6 +4,7 @@ import itertools
 import math
 from functools import partial
 from typing import Any, Dict, List, Optional, Tuple
+import warnings
 
 import torch
 import torchvision.models as tvm
@@ -352,7 +353,8 @@ hf_transformers_models_map = {
         {"torch_dtype": torch.bfloat16},
         lm_head_name="lm_head",
     ),
-    # "llama3-8b": _HF_model("meta-llama/Meta-Llama-3-8B", {}), GATED
+    "llama3-8b": _HF_model("meta-llama/Meta-Llama-3-8B", {'torch_dtype': torch.bfloat16}, lm_head_name="lm_head"),
+    "phi3-4b": _HF_model("microsoft/Phi-3-mini-4k-instruct", {'torch_dtype': torch.bfloat16}, lm_head_name="lm_head"),
 }
 hf_transformers_models = list(hf_transformers_models_map.keys())
 hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
@@ -412,7 +414,10 @@ class TransformersModelWrapper(Module):
     def __init__(self, model_fn, model_name) -> None:
         """Init"""
         super().__init__()
-        self.model = model_fn()
+        with warnings.catch_warnings():
+            # hf does not keep quiet sometimes even when transformers.logging is set to errors only
+            warnings.simplefilter('ignore') 
+            self.model = model_fn()
         self.dec = self.model.config.is_encoder_decoder
         self.model_name = model_name
         model_name_pure = model_name

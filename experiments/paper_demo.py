@@ -14,7 +14,7 @@ from experiments.util import collect_results
 from experiments.util.models import prefix_in_pairs
 
 estimators = ["time", "memory"]
-estimators = ["memory"]
+# estimators = ["memory"]
 # estimators = ["time"]
 
 # improvements can be either speedups or savings based on context
@@ -26,7 +26,7 @@ vjp_improvements = [
 ]
 
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
-n_repeat = 1
+n_repeat = 5
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
@@ -66,7 +66,8 @@ models = [
     "flan-t5",
     # "xlm-roberta",
     "mistral-7b",
-    # "llama3-8b",
+    "llama3-8b",
+    "phi3-4b"
 ]
 models = prefix_in_pairs("memsave_", models)
 batch_size = 64
@@ -125,10 +126,12 @@ if __name__ == "__main__":
 
         for model in models:
             B = batch_size
-            if model in ["flan-t5", "memsave_flan-t5"]:
+            if model in prefix_in_pairs('memsave_', ["flan-t5"]):
                 B = 56
-            if model in ["mistral-7b", "memsave_mistral-7b"]:
+            if model in prefix_in_pairs('memsave_', ["mistral-7b", "phi3-4b"]):
                 B = 16
+            if model in prefix_in_pairs('memsave_', ["llama3-8b"]):
+                B = 8
             for estimate in estimators:
                 outputs = []
 

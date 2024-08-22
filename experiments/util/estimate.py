@@ -40,6 +40,8 @@ allowed_cases = [
     "no_grad_input",
     "grad_embed_weights",
     "no_grad_embed_weights",
+    "surgical_first",
+    "surgical_last",
 ]
 
 
@@ -78,12 +80,13 @@ def skip_case_check(args: argparse.Namespace) -> bool:
     invalid = False
     if args.case is None:
         return invalid
+    is_surgical = 'surgical_last' in args.case or 'surgical_first' in args.case
     # 1.
     for c in ["grad_norm_bias", "grad_norm_weights"]:
         if c in args.case and args.model in models.models_without_norm:
             invalid = True
     for c in ["no_grad_norm_bias", "no_grad_norm_weights"]:
-        if c not in args.case and args.model in models.models_without_norm:
+        if c not in args.case and args.model in models.models_without_norm and not is_surgical:
             invalid = True
     # 2.
     if "no_grad_embed_weights" in args.case and "grad_input" not in args.case:

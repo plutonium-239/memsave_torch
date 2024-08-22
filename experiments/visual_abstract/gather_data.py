@@ -15,9 +15,14 @@ makedirs(DATADIR, exist_ok=True)
 max_num_layers = 10
 requires_grads = ["all", "none", "4", "4+"]
 implementations = ["torch", "ours"]
+architectures = ["linear", "conv", "norm_eval"]
+architectures = ["norm_eval"]
+architectures = ["linear"]
 
 if __name__ == "__main__":
-    for implementation, requires_grad in product(implementations, requires_grads):
+    for implementation, requires_grad, arch in product(
+        implementations, requires_grads, architectures
+    ):
         if implementation == "ours" and requires_grad != "4":
             continue
 
@@ -27,7 +32,7 @@ if __name__ == "__main__":
             with open(
                 path.join(
                     RAWDATADIR,
-                    f"peakmem_implementation_{implementation}_num_layers_{num_layers}_requires_grad_{requires_grad}.txt",
+                    f"peakmem_implementation_{arch}_{implementation}_num_layers_{num_layers}_requires_grad_{requires_grad}.txt",
                 ),
                 "r",
             ) as f:
@@ -36,6 +41,6 @@ if __name__ == "__main__":
         df = DataFrame({"num_layers": layers, "peakmem": peakmems})
         savepath = path.join(
             DATADIR,
-            f"peakmem_implementation_{implementation}_requires_grad_{requires_grad}.csv",
+            f"peakmem_implementation_{arch}_{implementation}_requires_grad_{requires_grad}.csv",
         )
         df.to_csv(savepath, index=False)

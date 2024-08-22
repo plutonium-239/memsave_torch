@@ -27,6 +27,7 @@ vjp_improvements = [
 
 # repeat the experiment multiple times (generates multiple files to be aggregated by `get_best_results`)
 n_repeat = 5
+batchnorm_eval = True # BatchNorm in eval mode
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
@@ -44,6 +45,7 @@ n_repeat = 5
 #     "resnext101_64x4d",
 # ]
 # models = prefix_in_pairs("memsave_", models)
+# # models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
 # batch_size = 64
 # input_channels = 3
 # input_HW = 224
@@ -78,15 +80,15 @@ cases = collect_results.select_cases(["All", "Input", "Norm"])
 
 # ============== LINEAR CONFIG ==============
 # Valid choices for models are in models.linear_model_fns
-# models = ['deeplinearmodel']
+# models = ["deeplinearmodel"]
 # models += [f"memsave_{m}" for m in models]  # add memsave versions for each model
-# batch_size = 32768
-# input_channels = 3
-# input_HW = 64
+# batch_size = 1024
+# input_channels = 3  # ignored
+# input_HW = 64  # square of this is passed in estimate.py
 # num_classes = 1000
-# device = 'cuda'
-# architecture = 'linear' # use high batch size
-# cases = collect_results.select_cases(['All', 'Input', 'Linear'])
+# device = "cuda"
+# architecture = "linear"  # use high batch size
+# cases = collect_results.select_cases(["All", "Input", "Linear"])
 
 
 if __name__ == "__main__":
@@ -104,6 +106,7 @@ if __name__ == "__main__":
             cases,
             "results",
         )
+        bn_eval_str = "--bn_eval" if batchnorm_eval else ""
 
         for model in models:
             B = batch_size
@@ -126,7 +129,7 @@ if __name__ == "__main__":
                     pbar.set_description(f"{model} {estimate} case {case_display}")
                     cmd = (
                         f"python experiments/util/estimate.py --architecture {architecture} --model {model} --estimate {estimate} {case_str} "
-                        + f"--device {device} -B {B} -C_in {input_channels} -HW {input_HW} -n_class {num_classes}"
+                        + f"--device {device} -B {B} -C_in {input_channels} -HW {input_HW} -n_class {num_classes} {bn_eval_str}"
                     )
                     proc = subprocess.run(shlex.split(cmd), capture_output=True)
                     assert proc.stderr in [

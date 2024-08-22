@@ -367,7 +367,7 @@ def separate_grad_arguments(
         Returns:
             bool: Whether n is a LM head
         """
-        lm_head_name = getattr(model, 'lm_head_name', None)
+        lm_head_name = getattr(model, "lm_head_name", None)
         return lm_head_name is not None and lm_head_name in n
 
     layers = [

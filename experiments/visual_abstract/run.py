@@ -6,6 +6,10 @@ from functools import partial
 from os import makedirs, path
 
 from memory_profiler import memory_usage
+from torch import allclose, manual_seed, rand, rand_like
+from torch.autograd import grad
+from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
+
 from memsave_torch.nn import (
     MemSaveBatchNorm2d,
     MemSaveConv1d,
@@ -13,9 +17,6 @@ from memsave_torch.nn import (
     MemSaveConv3d,
     MemSaveLinear,
 )
-from torch import allclose, manual_seed, rand, rand_like
-from torch.autograd import grad
-from torch.nn import BatchNorm2d, Conv1d, Conv2d, Conv3d, Linear, Sequential
 
 HEREDIR = path.dirname(path.abspath(__file__))
 DATADIR = path.join(HEREDIR, "raw")

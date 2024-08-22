@@ -38,6 +38,8 @@ allowed_cases = [
     "no_grad_norm_bias",
     "grad_input",
     "no_grad_input",
+    "grad_embed_weights",
+    "no_grad_embed_weights",
 ]
 
 
@@ -62,7 +64,10 @@ def parse_case(case: Optional[List[str]]) -> Dict[str, bool]:
 
 
 def skip_case_check(args: argparse.Namespace) -> bool:
-    """Decide whether to skip the case (when case has grad_norm_* but model does not have any normalization layers)
+    """Decide whether to skip the case:
+
+    1. when case has grad_norm_* but model does not have any normalization layers
+    2. when case has no_grad_embed_weights but no grad_input: there is a backward error (no input requires_grad)
 
     Args:
         args (argparse.Namespace): args
@@ -73,12 +78,16 @@ def skip_case_check(args: argparse.Namespace) -> bool:
     invalid = False
     if args.case is None:
         return invalid
+    # 1.
     for c in ["grad_norm_bias", "grad_norm_weights"]:
         if c in args.case and args.model in models.models_without_norm:
             invalid = True
     for c in ["no_grad_norm_bias", "no_grad_norm_weights"]:
         if c not in args.case and args.model in models.models_without_norm:
             invalid = True
+    # 2.
+    if "no_grad_embed_weights" in args.case and "grad_input" not in args.case:
+        invalid = True
     if invalid:
         if args.print:
             print("-1")
@@ -226,7 +235,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Which architecture to run",
-        choices=["conv", "linear"],
+        choices=["conv", "linear", "transformer", "VLM"],
     )
     parser.add_argument(
         "--estimate",
@@ -275,6 +284,7 @@ if __name__ == "__main__":
             input_shape = (args.input_channels, args.input_hw, args.input_hw)
             models.conv_input_shape = input_shape
             model_fn = models.conv_model_fns.get(args.model)
+            y_args = {"size": (batch_size,), "low": 0, "high": num_classes}
             assert (
                 model_fn is not None
             ), f"Conv model name {args.model} not found, must be one of {list(models.conv_model_fns.keys())}"
@@ -282,16 +292,51 @@ if __name__ == "__main__":
             input_shape = [args.input_hw**2]
             models.linear_input_shape = input_shape[0]
             model_fn = models.linear_model_fns.get(args.model)
+            y_args = {"size": (batch_size,), "low": 0, "high": num_classes}
             assert (
                 model_fn is not None
             ), f"Linear model name {args.model} not found, must be one of {list(models.linear_model_fns.keys())}"
+        elif args.architecture == "transformer":
+            vocab_dim = args.num_classes
+            embed_dim = args.input_channels
+            seq_len = args.input_hw
+            model_fn = models.transformer_model_fns.get(args.model)
+            if args.model in models.hf_transformers_models:
+                model_fn_orig = model_fn
+                model_fn = lambda: models.TransformersModelWrapper(  # noqa: E731
+                    model_fn_orig, args.model
+                )
+                config = models.get_transformers_config(args.model)
+                # as per transformers.PretrainedConfig these 2 should be present in all models:
+                vocab_dim = config.vocab_size
+                embed_dim = config.hidden_size
+            models.transformer_input_shape = (vocab_dim, embed_dim)
+            input_shape = [seq_len, embed_dim]
+            y_args = {"size": (batch_size, seq_len), "low": 0, "high": vocab_dim}
+            assert (
+                model_fn is not None
+            ), f"Transformer model name {args.model} not found, must be one of {list(models.transformer_model_fns.keys())}"
+        elif args.architecture == "VLM":
+            # model format: `vlm!<vis_model>!<vis_model_arch>!<llm>`
+            # eg:           `vlm!vit!transformer!memsave_gpt2`
+            is_vlm, vis_model, vis_model_arch, llm = args.model.split("!")
+            assert is_vlm == "vlm"
+            assert vis_model_arch in ["transformer", "conv"]
+            model_fn = lambda: models.VLM(vis_model, vis_model_arch, llm)  # noqa: E731
+            config = models.get_transformers_config(llm)
+            vocab_dim = config.vocab_size
+            embed_dim = config.hidden_size
+            seq_len = (args.input_hw // 16) ** 2
+            y_args = {"size": (batch_size, seq_len), "low": 0, "high": vocab_dim}
+            input_shape = (args.input_channels, args.input_hw, args.input_hw)
+            models.conv_input_shape = input_shape
 
         loss_fn = CrossEntropyLoss
 
         manual_seed(0)  # make deterministic
 
         x = rand(batch_size, *input_shape, device=dev)
-        y = randint(size=(batch_size,), low=0, high=num_classes, device=dev)
+        y = randint(**y_args, device=dev)
         targets = None
         if args.model in models.detection_models:
             # pred is a dictionary of losses

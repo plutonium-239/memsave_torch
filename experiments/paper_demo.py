@@ -52,7 +52,7 @@ batchnorm_eval = True # BatchNorm in eval mode
 # num_classes = 1000
 # device = "cuda"
 # architecture = "conv"
-# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm', 'SurgicalFirst', 'SurgicalLast'])
+# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm'])
 
 # ============== TRANSFORMER CONFIG ==============
 # Valid choices for models are in models.transformer_model_fns

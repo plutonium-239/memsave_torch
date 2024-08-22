@@ -245,6 +245,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--device", type=str, default="cpu", help="torch device name")
     parser.add_argument(
+        "--bn_eval",
+        action="store_true",
+        default=False,
+        help="Set all BN layers to eval mode",
+    )
+    parser.add_argument(
         "--print",
         action="store_true",
         default=False,
@@ -311,6 +317,10 @@ if __name__ == "__main__":
             )
             loss_fn_orig = loss_fn
             loss_fn = lambda: models.SegmentationLossWrapper(loss_fn_orig)  # noqa: E731
+
+        if args.bn_eval:
+            model_fn_orig_bn = model_fn
+            model_fn = lambda: models.set_BN_to_eval(model_fn_orig_bn())  # noqa: E731
 
         # warm-up
         # with redirect_stdout(open(devnull, "w")):

@@ -6,16 +6,25 @@ Currently implemented:
 - BatchNorm2d
 """
 
+import sys
+
 import torch.nn as nn
 
 from memsave_torch.nn import functional  # noqa: F401
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv1d import MemSaveConv1d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
+from memsave_torch.nn.Dropout import MemSaveDropout
 from memsave_torch.nn.LayerNorm import MemSaveLayerNorm
 from memsave_torch.nn.Linear import MemSaveLinear
 from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
+
+transformers_imported = False
+if "transformers" in sys.modules:
+    import transformers
+
+    transformers_imported = True
 
 
 def convert_to_memory_saving(
@@ -27,6 +36,7 @@ def convert_to_memory_saving(
     relu=True,
     maxpool2d=True,
     layernorm=True,
+    dropout=True,
     verbose=False,
     clone_params=False,
 ) -> nn.Module:
@@ -45,16 +55,20 @@ def convert_to_memory_saving(
         relu (bool, optional): Whether to replace `nn.ReLU` layers
         maxpool2d (bool, optional): Whether to replace `nn.MaxPool2d` layers
         layernorm (bool, optional): Whether to replace `nn.LayerNorm` layers
+        dropout (bool, optional): Whether to replace `nn.Dropout` layers
         verbose (bool, optional): Whether to print which layers were replaced
         clone_params (bool, optional): Whether to clone the layer parameters or use directly
 
     Returns:
         memsavemodel (nn.Module): The converted memory saving model
     """
+    linear_cls = nn.Linear
+    if transformers_imported:
+        linear_cls = (nn.Linear, transformers.Conv1D)
     layers = [
         {
             "allowed": linear,
-            "cls": nn.Linear,
+            "cls": linear_cls,
             "convert_fn": MemSaveLinear.from_nn_Linear,
         },
         {"allowed": relu, "cls": nn.ReLU, "convert_fn": MemSaveReLU.from_nn_ReLU},
@@ -82,6 +96,11 @@ def convert_to_memory_saving(
             "allowed": layernorm,
             "cls": nn.LayerNorm,
             "convert_fn": MemSaveLayerNorm.from_nn_LayerNorm,
+        },
+        {
+            "allowed": dropout,
+            "cls": nn.Dropout,
+            "convert_fn": MemSaveDropout.from_nn_dropout,
         },
     ]
 

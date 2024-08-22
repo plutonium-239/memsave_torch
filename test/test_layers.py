@@ -50,7 +50,6 @@ cases = [
         "layer_fn": lambda: torch.nn.LayerNorm([3, 12, 12]),
         "data_fn": lambda: torch.rand(7, 3, 12, 12),
     },
-    {
     # TODO: add testing for dropout (save and load rng state)
     # {
     #     "name": "Dropout"

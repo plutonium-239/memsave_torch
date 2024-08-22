@@ -3,9 +3,17 @@
 This is done by not saving the inputs/weights if weight/inputs dont require grad.
 """
 
+import sys
+
 import torch.nn as nn
 
 from memsave_torch.nn.functional import linearMemSave
+
+transformers_imported = False
+if "transformers" in sys.modules:
+    import transformers
+
+    transformers_imported = True
 
 
 class MemSaveLinear(nn.Linear):
@@ -36,14 +44,21 @@ class MemSaveLinear(nn.Linear):
 
     @classmethod
     def from_nn_Linear(cls, linear: nn.Linear):
-        """Converts a nn.Linear layer to MemSaveLinear.
+        """Converts a nn.Linear/transformers.Conv1D layer to MemSaveLinear.
 
         Args:
-            linear : The nn.Linear layer
+            linear : The nn.Linear/transformers.Conv1D layer
 
         Returns:
             obj: The MemSaveLinear object
         """
+        isTransformersConv1D = False
+        if transformers_imported:
+            isTransformersConv1D = isinstance(linear, transformers.Conv1D)
+        if isTransformersConv1D:
+            # it only saves output features in the model (linear.nf); need to take input features from weight anyway
+            # weight and bias are still defined
+            linear.in_features, linear.out_features = linear.weight.shape
         obj = cls(
             linear.in_features,
             linear.out_features,
@@ -51,6 +66,9 @@ class MemSaveLinear(nn.Linear):
             device=getattr(linear, "device", None),
             dtype=getattr(linear, "dtype", None),
         )
-        obj.weight = linear.weight
+        if isTransformersConv1D:
+            obj.weight = nn.Parameter(linear.weight.T)
+        else:
+            obj.weight = linear.weight
         obj.bias = linear.bias
         return obj

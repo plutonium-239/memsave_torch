@@ -20,6 +20,7 @@ from torch.nn import (
     ConvTranspose1d,
     ConvTranspose2d,
     ConvTranspose3d,
+    Embedding,
     LayerNorm,
     Linear,
     Module,
@@ -117,28 +118,33 @@ class RuntimeMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
+        grad_embed_weights: bool = False,
     ) -> float:
         """Perform a forward and backward pass and return the run time.
 
         Syncs CUDA threads if the device is a GPU.
+        Note: We directly pass input embeddings to transformers so embed weights are never used and their
+        grad will be None.
 
         Args:
-            grad_linear_weights: Whether to compute the gradient of the linear
+            grad_linear_weights (bool, optional): Whether to compute the gradient of the linear
                 layer weights. Default: `True`.
-            grad_linear_bias: Whether to compute the gradient of the linear
+            grad_linear_bias (bool, optional): Whether to compute the gradient of the linear
                 layer bias. Default: `True`.
-            grad_conv_weights: Whether to compute the gradient of the convolution
+            grad_conv_weights (bool, optional): Whether to compute the gradient of the convolution
                 layer weights. Default: `True`.
-            grad_conv_bias: Whether to compute the gradient of the convolution
+            grad_conv_bias (bool, optional): Whether to compute the gradient of the convolution
                 layer bias. Default: `True`.
-            grad_norm_weights: Whether to compute the gradient of the normalization
+            grad_norm_weights (bool, optional): Whether to compute the gradient of the normalization
                 layer weights. Default: `True`.
-            grad_norm_bias: Whether to compute the gradient of the normalization
+            grad_norm_bias (bool, optional): Whether to compute the gradient of the normalization
                 layer bias. Default: `True`.
-            grad_input: Whether to compute the gradient of the input. Default: `False`.
+            grad_input (bool, optional): Whether to compute the gradient of the input. Default: `False`.
+            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
+                layer weights. Default: `True`.
 
         Returns:
-            The run time in seconds.
+            float: The run time in seconds.
         """
         model, loss_fn, x, y, targets = self.set_up()
 
@@ -150,6 +156,7 @@ class RuntimeMeasurement(_Measurement):
             grad_conv_bias,
             grad_norm_weights,
             grad_norm_bias,
+            grad_embed_weights,
         )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
@@ -192,8 +199,12 @@ class MemoryMeasurement(_Measurement):
         grad_norm_weights: bool = True,
         grad_norm_bias: bool = True,
         grad_input: bool = False,
+        grad_embed_weights: bool = False,
     ) -> float:
         """Return memory usage after a forward pass.
+
+        Note: We directly pass input embeddings to transformers so embed weights are never used and their
+        grad will be None.
 
         Args:
             grad_linear_weights: Whether to compute the gradient of the linear
@@ -209,9 +220,11 @@ class MemoryMeasurement(_Measurement):
             grad_norm_bias: Whether to compute the gradient of the normalization
                 layer bias. Default: `True`.
             grad_input: Whether to compute the gradient of the input. Default: `False`.
+            grad_embed_weights (bool, optional): Whether to compute the gradient of the embedding
+                layer weights. Default: `True`.
 
         Returns:
-            The memory usage in bytes.
+            float: The memory usage in bytes.
         """
         model, loss_fn, x, y, targets = self.set_up()
 
@@ -223,6 +236,7 @@ class MemoryMeasurement(_Measurement):
             grad_conv_bias,
             grad_norm_weights,
             grad_norm_bias,
+            grad_embed_weights,
         )
         leafs = ([x] if grad_input else []) + leafs
         no_leafs = ([y] if grad_input else [x, y]) + no_leafs
@@ -290,6 +304,7 @@ def separate_grad_arguments(
     grad_conv_bias: bool,
     grad_norm_weights: bool,
     grad_norm_bias: bool,
+    grad_embed_weights: bool,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Separate the parameters of a model into leafs and non-leafs.
 
@@ -304,6 +319,7 @@ def separate_grad_arguments(
         grad_norm_weights: Whether to compute the gradient of the normalization layer
             weights.
         grad_norm_bias: Whether to compute the gradient of the normalization layer bias.
+        grad_embed_weights: Whether to compute the gradient of the embedding layer weights
 
     Returns:
         A tuple of lists of parameters. The first list contains the leafs, the second
@@ -312,7 +328,7 @@ def separate_grad_arguments(
     Raises:
         NotImplementedError: If an unknown layer with parameters is encountered.
     """
-    linear = (Linear, MemSaveLinear)
+    linear = (Linear, MemSaveLinear, Conv1D)
     conv = (
         Conv1d,
         Conv2d,
@@ -323,6 +339,7 @@ def separate_grad_arguments(
         MemSaveConv2d,
     )
     norm = (BatchNorm1d, BatchNorm2d, BatchNorm3d, LayerNorm, LayerNorm2d)
+    embed = Embedding
 
     leafs, no_leafs = [], []
 
@@ -335,10 +352,29 @@ def separate_grad_arguments(
             grad_bias: Whether to compute the gradient of the layer bias.
         """
         leafs.append(layer.weight) if grad_weight else no_leafs.append(layer.weight)
-        if layer.bias is not None:
+        if "bias" in layer._parameters and layer.bias is not None:
             leafs.append(layer.bias) if grad_bias else no_leafs.append(layer.bias)
 
-    layers = [m for m in model.modules() if len(list(m.modules())) == 1]
+    def check_lm_head(n) -> bool:
+        """Checks if the module name n corresponds to an LM Head
+
+        LM Head for transformers is not trainable (i.e. it is a module but it's weight is not a parameter)
+        and the weights are tied to the embedding layer
+
+        Args:
+            n (str): name of the module
+
+        Returns:
+            bool: Whether n is a LM head
+        """
+        lm_head_name = getattr(model, "lm_head_name", None)
+        return lm_head_name is not None and lm_head_name in n
+
+    layers = [
+        m
+        for n, m in model.named_modules()
+        if len(list(m.modules())) == 1 and not check_lm_head(n)
+    ]
 
     for layer in layers:
         if isinstance(layer, linear):
@@ -347,6 +383,8 @@ def separate_grad_arguments(
             separate_layer(layer, grad_conv_weights, grad_conv_bias)
         elif isinstance(layer, norm):
             separate_layer(layer, grad_norm_weights, grad_norm_bias)
+        elif isinstance(layer, embed):
+            separate_layer(layer, grad_embed_weights, False)
         elif list(layer.parameters()):
             raise NotImplementedError(f"Unknown layer with parameters: {layer}.")
 

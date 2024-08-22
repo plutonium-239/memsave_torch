@@ -6,6 +6,7 @@ import warnings
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import torch
 import torchvision.models as tvm
 from torch.nn import (
     Conv2d,
@@ -27,9 +28,8 @@ from transformers import (
     AutoModelForSeq2SeqLM,
     BartForConditionalGeneration,
 )
-from transformers import (
-    logging as tf_logging,
-)
+from transformers import logging as tf_logging
+from transformers import utils as tf_utils
 
 from memsave_torch.nn import (
     MemSaveConv2d,
@@ -50,7 +50,7 @@ def prefix_in_pairs(prefix: str, it: List[str]) -> List[str]:
 
     Args:
         prefix (str): Prefix to be added
-        it (List[str]): Description
+        it (List[str]): The list to be prefixed
 
     Returns:
         List[str]: The output iterable with items prefixed in pairs
@@ -273,6 +273,7 @@ conv_model_fns = {
     "memsave_resnext101_64x4d": lambda: convert_to_memory_saving(
         tvm.resnext101_64x4d()
     ),
+    # For paper
     "memsave_resnet101_conv": lambda: convert_to_memory_saving_defaultsoff(
         tvm.resnet101(), conv2d=True
     ),
@@ -349,6 +350,8 @@ class _HF_model:
 
 tf_logging.disable_progress_bar()
 tf_logging.set_verbosity_error()
+tf_utils.logging.captureWarnings(True)
+
 
 hf_transformers_models_map = {
     "gpt2": _HF_model("gpt2", {}, lm_head_name="lm_head"),
@@ -528,7 +531,6 @@ class VLM(Module):
         x = self.proj(x)
         # [B, patch_size**2, llm_hidden]
         return self.llm(x)
-
 
 # LINEAR
 linear_input_shape: int = 1

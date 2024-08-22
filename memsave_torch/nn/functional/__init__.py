@@ -19,7 +19,6 @@ from memsave_torch.nn.functional.ConvTranspose import (  # noqa: F401
     conv_transpose3dMemSave,
 )
 from memsave_torch.nn.functional.Dropout import dropoutMemSave  # noqa: F401
-from memsave_torch.nn.functional.LayerNorm import layer_normMemSave  # noqa: F401
 from memsave_torch.nn.functional.Linear import linearMemSave  # noqa: F401
 from memsave_torch.nn.functional.MaxPool import maxpool2dMemSave  # noqa: F401
 from memsave_torch.nn.functional.ReLU import reluMemSave  # noqa: F401

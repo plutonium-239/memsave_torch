@@ -79,4 +79,5 @@ class MemSaveBatchNorm2d(nn.BatchNorm2d):
         obj.bias = bn2d.bias
         obj.running_mean = bn2d.running_mean
         obj.running_var = bn2d.running_var
+        obj.training = bn2d.training
         return obj

@@ -6,6 +6,8 @@ Currently implemented:
 - BatchNorm2d
 """
 
+import sys
+
 import torch.nn as nn
 
 from memsave_torch.nn import functional  # noqa: F401
@@ -17,6 +19,12 @@ from memsave_torch.nn.LayerNorm import MemSaveLayerNorm
 from memsave_torch.nn.Linear import MemSaveLinear
 from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
+
+transformers_imported = False
+if "transformers" in sys.modules:
+    import transformers
+
+    transformers_imported = True
 
 
 def convert_to_memory_saving(
@@ -54,10 +62,13 @@ def convert_to_memory_saving(
     Returns:
         memsavemodel (nn.Module): The converted memory saving model
     """
+    linear_cls = nn.Linear
+    if transformers_imported:
+        linear_cls = (nn.Linear, transformers.Conv1D)
     layers = [
         {
             "allowed": linear,
-            "cls": nn.Linear,
+            "cls": linear_cls,
             "convert_fn": MemSaveLinear.from_nn_Linear,
         },
         {"allowed": relu, "cls": nn.ReLU, "convert_fn": MemSaveReLU.from_nn_ReLU},

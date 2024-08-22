@@ -34,10 +34,12 @@ test = [
   'pytest',
   'pytest-cov',
   'pytest-optional-tests',
+  "transformers"
 ]
 exp = [
   "codetiming",
-  "memory_profiler"
+  "memory_profiler",
+  "transformers>=4.41"
 ]
 
 [tool.pytest.ini_options]

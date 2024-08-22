@@ -27,12 +27,48 @@ strings = {
     ],
 }
 
-case_mapping = {
-    "None": "All",
-    "grad_input + no_grad_conv_weights + no_grad_conv_bias + no_grad_linear_weights + no_grad_linear_bias + no_grad_norm_weights + no_grad_norm_bias": "Input",
-    "no_grad_linear_weights + no_grad_linear_bias + no_grad_norm_weights + no_grad_norm_bias": "Conv",
-    "no_grad_conv_weights + no_grad_conv_bias + no_grad_linear_weights + no_grad_linear_bias": "Norm",
+cases = {
+    "All": None,  # ALL
+    "Input": [  # INPUT
+        "grad_input",
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",
+    ],
+    "Conv": [  # CONV
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",
+    ],
+    "Linear": [  # LINEAR
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_norm_weights",
+        "no_grad_norm_bias",
+    ],
+    "Norm": [  # NORM
+        "no_grad_conv_weights",
+        "no_grad_conv_bias",
+        "no_grad_linear_weights",
+        "no_grad_linear_bias",
+    ],
 }
+
+
+def select_cases(selected: List[str]) -> List[Union[List[str], None]]:
+    """Helper function to return cases selected by their names
+
+    Args:
+        selected (List[str]): Which cases to select, strings can be keys of the cases table
+
+    Returns:
+        List[Union[List[str], None]]: Selected cases
+    """
+    return [cases[s] for s in selected]
 
 
 def make_case_str(case: Union[None, List[str]]) -> str:
@@ -45,6 +81,9 @@ def make_case_str(case: Union[None, List[str]]) -> str:
         str: Output
     """
     return "None" if case is None else " + ".join(case)
+
+
+case_inv_mapping = {make_case_str(v): k for k, v in cases.items()}
 
 
 def hyperparam_str(args: SimpleNamespace) -> str:
@@ -172,12 +211,15 @@ class ResultsCollector:
         """
         # print(f"{model} input ({input_channels},{input_HW},{input_HW}) {device}")
         # print('='*78)
-        s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
+        if self.architecture == "conv":
+            s = f"{model} input ({self.batch_size},{self.input_channels},{self.input_HW},{self.input_HW}) {self.device}"
+        elif self.architecture == "transformer":
+            s = f"{model} input ({self.batch_size},{self.input_HW},{self.input_channels}(or model hidden size)) {self.device}"
         print(s.center(78, "="))
 
         for out, case in zip(outputs, self.cases):
             print(
-                f"{strings[estimate][1]} ({case_mapping[make_case_str(case)]}): {out:.3f}{strings[estimate][0]}"
+                f"{strings[estimate][1]} ({case_inv_mapping[make_case_str(case)]}): {out:.3f}{strings[estimate][0]}"
             )
 
         # CODE ONLY APPLIES WITH OLD RUNDEMO.PY

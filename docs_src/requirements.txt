@@ -1,5 +1,6 @@
 codetiming
 memory_profiler
+numpy<2.0
 pandas
 pytest
 torch==2.0.1

@@ -30,22 +30,19 @@ n_repeat = 5
 
 # ============== CONV CONFIG ==============
 # Valid choices for models are in models.conv_model_fns
-models = [
-    "deepmodel",
-    "resnet101",
-    "resnet18",
-    "vgg16",  # "convnext_base",
-    "fasterrcnn_resnet50_fpn_v2",
-    "ssdlite320_mobilenet_v3_large",  # "retinanet_resnet50_fpn_v2",
-    "deeplabv3_resnet101",
-    "fcn_resnet101",
-    "efficientnet_v2_l",
-    "mobilenet_v3_large",
-    "resnext101_64x4d",
-]
-
-# models = ["resnet101", "memsave_resnet101_conv", "memsave_resnet101_conv+relu+bn", "memsave_resnet101_conv_full"]
-# models = ["resnet101", "memsave_resnet101_conv_full"]
+# models = [
+#     "deepmodel",
+#     "resnet101",
+#     "resnet18",
+#     "vgg16",  # "convnext_base",
+#     "fasterrcnn_resnet50_fpn_v2",
+#     "ssdlite320_mobilenet_v3_large",  # "retinanet_resnet50_fpn_v2",
+#     "deeplabv3_resnet101",
+#     "fcn_resnet101",
+#     "efficientnet_v2_l",
+#     "mobilenet_v3_large",
+#     "resnext101_64x4d",
+# ]
 # models = prefix_in_pairs("memsave_", models)
 # batch_size = 64
 # input_channels = 3
@@ -53,6 +50,7 @@ models = [
 # num_classes = 1000
 # device = "cuda"
 # architecture = "conv"
+# cases = collect_results.select_cases(['All', 'Input', 'Conv', 'Norm'])
 
 # ============== TRANSFORMER CONFIG ==============
 # Valid choices for models are in models.transformer_model_fns
@@ -67,7 +65,7 @@ models = [
     # "xlm-roberta",
     "mistral-7b",
     "llama3-8b",
-    "phi3-4b"
+    "phi3-4b",
 ]
 models = prefix_in_pairs("memsave_", models)
 batch_size = 64
@@ -76,6 +74,7 @@ input_HW = 256
 num_classes = 5000
 device = "cuda"
 architecture = "transformer"
+cases = collect_results.select_cases(["All", "Input", "Norm"])
 
 # ============== LINEAR CONFIG ==============
 # Valid choices for models are in models.linear_model_fns
@@ -87,25 +86,7 @@ architecture = "transformer"
 # num_classes = 1000
 # device = 'cuda'
 # architecture = 'linear' # use high batch size
-
-cases = [
-    None,  # ALL
-    [  # INPUT
-        "grad_input",
-        "no_grad_conv_weights",
-        "no_grad_conv_bias",
-        "no_grad_linear_weights",
-        "no_grad_linear_bias",
-        "no_grad_norm_weights",
-        "no_grad_norm_bias",
-    ],
-    [  # NORM
-        "no_grad_conv_weights",
-        "no_grad_conv_bias",
-        "no_grad_linear_weights",
-        "no_grad_linear_bias",
-    ],
-]
+# cases = collect_results.select_cases(['All', 'Input', 'Linear'])
 
 
 if __name__ == "__main__":
@@ -126,11 +107,11 @@ if __name__ == "__main__":
 
         for model in models:
             B = batch_size
-            if model in prefix_in_pairs('memsave_', ["flan-t5"]):
+            if model in prefix_in_pairs("memsave_", ["flan-t5"]):
                 B = 56
-            if model in prefix_in_pairs('memsave_', ["mistral-7b", "phi3-4b"]):
+            if model in prefix_in_pairs("memsave_", ["mistral-7b", "phi3-4b"]):
                 B = 16
-            if model in prefix_in_pairs('memsave_', ["llama3-8b"]):
+            if model in prefix_in_pairs("memsave_", ["llama3-8b"]):
                 B = 8
             for estimate in estimators:
                 outputs = []
@@ -138,7 +119,7 @@ if __name__ == "__main__":
                 collector.clear_file(estimate)
                 for case in cases:
                     pbar.update()
-                    case_display = collect_results.case_mapping[
+                    case_display = collect_results.case_inv_mapping[
                         collect_results.make_case_str(case)
                     ]
                     case_str = f"--case {' '.join(case)}" if case is not None else ""

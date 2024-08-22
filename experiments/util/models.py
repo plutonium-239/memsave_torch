@@ -111,6 +111,16 @@ def get_transformers_config(model_name: str) -> AutoConfig:
     return AutoConfig.from_pretrained(props.hf_name, **props.extra_kwargs)
 
 
+def get_arch_models(arch: str):
+    if arch == "conv":
+        return conv_model_fns, conv_input_shape
+    if arch == "transformer":
+        return transformer_model_fns, transformer_input_shape
+    if arch == "linear":
+        return linear_model_fns, linear_input_shape
+    raise ValueError(f"arch={arch} not in allowed architectures")
+
+
 # CONV
 conv_input_shape: Tuple[int, int, int] = (1, 1, 1)
 
@@ -353,8 +363,16 @@ hf_transformers_models_map = {
         {"torch_dtype": torch.bfloat16},
         lm_head_name="lm_head",
     ),
-    "llama3-8b": _HF_model("meta-llama/Meta-Llama-3-8B", {'torch_dtype': torch.bfloat16}, lm_head_name="lm_head"),
-    "phi3-4b": _HF_model("microsoft/Phi-3-mini-4k-instruct", {'torch_dtype': torch.bfloat16}, lm_head_name="lm_head"),
+    "llama3-8b": _HF_model(
+        "meta-llama/Meta-Llama-3-8B",
+        {"torch_dtype": torch.bfloat16},
+        lm_head_name="lm_head",
+    ),
+    "phi3-4b": _HF_model(
+        "microsoft/Phi-3-mini-4k-instruct",
+        {"torch_dtype": torch.bfloat16},
+        lm_head_name="lm_head",
+    ),
 }
 hf_transformers_models = list(hf_transformers_models_map.keys())
 hf_transformers_models = prefix_in_pairs("memsave_", hf_transformers_models)
@@ -416,7 +434,8 @@ class TransformersModelWrapper(Module):
         super().__init__()
         with warnings.catch_warnings():
             # hf does not keep quiet sometimes even when transformers.logging is set to errors only
-            warnings.simplefilter('ignore') 
+            # https://github.com/huggingface/transformers/issues/30618
+            warnings.simplefilter("ignore")
             self.model = model_fn()
         self.dec = self.model.config.is_encoder_decoder
         self.model_name = model_name

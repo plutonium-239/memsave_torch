@@ -6,7 +6,7 @@ API Reference
    :caption: Available Modules
 
    nn/index
-   util/index
+   experiments/index
 
 .. automodule:: memsave_torch
    

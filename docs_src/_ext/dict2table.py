@@ -10,14 +10,24 @@ from sphinx.util.docutils import SphinxDirective
 from importlib import import_module
 from typing import Dict, List, Tuple
 
+
 def format_function(x):
-    if x.__name__ == '<lambda>':
+    if "functools.partial" in str(x.__class__):
+        return str(x)
+    if getattr(x, "__name__", None) == "<lambda>":
         return x
+    if "experiments.util.models._HF_model" in str(x.__class__):
+        classname = str(x.model_cls)[:-2].split(".")[-1]
+        link_to_hf = f"`{x.hf_name} <https://huggingface.co/{x.hf_name}>`_"
+        # return link_to_hf
+        return f":class:`{classname} <transformers.{classname}>` , {link_to_hf}"
+        # return f':class:`{classname}` ``.from_pretrained(`` ' + link_to_hf + ' ``)``'
     module = x.__module__
-    if module.startswith('torchvision'):
-        module = '.'.join(x.__module__.split('.')[:-1])
-    content =  module + "." + x.__name__ 
-    return f':func:`{content}`'
+    if module.startswith("torchvision"):
+        module = ".".join(x.__module__.split(".")[:-1])
+    content = module + "." + x.__name__
+    return f":func:`{content}`"
+
 
 class Dict2Table(SphinxDirective):
     has_content = True
@@ -26,6 +36,8 @@ class Dict2Table(SphinxDirective):
         "filter": directives.unchanged_required,
         "filter-out": directives.unchanged_required,
         "caption": directives.unchanged_required,
+        "headers": directives.unchanged_required,
+        "widths": directives.unchanged_required,
     }
 
     def run(self):
@@ -33,30 +45,34 @@ class Dict2Table(SphinxDirective):
         member_data = getattr(import_module(module_path), member_name)
         assert isinstance(member_data, dict)
         if "filter" in self.options:
-            member_data = {
-                k: v for k, v in member_data.items() if self.options.get("filter") in k
-            }
+            filter_in = self.options["filter"].split(",")
+            for k, v in member_data.copy().items():
+                if not any([f in k for f in filter_in]):
+                    del member_data[k]
+
         if "filter-out" in self.options:
-            member_data = {
-                k: v
-                for k, v in member_data.items()
-                if self.options.get("filter-out") not in k
-            }
+            filter_out = self.options["filter-out"].split(",")
+            for k, v in member_data.copy().items():
+                if any([f in k for f in filter_out]):
+                    del member_data[k]
 
         table_head = (
             f'.. csv-table:: {self.options.get("caption")}\n'
-            + '  :header: "Model Name", "Model Function"\n'
-            + "  :widths: 4, 6\n\n"
+            + f"  :header: {self.options.get('headers')} \n"
+            + f"  :widths: {self.options.get('widths')} \n"
+            + "\n"
         )
 
-        table_str = "\n".join([f'  "{k}", "{format_function(v)}"' for k, v in member_data.items()])
+        table_str = "\n".join(
+            [f'  ``"{k}"``, {format_function(v)}' for k, v in member_data.items()]
+        )
         table_str = table_head + table_str
-        columns = {"model_name": 4, "function": 6}
+        # columns = {"model_name": 4, "function": 6}
         # table, tablegroup = self._PrepareTable(member_data, )
 
         # import pdb; pdb.set_trace()
         main_node = nodes.paragraph()
-        self.state.nested_parse(StringList(table_str.split('\n')), 0, main_node)
+        self.state.nested_parse(StringList(table_str.split("\n")), 0, main_node)
 
         # return self.parse_rst(table_str)
 

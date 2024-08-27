@@ -11,3 +11,5 @@ shibuya
 sphinx-copybutton
 sphinxemoji
 sphinx-sitemap
+sphinx_contributors
+sphinx_docsearch

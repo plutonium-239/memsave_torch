@@ -1,5 +1,5 @@
-util |:warning:|
-===================
+experiments.util |:warning:|
+===============================
 
 A collection of scripts/utilities to measure the memory and time consumed during the forward and backward passes.
 
@@ -22,6 +22,7 @@ A collection of scripts/utilities to measure the memory and time consumed during
       :maxdepth: 3
       :caption: Utility classes and scripts
 
+      measurements
       collect_results
       estimate
       models

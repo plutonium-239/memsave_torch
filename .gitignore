@@ -7,4 +7,4 @@ torchview-output/
 
 # generated docs
 docs_src/_build/
-docs_src/api/nn/
+docs_src/api/nn/memsave_torch.nn*

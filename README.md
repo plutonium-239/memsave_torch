@@ -57,6 +57,10 @@ loss = loss_func(model(X), y)
   It is also available on [arXiv](https://arxiv.org/abs/2404.12406)
 
 - [Documentation](https://memsave-torch.readthedocs.io/)
+
+- [PyTorch repo issue](https://github.com/pytorch/pytorch/issues/133566)
+  
+  To integrate what our library does into pytorch itself, although at a lower kernel level (Please read [notes on pytorch integration](https://memsave-torch.readthedocs.io/en/stable/index.html#pytorch-integration-note)). 
 <!-- - [Link to more examples]()
 - [Link to paper/experiments folder]()-->
 

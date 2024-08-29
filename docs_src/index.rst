@@ -107,6 +107,20 @@ Further reading
    
    It is also available on `arXiv <https://arxiv.org/abs/2404.12406>`_.
 
+* `PyTorch repo issue <https://github.com/pytorch/pytorch/issues/133566>`_
+  
+   To integrate what our library does into pytorch itself, although at a lower kernel level (Please read :ref:`notes on pytorch inegration <pytorch_integration_note>` ). 
+
+.. _pytorch_integration_note:
+
+.. admonition:: Notes on PyTorch integration
+   :class: important
+
+   The ideal solution to this problem would be at the lower level (i.e. CPU C++ functions/GPU CUDA kernels etc.), involving a change in the function signature of ``torch.ops.aten.convolution_backward`` to handle not always having two tensors as input (i.e. the saved inputs and weights).
+
+   However, that would require a change in all the backends, which is not realistic for us to do and requires considerable design decisions from the pytorch team itself. So, we implement these layers at the higher python level, which makes it platform independent and easy(-ier) to maintain at the cost of a slight performance hit.
+
+
 How to cite
 *************
 

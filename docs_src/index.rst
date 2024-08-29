@@ -103,7 +103,7 @@ Further reading
 
    This explains the basic ideas around MemSave without diving into too many details.
 
-* `Our paper (WANT@ICML'24) <https://openreview.net/pdf?id=KsUUzxUK7N>`_
+* `Our paper (WANT@ICML'24) <https://openreview.net/pdf?id=KsUUzxUK7N>`_ and it's `Poster <https://github.com/plutonium-239/memsave_torch/blob/main/memsave_poster.pdf>`_
    
    It is also available on `arXiv <https://arxiv.org/abs/2404.12406>`_.
 

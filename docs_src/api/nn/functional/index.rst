@@ -12,13 +12,11 @@ This module contains the following members:
 * :func:`batch_normMemSave`
 * :func:`convMemSave`
 * :func:`dropoutMemSave`
-* :func:`linearMemSave`
 * :func:`maxpool2dMemSave`
 * :func:`reluMemSave`
 
 .. autofunction:: batch_normMemSave
 .. autofunction:: convMemSave
 .. autofunction:: dropoutMemSave
-.. autofunction:: linearMemSave
 .. autofunction:: maxpool2dMemSave
 .. autofunction:: reluMemSave

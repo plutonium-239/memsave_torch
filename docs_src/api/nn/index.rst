@@ -11,7 +11,6 @@ This module contains the following members:
 * :class:`MemSaveConvTranspose1d <memsave_torch.nn.MemSaveConvTranspose2d>`
 * :class:`MemSaveConvTranspose2d <memsave_torch.nn.MemSaveConvTranspose2d>`
 * :class:`MemSaveConvTranspose3d <memsave_torch.nn.MemSaveConvTranspose2d>`
-* :class:`MemSaveLinear <memsave_torch.nn.MemSaveLinear>`
 * :class:`MemSaveReLU <memsave_torch.nn.MemSaveReLU>`
 * :class:`MemSaveMaxPool2d <memsave_torch.nn.MemSaveMaxPool2d>`
 * :class:`MemSaveBatchNorm2d <memsave_torch.nn.MemSaveBatchNorm2d>`
@@ -41,7 +40,6 @@ Learnable Layers
    MemSaveConvTranspose1d
    MemSaveConvTranspose2d
    MemSaveConvTranspose3d
-   MemSaveLinear
 
 
 Activations and Pooling Layers

@@ -64,7 +64,7 @@ html_theme_options = {
     "github_url": "https://github.com/plutonium-239/memsave_torch",
     "og_image_url": "https://memsave-torch.readthedocs.io/_static/memsave_torch_logo_inv_text_256x256.png",
     "nav_links": [
-        {"title": "memsave_torch", "url": "/index"},
+        {"title": "memsave_torch", "url": "index"},
     ],
     "nav_links_align": "center",
 }

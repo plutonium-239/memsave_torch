@@ -26,21 +26,6 @@ class Case:
 
 cases = [
     Case(
-        name="Linear1dims",
-        layer_fn=lambda: torch.nn.Linear(3, 5),
-        data_fn=lambda: torch.rand(7, 3),
-    ),
-    Case(
-        name="Linear2dims",
-        layer_fn=lambda: torch.nn.Linear(3, 5),
-        data_fn=lambda: torch.rand(7, 12, 3),  # weight sharing
-    ),
-    Case(
-        name="Linear3dims",
-        layer_fn=lambda: torch.nn.Linear(3, 5),
-        data_fn=lambda: torch.rand(7, 12, 12, 3),  # weight sharing
-    ),
-    Case(
         name="Conv1d",
         layer_fn=lambda: torch.nn.Conv1d(3, 5, 3),
         data_fn=lambda: torch.rand(7, 3, 12),

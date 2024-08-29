@@ -10,6 +10,5 @@ These are not exported but can still be used as: `from memsave_torch.nn.function
 from memsave_torch.nn.functional.BatchNorm import batch_normMemSave  # noqa: F401
 from memsave_torch.nn.functional.Conv import convMemSave  # noqa: F401
 from memsave_torch.nn.functional.Dropout import dropoutMemSave  # noqa: F401
-from memsave_torch.nn.functional.Linear import linearMemSave  # noqa: F401
 from memsave_torch.nn.functional.MaxPool import maxpool2dMemSave  # noqa: F401
 from memsave_torch.nn.functional.ReLU import reluMemSave  # noqa: F401

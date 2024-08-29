@@ -31,7 +31,6 @@ from transformers import Conv1D
 
 from memsave_torch.nn.BatchNorm import MemSaveBatchNorm2d
 from memsave_torch.nn.Conv2d import MemSaveConv2d
-from memsave_torch.nn.Linear import MemSaveLinear
 
 
 def maybe_synchronize(dev: device):
@@ -301,7 +300,7 @@ def separate_grad_arguments(
     Raises:
         NotImplementedError: If an unknown layer with parameters is encountered.
     """
-    linear = (Linear, MemSaveLinear, Conv1D)
+    linear = (Linear, Conv1D)
     conv = (
         Conv1d,
         Conv2d,

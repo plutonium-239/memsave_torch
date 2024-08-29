@@ -6,8 +6,6 @@ Currently implemented:
 - BatchNorm2d
 """
 
-import sys
-
 import torch.nn as nn
 
 from memsave_torch.nn import functional  # noqa: F401
@@ -19,20 +17,13 @@ from memsave_torch.nn.ConvTranspose1d import MemSaveConvTranspose1d
 from memsave_torch.nn.ConvTranspose2d import MemSaveConvTranspose2d
 from memsave_torch.nn.ConvTranspose3d import MemSaveConvTranspose3d
 from memsave_torch.nn.Dropout import MemSaveDropout
-from memsave_torch.nn.Linear import MemSaveLinear
 from memsave_torch.nn.MaxPool import MemSaveMaxPool2d
 from memsave_torch.nn.ReLU import MemSaveReLU
-
-transformers_imported = False
-if "transformers" in sys.modules:
-    import transformers
-
-    transformers_imported = True
 
 
 def convert_to_memory_saving(
     model: nn.Module,
-    linear=True,
+    *,
     conv2d=True,
     conv1d=True,
     conv3d=True,
@@ -51,7 +42,6 @@ def convert_to_memory_saving(
 
     Args:
         model (nn.Module): The input model
-        linear (bool, optional): Whether to replace `nn.Linear` layers
         conv2d (bool, optional): Whether to replace `nn.Conv2d` layers
         conv1d (bool, optional): Whether to replace `nn.Conv1d` layers
         conv3d (bool, optional): Whether to replace `nn.Conv3d` layers
@@ -65,15 +55,7 @@ def convert_to_memory_saving(
     Returns:
         memsavemodel (nn.Module): The converted memory saving model
     """
-    linear_cls = nn.Linear
-    if transformers_imported:
-        linear_cls = (nn.Linear, transformers.Conv1D)
     layers = [
-        {
-            "allowed": linear,
-            "cls": linear_cls,
-            "convert_fn": MemSaveLinear.from_nn_Linear,
-        },
         {"allowed": relu, "cls": nn.ReLU, "convert_fn": MemSaveReLU.from_nn_ReLU},
         {
             "allowed": maxpool2d,

@@ -41,12 +41,11 @@ They are as fast as their built-in equivalents, but more memory-efficient whenev
 * :class:`memsave_torch.nn.MemSaveConv1d`
 * :class:`memsave_torch.nn.MemSaveConv2d`
 * :class:`memsave_torch.nn.MemSaveConv3d`
-* :class:`memsave_torch.nn.MemSaveLinear`
 * :class:`memsave_torch.nn.MemSaveReLU`
+* :class:`memsave_torch.nn.MemSaveMaxPool2d`
 * :class:`memsave_torch.nn.MemSaveConvTranspose1d`
 * :class:`memsave_torch.nn.MemSaveConvTranspose2d`
 * :class:`memsave_torch.nn.MemSaveConvTranspose3d`
-* :class:`memsave_torch.nn.MemSaveMaxPool2d`
 * :class:`memsave_torch.nn.MemSaveBatchNorm2d`
 
 .. raw:: html

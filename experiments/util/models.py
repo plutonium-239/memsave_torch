@@ -34,8 +34,6 @@ from transformers import utils as tf_utils
 
 from memsave_torch.nn import (
     MemSaveBatchNorm2d,
-    MemSaveConv2d,
-    MemSaveLinear,
     convert_to_memory_saving,
 )
 
@@ -64,38 +62,38 @@ def prefix_in_pairs(prefix: str, it: List[str]) -> List[str]:
 
 def convert_to_memory_saving_defaultsoff(
     model: Module,
-    linear=False,
     conv2d=False,
     conv1d=False,
+    conv3d=False,
     batchnorm2d=False,
     relu=False,
     maxpool2d=False,
-    layernorm=False,
+    dropout=False,
 ) -> Module:
     """Extension of the `convert_to_memory_saving` function with all defaults as off
 
     Args:
         model (Module): Input model
-        linear (bool, optional): Whether to replace linear layers
         conv2d (bool, optional): Whether to replace conv2d layers
         conv1d (bool, optional): Whether to replace conv1d layers
+        conv3d (bool, optional): Whether to replace conv3d layers
         batchnorm2d (bool, optional): Whether to replace batchnorm2d layers
         relu (bool, optional): Whether to replace relu layers
         maxpool2d (bool, optional): Whether to replace maxpool2d layers
-        layernorm (bool, optional): Whether to replace layernorm layers
+        dropout (bool, optional): Whether to replace dropout layers
 
     Returns:
         Module: The converted memory saving model
     """
     return convert_to_memory_saving(
         model,
-        linear=linear,
         conv2d=conv2d,
         conv1d=conv1d,
+        conv3d=conv3d,
         batchnorm2d=batchnorm2d,
         relu=relu,
         maxpool2d=maxpool2d,
-        layernorm=layernorm,
+        dropout=dropout,
     )
 
 
@@ -167,21 +165,6 @@ def _conv_model1() -> Module:
     )  # (H/8)*(W/8)*64 (filters) -> / 8 because maxpool
 
 
-def _conv_model2() -> Module:
-    return Sequential(
-        MemSaveConv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
-        MaxPool2d(kernel_size=3, stride=2, padding=1),
-        ReLU(),
-        *[
-            MemSaveConv2d(64, 64, kernel_size=3, padding=1, bias=False)
-            for _ in range(10)
-        ],
-        MaxPool2d(kernel_size=4, stride=4, padding=1),
-        Flatten(start_dim=1, end_dim=-1),
-        MemSaveLinear(conv_input_shape[1] * conv_input_shape[2], num_classes),
-    )
-
-
 def _convrelu_model1() -> Module:
     return Sequential(
         Conv2d(conv_input_shape[0], 64, kernel_size=3, padding=1, bias=False),
@@ -242,7 +225,7 @@ models_without_norm = prefix_in_pairs("memsave_", models_without_norm)
 
 conv_model_fns = {
     "deepmodel": _conv_model1,
-    "memsave_deepmodel": _conv_model2,
+    "memsave_deepmodel": lambda: convert_to_memory_saving(_conv_model1()),
     "deeprelumodel": _convrelu_model1,
     "memsave_deeprelumodel": lambda: convert_to_memory_saving(_convrelu_model1()),
     "deeprelupoolmodel": _convrelupool_model1,
@@ -563,15 +546,8 @@ def _linear_model1() -> Module:
     )
 
 
-def _linear_model2() -> Module:
-    return Sequential(
-        MemSaveLinear(linear_input_shape, 1024),
-        *[MemSaveLinear(1024, 1024) for _ in range(12)],
-        MemSaveLinear(1024, num_classes),
-    )
-
-
 linear_model_fns = {
     "deeplinearmodel": _linear_model1,
-    "memsave_deeplinearmodel": _linear_model2,
+    # Doesn't do anything, just kept for consistency:
+    "memsave_deeplinearmodel": lambda: convert_to_memory_saving(_linear_model1()),
 }
